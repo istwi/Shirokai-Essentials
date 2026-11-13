@@ -1,0 +1,1 @@
+54f8b6dab1f15a12c9017dca0e648d0713f440c91167a8d6ab94edc1c18f2481  shirokai-essentials-0.2.2.jar
