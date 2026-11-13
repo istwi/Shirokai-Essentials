@@ -1,0 +1,48 @@
+plugins { id 'fabric-loom' version '1.9.2' }
+version = '0.2.2'
+group = 'dev.shirokai'
+base { archivesName = 'shirokai-essentials' }
+repositories { mavenCentral() }
+dependencies {
+    minecraft 'com.mojang:minecraft:1.21.1'
+    mappings 'net.fabricmc:yarn:1.21.1+build.3:v2'
+    modImplementation 'net.fabricmc:fabric-loader:0.16.14'
+    modImplementation 'net.fabricmc.fabric-api:fabric-api:0.116.7+1.21.1'
+    compileOnly 'net.luckperms:api:5.4'
+    testImplementation 'net.luckperms:api:5.4'
+    for (String library : ['adventure-api:4.17.0', 'adventure-key:4.17.0', 'adventure-text-minimessage:4.17.0', 'adventure-text-serializer-gson:4.17.0', 'adventure-text-serializer-json:4.17.0', 'examination-api:1.3.0', 'examination-string:1.3.0', 'option:1.0.0']) { include(implementation('net.kyori:' + library)) }
+    testImplementation platform('org.junit:junit-bom:5.11.4')
+    testImplementation 'org.junit.jupiter:junit-jupiter'
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+}
+java { toolchain.languageVersion = JavaLanguageVersion.of(21); withSourcesJar() }
+tasks.withType(JavaCompile).configureEach { options.release = 21; options.encoding = 'UTF-8' }
+processResources { inputs.property 'version', project.version; filesMatching('fabric.mod.json') { expand version: project.version } }
+test { useJUnitPlatform() }
+loom { runs { server { server(); runDir providers.gradleProperty('serverRunDir').getOrElse('run') } } }
+tasks.register('generateExampleConfig', JavaExec) {
+    dependsOn classes
+    classpath = sourceSets.main.runtimeClasspath
+    mainClass = 'dev.shirokai.essentials.config.ConfigGenerator'
+    args providers.gradleProperty('exampleDir').getOrElse('examples/config/shirokai-essentials')
+}
+
+// Server-only integration fixture. Never included in the distributable mod.
+sourceSets {
+    battleFixture {
+        compileClasspath += sourceSets.main.compileClasspath + sourceSets.main.output
+        runtimeClasspath += sourceSets.main.runtimeClasspath
+    }
+}
+tasks.register('battleFixtureJar', Jar) {
+    dependsOn battleFixtureClasses
+    archiveBaseName = 'shirokai-battle-fixture'
+    archiveClassifier = 'dev'
+    from sourceSets.battleFixture.output
+}
+tasks.register('remapBattleFixtureJar', net.fabricmc.loom.task.RemapJarTask) {
+    dependsOn battleFixtureJar
+    inputFile = tasks.battleFixtureJar.archiveFile
+    archiveBaseName = 'shirokai-battle-fixture'
+    archiveClassifier = ''
+}

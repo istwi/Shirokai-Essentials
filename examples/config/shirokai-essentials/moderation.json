@@ -1,0 +1,21 @@
+{
+  "schemaVersion": 1,
+  "warningLimit": 100,
+  "maxReasonLength": 256,
+  "manageVanillaBans": false,
+  "enforceCommandMute": true,
+  "mutedCommandRoots": [
+    "msg",
+    "tell",
+    "w",
+    "whisper",
+    "me",
+    "say"
+  ],
+  "jailRadius": 4.0,
+  "ranks": {
+    "moderator": 50,
+    "admin": 100,
+    "helper": 10
+  }
+}

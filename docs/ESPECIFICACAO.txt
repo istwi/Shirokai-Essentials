@@ -1,0 +1,149 @@
+# PROMPT COMPLETO PARA CODEX — SHIROKAI ESSENTIALS
+
+Você é responsável por implementar um mod Fabric real e funcional chamado Shirokai Essentials, inspirado na cobertura funcional do EssentialsX, para o servidor Shirokai. Trabalhe no repositório aberto, investigue sua estrutura antes de alterar arquivos, implemente em fases verificáveis e nunca declare algo concluído sem compilar e testar.
+
+## 1. PLATAFORMA E OBJETIVO
+- Minecraft Java Edition 1.21.1; Fabric Loader; Java 21; Gradle + Fabric Loom.
+- Mod ID: shirokai_essentials; pacote-base: dev.shirokai.essentials.
+- Dedicado, 100% server-side: clientes não instalam o mod.
+- Servidor usa Cobblemon 1.8.3, LuckPerms, Multiworld, Impactor e outros mods com comandos próprios.
+- Implementar equivalentes úteis aos recursos do EssentialsX, não depender de Bukkit/Paper/Spigot/Vault.
+- Referências funcionais: https://essentialsx.net/ ; https://essentialsx.net/wiki/ ; https://github.com/EssentialsX/Essentials . Verificar versões e APIs efetivas antes de programar; respeitar licenças e não copiar código incompatível.
+- Priorizar compatibilidade, persistência segura, proteção de dados e desempenho. Implementar por fases, não entregar comandos falsos/stubs como concluídos.
+
+## 2. ARQUITETURA
+Separar módulos: core/config, permissions, commands, conflicts, teleport, homes, warps, spawn, chat, moderation, administration, utilities, kits, economy, persistence, migrations e integrations. Cada módulo define suas dependências, comandos, aliases, listeners, tarefas e opções de ativação. Usar interfaces e serviços internos para evitar acoplamento. Não carregar integrações opcionais quando mods correspondentes estiverem ausentes. Preferir APIs públicas; não usar mixins frágeis sem justificativa e testes.
+
+## 3. CONTROLE INDIVIDUAL DE TUDO (OBRIGATÓRIO)
+Permitir habilitar/desabilitar por JSON: (a) módulo completo, (b) cada funcionalidade, (c) cada comando e cada alias. Uma função desligada não executa eventos, timers nem ações; um comando desligado não executa, não aparece no TAB e não deixa bypass por alias/subcomando. Desligar nunca apaga dados existentes. Exemplo: MOTD automático e comando /motd são flags independentes; AFK automático e /afk também. /shirokaiessentials reload deve recarregar somente o que pode ser alterado com segurança; registro estrutural de Brigadier pode exigir reinício, com aviso explícito. Verificar dependências entre recursos e mostrar mensagens claras para opções inválidas.
+
+Exemplo de config/shirokai-essentials/modules.json:
+{
+  "modules": {
+    "teleport": true, "homes": true, "warps": true, "spawn": true,
+    "chat": true, "economy": false, "kits": false,
+    "moderation": true, "administration": true, "utilities": true
+  },
+  "features": {
+    "motd_auto": false, "afk_auto": false, "join_messages": false,
+    "quit_messages": false, "death_messages": false,
+    "first_join_messages": true, "private_messages": true,
+    "nicknames": false, "vanish": false, "god_mode": false,
+    "fly": true, "teleport_warmup": true, "teleport_cooldown": true,
+    "teleport_safety": true, "home_limits": true, "kit_cooldowns": true
+  }
+}
+
+Exemplo de config/shirokai-essentials/commands.json:
+{
+  "commands": {
+    "home": {"enabled": true, "aliases": ["casa"]},
+    "sethome": {"enabled": true, "aliases": []},
+    "tpa": {"enabled": true, "aliases": []},
+    "motd": {"enabled": false, "aliases": []},
+    "afk": {"enabled": false, "aliases": []},
+    "kit": {"enabled": false, "aliases": []},
+    "fly": {"enabled": true, "aliases": ["voar"]}
+  }
+}
+
+## 4. DETECÇÃO E PREVENÇÃO DE CONFLITOS (OBRIGATÓRIO)
+O servidor pode conter Essential Commands, mods de kits, economia, spawn, comandos e outros. Nunca sobrescrever comandos de terceiros silenciosamente. Detectar colisões de raízes, aliases, subcomandos e integrações conhecidas, incluindo diferenças de ordem de registro no Fabric. Inspecionar Brigadier com cautela; não remover nós de outros mods nem alterar configurações deles. Auditar após o registro, documentar limites da detecção (nem todo conflito pode ser impedido automaticamente), registrar relatório e sugerir reinício quando necessário. A política padrão deve preservar comandos já existentes.
+
+Exemplo de config/shirokai-essentials/conflicts.json:
+{
+  "conflictDetection": {
+    "enabled": true, "scanOnStartup": true, "logConflicts": true,
+    "preventCommandOverride": true, "checkAliases": true,
+    "checkSubcommands": true, "checkModDependencies": true
+  },
+  "defaultPolicy": "DISABLE_OWN_COMMAND",
+  "commands": {
+    "home": "DISABLE_OWN_COMMAND", "warp": "DISABLE_OWN_COMMAND",
+    "kit": "DISABLE_OWN_COMMAND", "balance": "DISABLE_OWN_COMMAND",
+    "spawn": "DISABLE_OWN_COMMAND", "tpa": "DISABLE_OWN_COMMAND"
+  }
+}
+
+Políticas: DISABLE_OWN_COMMAND (não registrar o comando próprio em colisão), USE_ALTERNATIVE_ALIAS (somente alias disponível e explicitamente configurado), FAIL_MODULE (desativar módulo), FAIL_STARTUP (erro crítico com explicação). Não tentar prometer que conflitos descobertos após registro serão resolvidos removendo comandos de outros mods. Criar /shirokaiessentials conflicts e /shirokaiessentials conflicts report para diagnóstico. Incluir testes de colisão com mods reais quando disponíveis.
+
+## 5. TELEPORTES
+Implementar, quando habilitados: /tpa, /tpahere, /tpaccept, /tpdeny, /tpacancel, /tp, /tphere, /tpall, /tppos, /back, /top, /jump, /near e /rtp. Pedidos expiram, podem ser recusados, bloqueados e limitados; cooldown e warmup opcionais, cancelamento ao movimento/dano configurável, segurança do destino, checagem de chunk/dimensão, permissões, custos opcionais via economia, proteção contra teleportes em locais perigosos. /back deve registrar posição anterior a teleportes e, se habilitado, morte, com controle de retenção e sem sobrescrever posições inválidas. /rtp precisa de limites de mundo, borda, tentativas e carga assíncrona segura quando aplicável.
+
+## 6. HOMES
+/home, /homes, /sethome, /delhome, /renamehome. Armazenar UUID, nome, dimension ID completo, x/y/z, yaw/pitch, data. Limites por permissões/grupos LuckPerms, com prioridade definida e fallback seguro; home padrão, múltiplas homes, cooldown/custo opcional, restrições por mundo, tratamento de dimensões removidas. Sem perda de dados quando módulo desativado.
+
+## 7. SPAWN E WARPS
+/spawn, /setspawn, /warp, /warps, /setwarp, /delwarp. Spawn global e por mundo (configurável), primeiro acesso, spawn na morte opcional, warps com permissão individual, públicos/privados, custos e cooldowns opcionais, dimensões do Multiworld, posição e orientação. Não assumir namespace minecraft para mundos customizados.
+
+## 8. CHAT E INFORMAÇÕES
+/msg, /tell, /whisper, /r, /reply, /ignore, /unignore, /mail, /socialspy, /msgtoggle, /broadcast, /me, /afk, /nick, /realname, /help, /rules, /motd, /info, /list, /seen, /whois. Mensagens privadas com respostas, ignore persistente, correio offline, AFK manual e automático independentes, nicknames com sanitização, prefixos LuckPerms sem conceder permissões extras, MOTD automático e comando /motd separáveis, mensagens de entrada/saída/morte configuráveis. Compatibilidade com mods de chat existentes: não substituir eventos nem formatadores sem opção explícita.
+
+## 9. UTILIDADES E ADMINISTRAÇÃO
+/fly, /god, /heal, /feed, /speed, /invsee, /enderchest, /workbench, /anvil, /repair, /hat, /clearinventory, /sudo, /top, /jump, /near, /ping, /gc, /time, /weather. Comandos que agem em outros jogadores precisam de permissões separadas; logs de auditoria; nunca permitir /sudo ou similares executar comandos privilegiados sem controle robusto. Definir comportamento para jogador offline e console. Modos fly/god persistentes opcionais e restauração segura ao entrar.
+
+## 10. MODERAÇÃO
+/kick, /ban, /tempban, /unban, /mute, /tempmute, /unmute, /warn, /warnings, /clearwarnings, /jail, /unjail, /freeze. UUID como identidade primária, razões e duração, registros persistentes, ações offline quando aplicáveis, auditoria, hierarquia de permissões, respeito a sistemas de punição já instalados. Não duplicar punições ou interceptar sistemas de outros mods sem configuração explícita.
+
+## 11. KITS
+/kit, /kits, /createkit, /delkit, /showkit, /resetkit. Kits em JSON versionado com itens e data components da versão 1.21.1, cooldown, permissão, custo opcional, primeiro acesso, comandos de recompensa estritamente administrativos, validação de inventário e entrega sem duplicação. Considerar integração/conflito com SkiesKits ou outros sistemas existentes; padrão desativado se já houver módulo de kits em uso.
+
+## 12. ECONOMIA
+/balance, /bal, /money, /pay, /baltop, /eco somente quando o módulo estiver ativado. NÃO criar economia paralela. Integrar por API validada do Impactor, usando inicialmente currency impactor:dollars; PokéTokens impactor:tokens e Cash não devem ser misturados ou convertidos automaticamente. Operações atômicas quando suportadas, validação de saldo, valores e autorização; evitar duplicação, negativos e inconsistências. Se API não permitir transações seguras, registrar limitação e não expor funcionalidade insegura. Verificar versão instalada da API antes de implementar.
+
+## 13. LUCKPERMS
+Todas as ações verificadas no servidor, com nós como shirokai.essentials.home, shirokai.essentials.sethome, shirokai.essentials.home.multiple.vip, shirokai.essentials.tpa, shirokai.essentials.spawn, shirokai.essentials.warp, shirokai.essentials.fly, shirokai.essentials.admin, shirokai.essentials.reload. Permissões por comando, subcomando, ações sobre terceiros, bypass de cooldown e limites. Definir defaults seguros; não conceder privilégios só por ser OP se configuração exigir LuckPerms. Verificar APIs e dependências reais.
+
+## 14. ARQUIVOS E DADOS
+Criar em config/shirokai-essentials/: config.json, modules.json, commands.json, conflicts.json, permissions.json, messages.json, teleport.json, homes.json, warps.json, spawn.json, kits.json, economy.json, moderation.json. Separar arquivos de configuração de dados persistentes de jogadores, preferencialmente em diretório de dados do mundo/servidor claramente documentado. Criar versionamento de schema, migração segura, validação, backups, escrita atômica, prevenção de corrupção, logs úteis e tratamento de falhas.
+
+## 15. PADRÃO VISUAL SHIROKAI
+Mensagens em português brasileiro, curtas e claras, prefixo '✦ SHIROKAI', branco/cinza com azul e ciano. Mensagens de erro em vermelho discreto. Suportar MiniMessage onde tecnicamente aplicável, com sanitização de conteúdo de jogadores. Todas as mensagens configuráveis; placeholders de jogador, tempo, custo, mundo e destino. Não aplicar formatação que interfira em outros mods de chat sem autorização.
+
+## 16. MULTIWORLD E COBBLEMON
+Persistir identificador completo de dimensão e coordenadas/orientação; validar mundo carregado, chunk, borda e destino seguro. Funcionar em mundos adicionais como spawn e modserver sem assumir nomes exatos. Não interferir em batalhas Cobblemon, armazenamento de Pokémon, NPCs ou entidades especiais; evitar teleporte durante estados incompatíveis quando a API permitir identificar com segurança. Testar em servidor dedicado com Cobblemon 1.8.3.
+
+## 17. MIGRAÇÃO DO ESSENTIAL COMMANDS
+Criar importador opcional para homes/warps/spawn apenas após identificar a versão e formato real dos dados. Modo dry-run, relatório de conflitos, backup prévio, preservação dos originais, tratamento de nomes repetidos e IDs de dimensões. Nunca excluir dados do mod antigo nem afirmar migração concluída sem validação.
+
+## 18. RELOAD E COMANDOS ADMINISTRATIVOS
+/shirokaiessentials status — módulos ativos, integrações e dependências.
+/shirokaiessentials reload — recarregar apenas opções dinâmicas seguras.
+/shirokaiessentials conflicts — colisões detectadas.
+/shirokaiessentials conflicts report — gerar arquivo de diagnóstico.
+/shirokaiessentials version — versão do mod.
+Permissões administrativas separadas e logs. Para alterações de registro Brigadier, instruir reinício em vez de reconstruir árvore de forma insegura.
+
+## 19. TESTES E SEGURANÇA
+- Testes de comando habilitado/desabilitado e aliases (jogador normal, OP e console).
+- Testes de colisões com outros mods, inclusive ordem de registro e aliases.
+- Testes de homes/warps entre dimensões e de mundo inexistente.
+- Testes de persistência após reinício e falha de gravação.
+- Testes de teleporte seguro, warmup, cooldown e solicitações expiradas.
+- Testes de permissões LuckPerms e escalonamento de privilégios.
+- Testes de economia e entrega de kits contra duplicação.
+- Verificar ausência de processamento pesado por tick, uso correto da thread do servidor e tarefas canceladas ao desabilitar módulos.
+- Testes de servidor dedicado sem mod cliente.
+- Não usar hacks de Brigadier ou manipulações invasivas de outros mods.
+
+## 20. PLANO DE IMPLEMENTAÇÃO E ENTREGAS
+Fase 1: projeto compilável, configuração, permissões, serviços, persistência, módulos, comandos e sistema de conflitos.
+Fase 2: spawn, homes, warps, TPA, teleportes e /back.
+Fase 3: mensagens privadas, AFK, MOTD, nicknames, help e informações.
+Fase 4: administração e moderação.
+Fase 5: kits e economia Impactor.
+Fase 6: recursos restantes do EssentialsX, migração, integração e auditoria.
+
+Em cada fase: inspecionar repositório, implementar código real, executar build Java 21, executar testes, corrigir erros, documentar o que funciona e o que falta, gerar JAR e disponibilizar artifact/release quando a infraestrutura e permissões do repositório permitirem. Não inventar resultado de testes. Se uma API não for acessível, explicar o bloqueio e propor uma alternativa concreta. Não substituir código funcional por placeholders. Não criar arquivos de release vazios.
+
+## 21. CRITÉRIOS DE ACEITE
+1. O servidor inicia com Fabric 1.21.1 e Java 21 sem exigir instalação cliente.
+2. Cada módulo, funcionalidade, comando e alias pode ser desativado com efeito real.
+3. MOTD e AFK são independentes de seus respectivos comandos.
+4. Comandos de terceiros são preservados por padrão, com relatório de conflitos.
+5. Dados de jogadores sobrevivem a reinício e desativação de módulos.
+6. Integrações LuckPerms, Multiworld e Impactor são testadas nas versões efetivamente utilizadas.
+7. Comandos desativados não funcionam nem aparecem em sugestões; exceções técnicas documentadas.
+8. Há código-fonte, build reproduzível, JAR, exemplos de JSON, README PT-BR, tabela de comandos/permissões e relatório de testes.
+
+COMECE AGORA: audite o repositório e as dependências disponíveis; descreva arquitetura e plano de arquivos; implemente Fase 1 e Fase 2 com código real e testes; reporte exatamente o que foi compilado e validado. Continue as demais fases conforme o progresso, sem afirmar que a cobertura total do EssentialsX já existe antes de implementá-la.

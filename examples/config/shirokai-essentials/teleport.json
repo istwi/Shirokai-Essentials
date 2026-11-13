@@ -1,0 +1,19 @@
+{
+  "schemaVersion": 1,
+  "warmupSeconds": 3,
+  "cooldownSeconds": 10,
+  "requestExpirySeconds": 60,
+  "maxPendingRequests": 3,
+  "maxPendingTeleports": 128,
+  "cancelOnMovement": true,
+  "cancelOnDamage": true,
+  "movementTolerance": 0.15,
+  "backRetentionSeconds": 86400,
+  "rtpRadius": 1000,
+  "rtpAttempts": 16,
+  "rtpMinRadius": 100,
+  "blockedWorlds": [],
+  "rejectUnloadedChunks": true,
+  "asyncChunkLoading": false,
+  "asyncTimeoutSeconds": 15
+}

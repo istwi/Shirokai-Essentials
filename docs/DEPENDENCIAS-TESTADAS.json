@@ -1,0 +1,33 @@
+{
+  "dependencies": [
+    {
+      "file": "Multiworld-Fabric-1.14.2-bundle.jar",
+      "id": "multiworld-bundle",
+      "version": "1.14.2",
+      "sha256": "9b247221d29cb313a6c6e675e2ff571a64b9b3fd5dc4f979493f30e27ceebab9",
+      "download": "https://cdn.modrinth.com/data/fgvoNDL1/versions/OwgBsqTu/Multiworld-Fabric-bundle.jar"
+    },
+    {
+      "file": "Impactor-Fabric-5.3.5+1.21.1.jar",
+      "id": "impactor",
+      "version": "5.3.5+1.21.1",
+      "sha256": "02312d1b101e67f9d2a0476ad6aafabb0b4cabab787f85ecf871ffce8d59f8a9",
+      "download": "https://cdn.modrinth.com/data/LdBYVaPS/versions/KwNU9SQW/Impactor-Fabric-5.3.5%2B1.21.1.jar"
+    },
+    {
+      "file": "LuckPerms-Fabric-5.4.140.jar",
+      "id": "luckperms",
+      "version": "5.4.140",
+      "sha256": "3e17d490f87761c174478f68860367610a473ff5c2a9a9daad608773bf0e81bc",
+      "download": "https://cdn.modrinth.com/data/Vebnzrzj/versions/l47d4ZWk/LuckPerms-Fabric-5.4.140.jar"
+    },
+    {
+      "file": "Cobblemon-fabric-1.8.3+1.21.1.jar",
+      "id": "cobblemon",
+      "version": "1.8.3+1.21.1",
+      "sha256": "a977e741eec047ebc50559812be9b3296c9090254a632006f1c8b10ed1f7f40c",
+      "download": "https://cdn.modrinth.com/data/MdwFAVRL/versions/IgUZQKm8/Cobblemon-fabric-1.8.3%2B1.21.1.jar"
+    }
+  ],
+  "note": "JARs oficiais do CDN, usados somente em testes locais; não são redistribuídos neste projeto."
+}

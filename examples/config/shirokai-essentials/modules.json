@@ -1,0 +1,43 @@
+{
+  "schemaVersion": 1,
+  "modules": {
+    "teleport": true,
+    "homes": true,
+    "warps": true,
+    "spawn": true,
+    "chat": false,
+    "kits": false,
+    "moderation": false,
+    "administration": false,
+    "utilities": false
+  },
+  "features": {
+    "teleport_warmup": true,
+    "teleport_cooldown": true,
+    "teleport_safety": true,
+    "home_limits": true,
+    "tpa_requests": true,
+    "back_history": true,
+    "back_on_death": false,
+    "first_join_spawn": false,
+    "respawn_at_spawn": false,
+    "motd_auto": false,
+    "afk_auto": false,
+    "join_messages": false,
+    "quit_messages": false,
+    "death_messages": false,
+    "private_messages": true,
+    "mail": true,
+    "socialspy": true,
+    "afk_manual": true,
+    "kit_cooldowns": true,
+    "moderation_chat": true,
+    "moderation_freeze": true,
+    "moderation_jail": true,
+    "moderation_warnings": true,
+    "fly": true,
+    "god_mode": false,
+    "nicknames": false,
+    "first_join_messages": false
+  }
+}

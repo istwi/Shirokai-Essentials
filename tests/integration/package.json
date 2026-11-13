@@ -1,0 +1,1 @@
+{"private":true,"description":"Clientes vanilla simulados para testes locais do servidor dedicado","dependencies":{"minecraft-protocol":"1.68.0"},"scripts":{"test":"node server.cjs"}}

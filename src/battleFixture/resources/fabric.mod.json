@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 1,
+  "id": "shirokai_battle_fixture",
+  "version": "1.0.0",
+  "name": "Shirokai battle test fixture (DO NOT INSTALL)",
+  "environment": "server",
+  "entrypoints": {"server": ["dev.shirokai.test.BattleFixture"]},
+  "depends": {"cobblemon": "1.8.3+1.21.1", "fabric-api": "*"}
+}

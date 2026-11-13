@@ -1,0 +1,12 @@
+{
+  "schemaVersion": 1,
+  "enabled": true,
+  "scanOnStartup": true,
+  "logConflicts": true,
+  "preventCommandOverride": true,
+  "checkAliases": true,
+  "checkSubcommands": true,
+  "checkModDependencies": true,
+  "defaultPolicy": "DISABLE_OWN_COMMAND",
+  "commands": {}
+}

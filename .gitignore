@@ -1,0 +1,10 @@
+.gradle/
+build/
+run/
+*.log
+.idea/
+
+node_modules/
+
+logs/
+.fabric/

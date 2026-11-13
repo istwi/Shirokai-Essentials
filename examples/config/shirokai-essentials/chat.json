@@ -1,0 +1,21 @@
+{
+  "schemaVersion": 1,
+  "maxMessageLength": 256,
+  "mailboxLimit": 100,
+  "mailCooldownSeconds": 10,
+  "afkSeconds": 300,
+  "formatPublicChat": false,
+  "timeZone": "America/Sao_Paulo",
+  "motd": [
+    "Bem-vindo ao Shirokai, {player}!"
+  ],
+  "rules": [
+    "Respeite os jogadores e a equipe."
+  ],
+  "info": [
+    "Servidor Shirokai — divirta-se!"
+  ],
+  "help": [
+    "Use /homes, /warps e /spawn para consultar destinos."
+  ]
+}

@@ -1,0 +1,457 @@
+{
+  "schemaVersion": 1,
+  "commands": {
+    "tpa": {
+      "enabled": true,
+      "aliases": [],
+      "aliasEnabled": {}
+    },
+    "tpahere": {
+      "enabled": true,
+      "aliases": [],
+      "aliasEnabled": {}
+    },
+    "tpaccept": {
+      "enabled": true,
+      "aliases": [],
+      "aliasEnabled": {}
+    },
+    "tpdeny": {
+      "enabled": true,
+      "aliases": [],
+      "aliasEnabled": {}
+    },
+    "tpacancel": {
+      "enabled": true,
+      "aliases": [],
+      "aliasEnabled": {}
+    },
+    "tpatoggle": {
+      "enabled": true,
+      "aliases": [],
+      "aliasEnabled": {}
+    },
+    "back": {
+      "enabled": true,
+      "aliases": [],
+      "aliasEnabled": {}
+    },
+    "tp": {
+      "enabled": true,
+      "aliases": [],
+      "aliasEnabled": {}
+    },
+    "tphere": {
+      "enabled": true,
+      "aliases": [],
+      "aliasEnabled": {}
+    },
+    "tpall": {
+      "enabled": true,
+      "aliases": [],
+      "aliasEnabled": {}
+    },
+    "tppos": {
+      "enabled": true,
+      "aliases": [],
+      "aliasEnabled": {}
+    },
+    "top": {
+      "enabled": true,
+      "aliases": [],
+      "aliasEnabled": {}
+    },
+    "jump": {
+      "enabled": true,
+      "aliases": [],
+      "aliasEnabled": {}
+    },
+    "near": {
+      "enabled": true,
+      "aliases": [],
+      "aliasEnabled": {}
+    },
+    "rtp": {
+      "enabled": true,
+      "aliases": [],
+      "aliasEnabled": {}
+    },
+    "home": {
+      "enabled": true,
+      "aliases": [],
+      "aliasEnabled": {}
+    },
+    "homes": {
+      "enabled": true,
+      "aliases": [],
+      "aliasEnabled": {}
+    },
+    "sethome": {
+      "enabled": true,
+      "aliases": [],
+      "aliasEnabled": {}
+    },
+    "delhome": {
+      "enabled": true,
+      "aliases": [],
+      "aliasEnabled": {}
+    },
+    "renamehome": {
+      "enabled": true,
+      "aliases": [],
+      "aliasEnabled": {}
+    },
+    "warp": {
+      "enabled": true,
+      "aliases": [],
+      "aliasEnabled": {}
+    },
+    "warps": {
+      "enabled": true,
+      "aliases": [],
+      "aliasEnabled": {}
+    },
+    "setwarp": {
+      "enabled": true,
+      "aliases": [],
+      "aliasEnabled": {}
+    },
+    "delwarp": {
+      "enabled": true,
+      "aliases": [],
+      "aliasEnabled": {}
+    },
+    "spawn": {
+      "enabled": true,
+      "aliases": [],
+      "aliasEnabled": {}
+    },
+    "setspawn": {
+      "enabled": true,
+      "aliases": [],
+      "aliasEnabled": {}
+    },
+    "msg": {
+      "enabled": true,
+      "aliases": [],
+      "aliasEnabled": {}
+    },
+    "tell": {
+      "enabled": true,
+      "aliases": [],
+      "aliasEnabled": {}
+    },
+    "whisper": {
+      "enabled": true,
+      "aliases": [],
+      "aliasEnabled": {}
+    },
+    "r": {
+      "enabled": true,
+      "aliases": [],
+      "aliasEnabled": {}
+    },
+    "reply": {
+      "enabled": true,
+      "aliases": [],
+      "aliasEnabled": {}
+    },
+    "ignore": {
+      "enabled": true,
+      "aliases": [],
+      "aliasEnabled": {}
+    },
+    "unignore": {
+      "enabled": true,
+      "aliases": [],
+      "aliasEnabled": {}
+    },
+    "mail": {
+      "enabled": true,
+      "aliases": [],
+      "aliasEnabled": {}
+    },
+    "socialspy": {
+      "enabled": true,
+      "aliases": [],
+      "aliasEnabled": {}
+    },
+    "msgtoggle": {
+      "enabled": true,
+      "aliases": [],
+      "aliasEnabled": {}
+    },
+    "broadcast": {
+      "enabled": true,
+      "aliases": [],
+      "aliasEnabled": {}
+    },
+    "me": {
+      "enabled": true,
+      "aliases": [],
+      "aliasEnabled": {}
+    },
+    "afk": {
+      "enabled": true,
+      "aliases": [],
+      "aliasEnabled": {}
+    },
+    "nick": {
+      "enabled": true,
+      "aliases": [],
+      "aliasEnabled": {}
+    },
+    "realname": {
+      "enabled": true,
+      "aliases": [],
+      "aliasEnabled": {}
+    },
+    "help": {
+      "enabled": true,
+      "aliases": [],
+      "aliasEnabled": {}
+    },
+    "rules": {
+      "enabled": true,
+      "aliases": [],
+      "aliasEnabled": {}
+    },
+    "motd": {
+      "enabled": true,
+      "aliases": [],
+      "aliasEnabled": {}
+    },
+    "info": {
+      "enabled": true,
+      "aliases": [],
+      "aliasEnabled": {}
+    },
+    "list": {
+      "enabled": true,
+      "aliases": [],
+      "aliasEnabled": {}
+    },
+    "seen": {
+      "enabled": true,
+      "aliases": [],
+      "aliasEnabled": {}
+    },
+    "whois": {
+      "enabled": true,
+      "aliases": [],
+      "aliasEnabled": {}
+    },
+    "fly": {
+      "enabled": true,
+      "aliases": [],
+      "aliasEnabled": {}
+    },
+    "god": {
+      "enabled": true,
+      "aliases": [],
+      "aliasEnabled": {}
+    },
+    "heal": {
+      "enabled": true,
+      "aliases": [],
+      "aliasEnabled": {}
+    },
+    "feed": {
+      "enabled": true,
+      "aliases": [],
+      "aliasEnabled": {}
+    },
+    "speed": {
+      "enabled": true,
+      "aliases": [],
+      "aliasEnabled": {}
+    },
+    "invsee": {
+      "enabled": true,
+      "aliases": [],
+      "aliasEnabled": {}
+    },
+    "enderchest": {
+      "enabled": true,
+      "aliases": [],
+      "aliasEnabled": {}
+    },
+    "workbench": {
+      "enabled": true,
+      "aliases": [],
+      "aliasEnabled": {}
+    },
+    "anvil": {
+      "enabled": true,
+      "aliases": [],
+      "aliasEnabled": {}
+    },
+    "repair": {
+      "enabled": true,
+      "aliases": [],
+      "aliasEnabled": {}
+    },
+    "hat": {
+      "enabled": true,
+      "aliases": [],
+      "aliasEnabled": {}
+    },
+    "clearinventory": {
+      "enabled": true,
+      "aliases": [],
+      "aliasEnabled": {}
+    },
+    "ping": {
+      "enabled": true,
+      "aliases": [],
+      "aliasEnabled": {}
+    },
+    "gc": {
+      "enabled": true,
+      "aliases": [],
+      "aliasEnabled": {}
+    },
+    "sudo": {
+      "enabled": true,
+      "aliases": [],
+      "aliasEnabled": {}
+    },
+    "time": {
+      "enabled": true,
+      "aliases": [],
+      "aliasEnabled": {}
+    },
+    "weather": {
+      "enabled": true,
+      "aliases": [],
+      "aliasEnabled": {}
+    },
+    "kick": {
+      "enabled": true,
+      "aliases": [],
+      "aliasEnabled": {}
+    },
+    "ban": {
+      "enabled": true,
+      "aliases": [],
+      "aliasEnabled": {}
+    },
+    "tempban": {
+      "enabled": true,
+      "aliases": [],
+      "aliasEnabled": {}
+    },
+    "unban": {
+      "enabled": true,
+      "aliases": [],
+      "aliasEnabled": {}
+    },
+    "mute": {
+      "enabled": true,
+      "aliases": [],
+      "aliasEnabled": {}
+    },
+    "tempmute": {
+      "enabled": true,
+      "aliases": [],
+      "aliasEnabled": {}
+    },
+    "unmute": {
+      "enabled": true,
+      "aliases": [],
+      "aliasEnabled": {}
+    },
+    "warn": {
+      "enabled": true,
+      "aliases": [],
+      "aliasEnabled": {}
+    },
+    "warnings": {
+      "enabled": true,
+      "aliases": [],
+      "aliasEnabled": {}
+    },
+    "clearwarnings": {
+      "enabled": true,
+      "aliases": [],
+      "aliasEnabled": {}
+    },
+    "setjail": {
+      "enabled": true,
+      "aliases": [],
+      "aliasEnabled": {}
+    },
+    "deljail": {
+      "enabled": true,
+      "aliases": [],
+      "aliasEnabled": {}
+    },
+    "jail": {
+      "enabled": true,
+      "aliases": [],
+      "aliasEnabled": {}
+    },
+    "unjail": {
+      "enabled": true,
+      "aliases": [],
+      "aliasEnabled": {}
+    },
+    "freeze": {
+      "enabled": true,
+      "aliases": [],
+      "aliasEnabled": {}
+    },
+    "kit": {
+      "enabled": true,
+      "aliases": [],
+      "aliasEnabled": {}
+    },
+    "kits": {
+      "enabled": true,
+      "aliases": [],
+      "aliasEnabled": {}
+    },
+    "createkit": {
+      "enabled": true,
+      "aliases": [],
+      "aliasEnabled": {}
+    },
+    "delkit": {
+      "enabled": true,
+      "aliases": [],
+      "aliasEnabled": {}
+    },
+    "showkit": {
+      "enabled": true,
+      "aliases": [],
+      "aliasEnabled": {}
+    },
+    "resetkit": {
+      "enabled": true,
+      "aliases": [],
+      "aliasEnabled": {}
+    },
+    "kitrecover": {
+      "enabled": true,
+      "aliases": [],
+      "aliasEnabled": {}
+    },
+    "ecimport": {
+      "enabled": true,
+      "aliases": [],
+      "aliasEnabled": {}
+    },
+    "shirokaiessentials": {
+      "enabled": true,
+      "aliases": [],
+      "aliasEnabled": {}
+    }
+  },
+  "adminSubcommands": {
+    "status": true,
+    "version": true,
+    "reload": true,
+    "conflicts": true,
+    "report": true
+  }
+}

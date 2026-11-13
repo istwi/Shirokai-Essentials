@@ -1,0 +1,31 @@
+{
+  "mode": "production-jar",
+  "passed": 25,
+  "checks": [
+    "Vanilla /tp preserved and collision reported",
+    "Non-OP receives allowed roots but not administrative or disabled roots",
+    "Home permission limit enforced",
+    "Home rename/delete persisted",
+    "Enabled alias teleports to stored home",
+    "Teleport cooldown enforced",
+    "/back restores previous location",
+    "Warmup cancelled by movement",
+    "Warmup cancelled by damage",
+    "Dangerous destination rejected",
+    "Private warps hidden from unauthorized player",
+    "/spawn uses configured global destination",
+    "TPA acceptance moves sender",
+    "TPAHere consent moves recipient",
+    "Persistent TPA block enforced",
+    "Expired TPA cannot be accepted",
+    "Cross-dimension home persists full identifier",
+    "Home file stores minecraft:the_nether",
+    "Invalid reload preserves running configuration",
+    "Disabled module removes command and aliases from client tree",
+    "Disabling homes preserves stored player data",
+    "Re-enabled homes restored after full server restart",
+    "Persisted homes accessible after restart",
+    "LuckPerms required but absent denies player access",
+    "Permission reload refreshes client command tree"
+  ]
+}

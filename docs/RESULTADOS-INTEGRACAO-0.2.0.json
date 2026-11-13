@@ -1,0 +1,158 @@
+{
+  "version": "0.2.0",
+  "artifact": "shirokai-essentials-0.2.0.jar",
+  "sha256": "9b2fca51e403d7b60fce4e9066c5e80df5fb81c05a41bc45e8da4b4b429530cc",
+  "unitPassed": 46,
+  "integrationPassed": 81,
+  "unitSuites": [
+    {
+      "suite": "dev.shirokai.essentials.ConflictsTest",
+      "passed": 5
+    },
+    {
+      "suite": "dev.shirokai.essentials.DurationsTest",
+      "passed": 2
+    },
+    {
+      "suite": "dev.shirokai.essentials.EssentialImporterTest",
+      "passed": 4
+    },
+    {
+      "suite": "dev.shirokai.essentials.InventoryPlanTest",
+      "passed": 3
+    },
+    {
+      "suite": "dev.shirokai.essentials.MorePersistenceTest",
+      "passed": 9
+    },
+    {
+      "suite": "dev.shirokai.essentials.PersistenceTest",
+      "passed": 7
+    },
+    {
+      "suite": "dev.shirokai.essentials.RequestsTest",
+      "passed": 4
+    },
+    {
+      "suite": "dev.shirokai.essentials.SettingsTest",
+      "passed": 12
+    }
+  ],
+  "integrationSuites": [
+    {
+      "suite": "regression",
+      "mode": "production-jar",
+      "passed": 25,
+      "checks": [
+        "Vanilla /tp preserved and collision reported",
+        "Non-OP receives allowed roots but not administrative or disabled roots",
+        "Home permission limit enforced",
+        "Home rename/delete persisted",
+        "Enabled alias teleports to stored home",
+        "Teleport cooldown enforced",
+        "/back restores previous location",
+        "Warmup cancelled by movement",
+        "Warmup cancelled by damage",
+        "Dangerous destination rejected",
+        "Private warps hidden from unauthorized player",
+        "/spawn uses configured global destination",
+        "TPA acceptance moves sender",
+        "TPAHere consent moves recipient",
+        "Persistent TPA block enforced",
+        "Expired TPA cannot be accepted",
+        "Cross-dimension home persists full identifier",
+        "Home file stores minecraft:the_nether",
+        "Invalid reload preserves running configuration",
+        "Disabled module removes command and aliases from client tree",
+        "Disabling homes preserves stored player data",
+        "Re-enabled homes restored after full server restart",
+        "Persisted homes accessible after restart",
+        "LuckPerms required but absent denies player access",
+        "Permission reload refreshes client command tree"
+      ]
+    },
+    {
+      "suite": "expanded",
+      "version": "0.2.0",
+      "mode": "production-jar",
+      "passed": 47,
+      "checks": [
+        "Automatic MOTD works with /motd command disabled",
+        "Private messages and replies",
+        "Player markup is literal and cannot inject click events",
+        "Ignored sender cannot leak private content",
+        "Private message toggle",
+        "Social spy requires permission and explicit toggle",
+        "Manual AFK aliases toggle both directions",
+        "Nickname sanitization and real-name lookup",
+        "Offline mail persists across player reconnect",
+        "Player directory and administrative information",
+        "Explicit LuckPerms deny overrides OP fallback",
+        "LuckPerms 5.4.140 permission changes reflected after reload",
+        "Flight ability toggles on",
+        "God mode cancels damage",
+        "Heal/feed/speed and others permissions",
+        "Sudo cannot execute a command outside its allowlist",
+        "Alternative aliases preserve vanilla time/weather",
+        "Mute blocks own and vanilla private messages",
+        "Temporary mute expires",
+        "Persistent warning records and administrative clearing",
+        "Freeze anchors movement and rejects teleports",
+        "Timed jail enforces restrictions and releases",
+        "Vanilla ban list integration and offline unban",
+        "Kit commits cooldown and closes its durable receipt",
+        "Kit preserves Minecraft 1.21.1 item data components",
+        "Kit cooldown prevents duplicate claims",
+        "Kit preview remains read-only under forged quick-move clicks",
+        "Read-only inventory inspection",
+        "Impactor 5.3.5 currency-specific balance and ranking",
+        "Unsafe Shirokai transfer/admin economy aliases never register",
+        "Homes work in a real Multiworld 1.14.2 custom dimension",
+        "Asynchronous chunk jobs reject duplicates and cancel safely on movement",
+        "RTP loads new chunks asynchronously and finds a safe surface",
+        "Migration dry-run reports conflicts without writing player destinations",
+        "Migration apply keeps originals, skips permissioned warps and creates backups",
+        "Repeated migration never overwrites existing destinations",
+        "Automatic AFK does not register disabled manual command or alias",
+        "Automatic AFK runs independently of its command",
+        "Nickname, kit cooldown and player state survive server restart",
+        "Uncertain kit delivery stays blocked until audited recovery without item replay",
+        "Kit cooldown remains effective after full server restart",
+        "Multiworld custom home survives a full server restart",
+        "Persistent flight restores safely with LuckPerms after reconnect",
+        "Persistent god mode restores after server restart",
+        "Disabled fly/god features leave no abilities or commands after restart",
+        "Disabled god mode no longer intercepts damage",
+        "Disabling features preserves saved mode preferences"
+      ]
+    },
+    {
+      "suite": "module-failure",
+      "version": "0.2.0",
+      "passed": 6,
+      "checks": [
+        "FAIL_MODULE removes all own chat commands and aliases",
+        "FAIL_MODULE suppresses automatic MOTD even with feature enabled",
+        "Failed chat module preserves the vanilla chat pipeline and does not format messages",
+        "Specific warp permissions are rechecked before completing warmup",
+        "Disabled moderation functions remove their commands independently",
+        "Disabled freeze stops anchoring without deleting the saved punishment"
+      ]
+    },
+    {
+      "suite": "cobblemon-startup",
+      "version": "0.2.0",
+      "mode": "production-jar-cobblemon",
+      "passed": 3,
+      "checks": [
+        "Dedicated server boots with Cobblemon 1.8.3 and Fabric Loader 0.17.2",
+        "Cobblemon public UUID battle lookup passes ABI and invocation probe",
+        "LuckPerms, Impactor and Multiworld coexist in the Cobblemon server"
+      ]
+    }
+  ],
+  "limits": [
+    "Cobblemon: inicialização e ABI verificadas; batalha completa com clientes não simulada.",
+    "Economia: consultas reais; pagamentos, mutações e custos não expostos por falta de commit durável atômico no Impactor 5.3.5."
+  ]
+}
