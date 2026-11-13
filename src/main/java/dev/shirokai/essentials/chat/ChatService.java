@@ -28,6 +28,7 @@ public final class ChatService {
     public boolean textValid(String text) { return !text.isBlank() && text.length() <= app.settings().chat.maxMessageLength && text.codePoints().noneMatch(c -> Character.isISOControl(c)); }
     public int message(ServerPlayerEntity from, ServerPlayerEntity to, String text) throws IOException {
         if (!textValid(text)) return app.messages.error(from.getCommandSource(), "invalid", "value", "mensagem");
+        if(dev.shirokai.essentials.api.EssentialsBridge.ownsChat())return routed(from,Map.of("action","message","target",to.getUuidAsString(),"text",text));
         if (!app.moderation.canSpeak(from)) return 0;
         var a = app.data().messaging(from.getUuid()); var b = app.data().messaging(to.getUuid());
         if (a.blocked() || b.blocked() || a.ignored().contains(to.getUuid()) || b.ignored().contains(from.getUuid())) return app.messages.error(from.getCommandSource(), "private_blocked");
@@ -40,8 +41,14 @@ public final class ChatService {
         return 1;
     }
     public int reply(ServerPlayerEntity from, String text) throws IOException {
+        if(dev.shirokai.essentials.api.EssentialsBridge.ownsChat())return routed(from,Map.of("action","reply","text",text));
         UUID id = replies.get(from.getUuid()); var to = id == null ? null : from.getServer().getPlayerManager().getPlayer(id);
         return to == null ? app.messages.error(from.getCommandSource(), "reply_missing") : message(from,to,text);
+    }
+    public int routed(ServerPlayerEntity player,Map<String,String> request) {
+        try {String error=dev.shirokai.essentials.api.EssentialsBridge.route(player.getUuid(),request);
+            if(!error.isEmpty()){player.sendMessage(net.minecraft.text.Text.literal(error),false);return 0;}return 1;
+        }catch(RuntimeException error){player.sendMessage(net.minecraft.text.Text.literal("Chat Core indisponível"),false);return 0;}
     }
     public int sendMail(ServerPlayerEntity from, DataStore.Profile to, String text) throws IOException {
         if (to == null) return app.messages.error(from.getCommandSource(), "player_missing");
@@ -56,6 +63,7 @@ public final class ChatService {
         app.data().update(to.id(),d -> d.mail.add(mail)); lastMail.put(from.getUuid(),now);
         return app.messages.send(from.getCommandSource(), "mail_sent", "player", to.name());
     }
+    public boolean afk(UUID id) { return afk.contains(id); }
     public void touch(ServerPlayerEntity p) {
         activity.put(p.getUuid(),new Activity(p.getX(),p.getY(),p.getZ(),System.currentTimeMillis()));
         if (afk.remove(p.getUuid())) announceAfk(p,false);

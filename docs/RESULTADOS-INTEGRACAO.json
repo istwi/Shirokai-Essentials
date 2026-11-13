@@ -1,9 +1,9 @@
 {
-  "version": "0.2.2",
-  "artifact": "shirokai-essentials-0.2.2.jar",
-  "sha256": "54f8b6dab1f15a12c9017dca0e648d0713f440c91167a8d6ab94edc1c18f2481",
+  "version": "0.3.0",
+  "artifact": "shirokai-essentials-0.3.0.jar",
+  "sha256": "a321182b33ce9df725fcf4d2b4de4a8c9ecbd52b7e37a738610066140ea162fe",
   "unitPassed": 47,
-  "integrationPassed": 99,
+  "integrationPassed": 118,
   "unitSuites": [
     {
       "suite": "dev.shirokai.essentials.ConflictsTest",
@@ -41,7 +41,7 @@
   "integrationSuites": [
     {
       "suite": "regression",
-      "version": "0.2.2",
+      "version": "0.3.0",
       "mode": "production-jar",
       "passed": 28,
       "checks": [
@@ -77,7 +77,7 @@
     },
     {
       "suite": "expanded",
-      "version": "0.2.2",
+      "version": "0.3.0",
       "mode": "production-jar",
       "passed": 48,
       "checks": [
@@ -133,7 +133,7 @@
     },
     {
       "suite": "module-failure",
-      "version": "0.2.2",
+      "version": "0.3.0",
       "passed": 6,
       "checks": [
         "FAIL_MODULE removes all own chat commands and aliases",
@@ -146,7 +146,7 @@
     },
     {
       "suite": "real-battle",
-      "version": "0.2.2",
+      "version": "0.3.0",
       "mode": "production-jar-real-battle",
       "passed": 17,
       "checks": [
@@ -167,6 +167,34 @@
         "Entering battle cancels warmup permanently even if battle ends before its deadline",
         "Cancelled warmup releases its slot for the next teleport",
         "Removed financial aliases never register even in legacy configuration"
+      ]
+    },
+    {
+      "suite": "core-bridge",
+      "version": "0.3.0",
+      "coreJar": "shirokai-core-0.18.0-dev.jar",
+      "coreSha256": "10ee63922064674723063673dd5651e2654345e8a9b67814d7e84e6cb29f1504",
+      "passed": 19,
+      "checks": [
+        "Essentials nickname updates the Core TAB without replacing player UUID/profile",
+        "Core scoreboard uses nickname and real-account placeholders",
+        "Core chat shows nickname and sends one message despite Essentials public formatting enabled",
+        "Normal player chat is delivered once through the Core gate",
+        "Essentials AFK indicator appears in Core TAB",
+        "Core chat activity removes AFK without changing the nickname",
+        "Essentials mute gates Core global/local/private without leaking messages",
+        "Essentials ignore also filters Core public channels",
+        "Essentials PM and Core reply share the same conversation",
+        "Essentials private toggle blocks Core private delivery",
+        "Opt-in Essentials socialspy sees only successfully delivered Core private messages",
+        "Homes placeholder reads the Essentials profile and permission limit",
+        "Kit readiness placeholders follow a real claim and cooldown without charging",
+        "Fly and god placeholders reflect actual Essentials modes",
+        "Mail placeholder reflects stored Essentials mail",
+        "Nick off restores the account name in TAB",
+        "Both mods restart with nickname, homes and custom scoreboard configuration intact",
+        "Essentials works independently after removing Core",
+        "Standalone Essentials retains its own private messages"
       ]
     }
   ],

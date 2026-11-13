@@ -31,6 +31,7 @@ for name, directory, installed in [
     ('expanded', 'expanded-integration', 'shirokai-essentials.jar'),
     ('module-failure', 'module-failure-integration', 'shirokai-essentials.jar'),
     ('real-battle', 'cobblemon-integration', 'shirokai-essentials.jar'),
+    ('core-bridge', 'bridge-integration', 'shirokai-essentials.jar'),
 ]:
     folder = root / 'build' / directory
     assert digest(folder / 'run/mods' / installed) == jar_hash, f'{name}: wrong artifact'

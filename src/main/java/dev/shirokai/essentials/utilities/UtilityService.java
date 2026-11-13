@@ -15,6 +15,7 @@ public final class UtilityService {
     private final ShirokaiEssentials app;
     private final Set<UUID> god = new HashSet<>(), flight = new HashSet<>();
     public UtilityService(ShirokaiEssentials app){this.app=app;}
+    public boolean flight(ServerPlayerEntity p){return app.settings().module("utilities")&&app.settings().feature("fly")&&flight.contains(p.getUuid());}
     public boolean god(ServerPlayerEntity p){return app.settings().module("utilities")&&app.settings().feature("god_mode")&&god.contains(p.getUuid());}
     public void join(ServerPlayerEntity p) throws IOException {
         var d=app.data().player(p.getUuid());

@@ -31,7 +31,7 @@ final class ExtraCommands {
             case "ignore","unignore" -> b.then(argument("player",StringArgumentType.word()).executes(owner.action(cmd,c->{
                 var p=c.getSource().getPlayerOrThrow();var target=profile(c);if(target==null)return app.messages.error(c.getSource(),"player_missing");
                 if(target.id().equals(p.getUuid()))return app.messages.error(c.getSource(),"self");
-                app.data().update(p.getUuid(),d->{if(cmd.equals("ignore"))d.ignored.add(target.id());else d.ignored.remove(target.id());});return app.messages.send(c.getSource(),"ignored","player",target.name());
+                app.data().update(p.getUuid(),d->{if(cmd.equals("ignore"))d.ignored.add(target.id());else d.ignored.remove(target.id());});if(cmd.equals("unignore")&&dev.shirokai.essentials.api.EssentialsBridge.ownsChat())app.chat.routed(p,Map.of("action","unignore","target",target.id().toString()));return app.messages.send(c.getSource(),"ignored","player",target.name());
             })));
             case "msgtoggle","socialspy" -> b.executes(owner.action(cmd,c->{
                 var p=c.getSource().getPlayerOrThrow();var d=app.data().player(p.getUuid());boolean enabled=cmd.equals("socialspy")?!d.socialSpy:!d.messagesBlocked;

@@ -68,6 +68,7 @@ public final class DataStore {
         Path file=root.resolve("players").resolve(id+".json");if(!java.nio.file.Files.exists(file))return new PlayerData();
         var value=JsonFiles.read(file,PlayerData.class,new PlayerData());if(value.schemaVersion==1)value.schemaVersion=2;validate(value);return value;
     }
+    public boolean loaded(UUID id) { return players.containsKey(id); }
     public PlayerData player(UUID id) throws IOException { return copy(internal(id), PlayerData.class); }
     public WorldData world() { return copy(world, WorldData.class); }
     public void update(UUID id, Consumer<PlayerData> action) throws IOException {

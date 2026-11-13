@@ -1,5 +1,6 @@
 {
   "schemaVersion": 1,
   "blockCobblemonBattles": true,
-  "essentialCommandsVersion": ""
+  "essentialCommandsVersion": "",
+  "coreBridge": true
 }

@@ -1,6 +1,6 @@
-# Validação — Shirokai Essentials 0.2.2
+# Validação — Shirokai Essentials 0.3.0
 
-**Build aprovado: 47 testes JUnit e 99 verificações de integração passaram.**
+**Build aprovado: 47 testes JUnit e 118 verificações de integração passaram.**
 
 Os resultados desta entrega são gerados em [RESULTADOS-INTEGRACAO.json](RESULTADOS-INTEGRACAO.json). O build produz um JAR remapeado real, carregado em `mods/` nos testes de integração. Relatórios JUnit ficam em `build/reports/tests/test/index.html`.
 
@@ -30,9 +30,29 @@ O Multiworld criou um mundo real `multiworld:shirokai_test`; uma home nesse mund
 
 A migração utilizou fixtures NBT do formato identificado 0.35.2: dry-run sem criar arquivos de jogadores ausentes, conflito de nome, warp com permissão antiga recusado, preservação de origem, backup prévio e aplicação idempotente. Isso não substitui um dry-run sobre os dados reais do servidor.
 
-A versão 0.2.2 remove o módulo, a API e os comandos de economia. Os testes JUnit verificam que uma configuração antiga com `economy=true`, comandos/aliases econômicos e até `economy.json` inválido continua carregando sem reativar o módulo ou sobrescrever os arquivos. Instalações novas geram 15 arquivos, sem `economy.json`.
+A versão 0.3.0 remove o módulo, a API e os comandos de economia. Os testes JUnit verificam que uma configuração antiga com `economy=true`, comandos/aliases econômicos e até `economy.json` inválido continua carregando sem reativar o módulo ou sobrescrever os arquivos. Instalações novas geram 15 arquivos, sem `economy.json`.
 
 A regressão entrega um kit completo sem Impactor instalado, conserva o cooldown do kit e verifica ausência dos comandos econômicos. Com o Impactor real instalado, os testes usam o próprio comando administrativo dele para colocar o saldo do jogador em zero: o kit e o teleporte continuam funcionando e o saldo permanece zero. As raízes nativas do Impactor são preservadas.
+
+## Ponte com Shirokai-tab/Core
+
+19 cenários adicionais em `tests/integration/bridge.cjs`, com os dois JARs de produção,
+Fabric API 0.116.17, LuckPerms real e três boots. Cobrem apelido no TAB/sidebar/chat,
+mensagem normal sem duplicação, AFK, mute nos canais, ignore, privados/resposta,
+msgtoggle, socialspy, homes/limites, kits/cooldown, fly/god e correio. Reinício conserva
+apelido/homes e o JSON personalizado da scoreboard; remover o Core restaura os privados
+próprios do Essentials. O runner respeita cooldown e limite de comandos vanilla.
+
+O Core separadamente passou 135 testes JUnit e 53 verificações Fabric antigas,
+sem o Essentials. Sem mock do registro de jogadores na suíte conjunta: os clientes
+conectam pelo protocolo offline local ao servidor de teste. Isso não certifica
+login autenticado, aparência gráfica ou assinatura criptográfica.
+
+```sh
+SHIROKAI_CORE_JAR=/caminho/shirokai-core-0.18.0-dev.jar \
+SHIROKAI_CORE_FABRIC_API=/caminho/fabric-api-0.116.17+1.21.1.jar \
+SHIROKAI_TEST_MODS=/caminho/mods-teste node tests/integration/bridge.cjs
+```
 
 ## Reproduzir
 

@@ -1,4 +1,4 @@
-# Arquitetura — 0.2.2
+# Arquitetura — 0.3.0
 
 O entrypoint dedicado Fabric compõe serviços com dependências explícitas. Não há código de cliente nem APIs Bukkit/Paper/Vault.
 
@@ -50,3 +50,7 @@ Há um mixin em `CommandManager.execute(ParseResults, String)` de Minecraft 1.21
 O módulo econômico e as dependências de API do Impactor foram removidos na 0.2.2. Teleporte e kits não consultam nem alteram saldos. Ao carregar configurações de versões anteriores, as entradas do módulo/comandos econômicos são descartadas apenas em memória; o antigo `economy.json` é ignorado.
 
 O importador cobre o formato identificado 0.35.2 e não adivinha outros schemas. Não há vanish, editor remoto de inventário ou paridade declarada com todos os recursos do EssentialsX. A validação Cobblemon inclui PvP real até o turno 1 e bloqueios de teleporte, sem testar a interface gráfica nem vitória/derrota.
+
+## API de integração Core
+
+EssentialsBridge protocolo1 usa UUID e tipos Java padrão. Attach exige dono único; detach não remove o dono de outro consumidor. Leituras usam somente perfis carregados. O Core consulta a API opcional por reflexão e nunca lê JSONs privados. Sem o Core, os serviços próprios permanecem ativos.

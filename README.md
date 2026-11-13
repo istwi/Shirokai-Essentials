@@ -1,20 +1,20 @@
-# Shirokai Essentials 0.2.2
+# Shirokai Essentials 0.3.0
 
 Mod **Minecraft Java 1.21.1 / Fabric / Java 21, somente servidor**. A linha 0.2 acrescenta chat, correio offline, AFK, informações, utilidades, administração, moderação, kits e migração ao núcleo de homes/warps/spawn/teleporte da 0.1.0.
 
-O projeto segue [a especificação fornecida](docs/ESPECIFICACAO.txt), com as limitações descritas abaixo. Não usa Bukkit, Paper, Spigot ou Vault. Conforme a alteração solicitada, a versão 0.2.2 remove a economia do Essentials: **teleportes e kits são gratuitos**, mantendo permissões, cooldowns e proteções. O Impactor funciona de forma independente.
+O projeto segue [a especificação fornecida](docs/ESPECIFICACAO.txt), com as limitações descritas abaixo. Não usa Bukkit, Paper, Spigot ou Vault. Conforme a alteração solicitada, desde a versão 0.2.2 não há economia do Essentials: **teleportes e kits são gratuitos**, mantendo permissões, cooldowns e proteções. O Impactor funciona de forma independente.
 
 ## Instalar e atualizar
 
 1. Faça backup do mundo e das configurações.
-2. Substitua o JAR antigo pelo `shirokai-essentials-0.2.2.jar` em `mods/`. Não mantenha duas versões do mesmo mod.
+2. Substitua o JAR antigo pelo `shirokai-essentials-0.3.0.jar` em `mods/`. Não mantenha duas versões do mesmo mod.
 3. Use Fabric API para Minecraft 1.21.1 e Java 21. **Com Cobblemon 1.8.3, Fabric Loader deve ser 0.17.2 ou superior.** O mod também foi testado sem Cobblemon no Loader 0.16.14.
 4. Reinicie o servidor. Clientes não precisam instalar **Shirokai Essentials**; continuam precisando dos mods cliente exigidos pelo restante do servidor, como Cobblemon.
 5. Ative os módulos novos que desejar em `modules.json`. Eles vêm **desligados por padrão** para preservar o comportamento da instalação anterior.
 
 As configurações mantêm schema 1. Os **dados do Shirokai passam ao schema 2**, com leitura do schema 1 e backup na primeira gravação. Uma versão antiga rejeita schema 2, evitando apagar correio e demais campos novos. Para voltar à 0.1.0, restaure o backup completo correspondente; não altere o número do schema manualmente.
 
-Na atualização da 0.2.0/0.2.1, entradas antigas de economia em `modules.json`, `commands.json`, `permissions.json` e `conflicts.json` são ignoradas em memória; seus arquivos são preservados. `economy.json` não é lido nem gerado. Não é necessário editar configurações antigas ou importar dados de outro mod.
+Na atualização das versões antigas, entradas antigas de economia em `modules.json`, `commands.json`, `permissions.json` e `conflicts.json` são ignoradas em memória; seus arquivos são preservados. `economy.json` não é lido nem gerado. Não é necessário editar configurações antigas ou importar dados de outro mod.
 
 ## Compilar
 
@@ -26,7 +26,9 @@ Requer **JDK 21 completo**, incluindo `javac`, e acesso aos repositórios Gradle
 
 No Windows: `gradlew.bat build`. O wrapper fixa Gradle 8.12.1 e verifica a distribuição por SHA-256.
 
-Artefato instalável: `build/libs/shirokai-essentials-0.2.2.jar`. O arquivo `-sources.jar` contém fontes. Adventure/MiniMessage são incluídos no JAR; LuckPerms é uma integração opcional e não é redistribuído. O Essentials não depende do Impactor. Nenhuma tarefa de build publica release ou faz deploy.
+Artefato instalável: `build/libs/shirokai-essentials-0.3.0.jar`. O arquivo `-sources.jar` contém fontes. Adventure/MiniMessage são incluídos no JAR; LuckPerms é uma integração opcional e não é redistribuído. O Essentials não depende do Impactor. Nenhuma tarefa de build publica release ou faz deploy.
+
+Integração opcional com **Shirokai-tab/Core 0.18.0-dev**: apelidos, AFK, proteção de chat e placeholders de homes/kits. Veja [instalação e opções](docs/INTEGRACAO-SHIROKAI-TAB.md).
 
 ## Recursos
 
@@ -95,7 +97,7 @@ Dados em `<mundo>/shirokai-essentials/`: `players/<UUID>.json`, `world.json`, `m
 
 A segurança de teleporte é conservadora: valida borda, altura, dimensão, chão, colisão e perigos próximos. Chunks descarregados são recusados no padrão. Ative `asyncChunkLoading` para carregá-los sem aguardar futures na thread do servidor; pedidos têm limite, prazo de espera e tickets liberados no cancelamento. O RTP pode falhar se o candidato não tiver superfície segura.
 
-A integração Cobblemon 1.8.3 consulta a API pública de batalhas por UUID. Se o mod estiver presente e a consulta for incompatível, o bloqueio é conservador enquanto `blockCobblemonBattles=true`. A versão 0.2.2 cancela imediatamente teleportes pendentes ao entrar em batalha. O teste inicia PvP real pelo BattleBuilder, chega ao turno 1 no Showdown e verifica bloqueio/retomada de teleportes com dois clientes de protocolo. Esses clientes não renderizam a interface Cobblemon.
+A integração Cobblemon 1.8.3 consulta a API pública de batalhas por UUID. Se o mod estiver presente e a consulta for incompatível, o bloqueio é conservador enquanto `blockCobblemonBattles=true`. A versão 0.3.0 cancela imediatamente teleportes pendentes ao entrar em batalha. O teste inicia PvP real pelo BattleBuilder, chega ao turno 1 no Showdown e verifica bloqueio/retomada de teleportes com dois clientes de protocolo. Esses clientes não renderizam a interface Cobblemon.
 
 `invsee` é uma fotografia somente leitura, não um editor de inventário remoto. Apelidos afetam as mensagens/listas do mod e o chat público quando a formatação estiver explicitamente ativada. Não há vanish nesta versão. O mod não promete paridade total com toda a cobertura do EssentialsX.
 

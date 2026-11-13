@@ -24,7 +24,7 @@ import java.nio.file.Path;
 import java.util.*;
 
 public final class ShirokaiEssentials implements DedicatedServerModInitializer {
-    public static final String VERSION = "0.2.2";
+    public static final String VERSION = "0.3.0";
     public static final Logger LOGGER = LoggerFactory.getLogger("shirokai_essentials");
     private static ShirokaiEssentials INSTANCE;
     public static ShirokaiEssentials instance() { return INSTANCE; }
@@ -53,7 +53,7 @@ public final class ShirokaiEssentials implements DedicatedServerModInitializer {
             var mod = FabricLoader.getInstance().getModContainer(id);
             result.put(id, mod.map(c -> c.getMetadata().getVersion().getFriendlyString() + (id.equals("luckperms") ? " (API de permissões)" : " (detectado; integração específica não validada)")).orElse("ausente"));
         }
-        result.put("cobblemon-guard",battles.status());
+        result.put("cobblemon-guard",battles.status()); result.put("core-chat",Boolean.toString(dev.shirokai.essentials.api.EssentialsBridge.ownsChat()));
         return result;
     }
     @Override public void onInitializeServer() {
@@ -75,7 +75,7 @@ public final class ShirokaiEssentials implements DedicatedServerModInitializer {
             try { conflicts.report(configDir.resolve("conflicts-report.json")); } catch (IOException e) { LOGGER.error("Falha no relatório de conflitos", e); }
             LOGGER.info("Shirokai Essentials iniciado. Módulos: {}. Integrações: {}", activeModules(), integrations());
         });
-        ServerLifecycleEvents.SERVER_STOPPED.register(server -> { teleports.clear(); chat.clear(); utilities.clear(); data = null; currentServer=null; INSTANCE=null; });
+        ServerLifecycleEvents.SERVER_STOPPED.register(server -> { dev.shirokai.essentials.api.EssentialsBridge.clear(); teleports.clear(); chat.clear(); utilities.clear(); data = null; currentServer=null; INSTANCE=null; });
         ServerPlayConnectionEvents.JOIN.register((handler,sender,server)->{
             var p=handler.player;
             try {
@@ -91,16 +91,17 @@ public final class ShirokaiEssentials implements DedicatedServerModInitializer {
         });
         if(settings.module("chat")||settings.module("moderation"))ServerTickEvents.END_SERVER_TICK.register(server->{chat.tick(server);moderation.tick(server);});
         if(settings.module("utilities")&&settings.feature("god_mode"))ServerLivingEntityEvents.ALLOW_DAMAGE.register((entity,source,amount)->!(entity instanceof ServerPlayerEntity p)||!utilities.god(p));
-        if(settings.module("moderation")&&settings.feature("moderation_chat"))net.fabricmc.fabric.api.message.v1.ServerMessageEvents.ALLOW_CHAT_MESSAGE.register((message,p,params)->moderation.canSpeak(p));
+        if(settings.module("moderation")&&settings.feature("moderation_chat"))net.fabricmc.fabric.api.message.v1.ServerMessageEvents.ALLOW_CHAT_MESSAGE.register((message,p,params)->dev.shirokai.essentials.api.EssentialsBridge.ownsChat()||moderation.canSpeak(p));
         if(settings.module("chat"))net.fabricmc.fabric.api.message.v1.ServerMessageEvents.ALLOW_CHAT_MESSAGE.register((message,p,params)->{
             if(!settings.module("chat"))return true;
-            chat.touch(p);if(!settings.chat.formatPublicChat)return true;
+            chat.touch(p);if(dev.shirokai.essentials.api.EssentialsBridge.ownsChat()||!settings.chat.formatPublicChat)return true;
             try{p.getServer().getPlayerManager().broadcast(messages.text("public_chat","prefix",permissions.prefix(p),"player",chat.display(p),"message",message.getContent().getString()),false);return false;}
             catch(IOException e){LOGGER.error("Falha ao formatar chat",e);return false;}
         });
         if(settings.module("chat"))net.fabricmc.fabric.api.message.v1.ServerMessageEvents.ALLOW_GAME_MESSAGE.register((server,message,overlay)->{
             if(!settings.module("chat")||overlay||!(message.getContent() instanceof net.minecraft.text.TranslatableTextContent t))return true;
             String key=t.getKey(),replace=null;
+            if(dev.shirokai.essentials.api.EssentialsBridge.ownsChat()&&(key.startsWith("multiplayer.player.joined")||key.equals("multiplayer.player.left")))return true;
             if(settings.feature("join_messages")&&key.startsWith("multiplayer.player.joined"))replace="join";
             if(settings.feature("quit_messages")&&key.equals("multiplayer.player.left"))replace="quit";
             if(settings.feature("death_messages")&&key.startsWith("death."))replace="death";

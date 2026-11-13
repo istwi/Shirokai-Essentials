@@ -1,4 +1,4 @@
-# Comandos e permissões — 0.2.2
+# Comandos e permissões — 0.3.0
 
 Todos os nós próprios começam com `shirokai.essentials.`. As tabelas mostram o sufixo. Por padrão, comandos administrativos exigem OP nível 2 se `opFallback=true`; console segue nível 4. Com `requireLuckPerms=true`, jogadores precisam de concessões LuckPerms explícitas, sem fallback OP. Uma negação explícita do LuckPerms prevalece sobre OP.
 
@@ -18,6 +18,8 @@ Aliases configurados usam a permissão do comando principal. As raízes `tell`, 
 | `/tphere <jogador>`, `/tpall` | nome do comando + `.others` | administrativo |
 
 `bypass.cooldown`, `bypass.warmup` e `bypass.homelimit` controlam exceções. Limites por tier: `home.multiple.<tier>` conforme `permissions.json`; vence o maior limite explicitamente concedido. Warps individuais usam `warp.<nome>` quando habilitado; `warp.private` permite acesso aos privados de terceiros. Permissões e alterações do warp são revalidadas no warmup e após carregamento de chunks.
+
+Com Shirokai-tab/Core 0.18.0-dev, apelidos/AFK e controles de chat usam a [ponte opcional](INTEGRACAO-SHIROKAI-TAB.md).
 
 ## Chat e informações
 

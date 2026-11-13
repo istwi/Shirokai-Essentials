@@ -40,7 +40,7 @@ public final class MoreSettings {
     }
     public static class Integrations {
         public int schemaVersion = 1;
-        public boolean blockCobblemonBattles = true;
+        public boolean blockCobblemonBattles = true, coreBridge = true;
         public String essentialCommandsVersion = "";
     }
     private MoreSettings() {}

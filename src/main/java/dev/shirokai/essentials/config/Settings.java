@@ -202,6 +202,7 @@ public final class Settings {
         candidate.modules = modules; candidate.commands = commands; candidate.conflicts = conflicts;
         candidate.utilities.allowSudo = utilities.allowSudo; candidate.moderation.manageVanillaBans = moderation.manageVanillaBans;
         candidate.chat.formatPublicChat = chat.formatPublicChat;
+        candidate.integrations.coreBridge = integrations.coreBridge;
         return candidate;
     }
 }

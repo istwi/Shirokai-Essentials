@@ -1,1 +1,2 @@
 54f8b6dab1f15a12c9017dca0e648d0713f440c91167a8d6ab94edc1c18f2481  shirokai-essentials-0.2.2.jar
+a321182b33ce9df725fcf4d2b4de4a8c9ecbd52b7e37a738610066140ea162fe  shirokai-essentials-0.3.0.jar

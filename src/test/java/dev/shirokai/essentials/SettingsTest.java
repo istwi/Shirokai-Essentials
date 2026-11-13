@@ -46,9 +46,9 @@ class SettingsTest {
     @Test void reloadKeepsStartupTopologyButUpdatesSafeValues() throws Exception {
         var original = Settings.load(dir); var candidate = Settings.load(dir);
         candidate.modules.modules.put("homes", false); candidate.commands.commands.get("home").enabled = false;
-        candidate.teleport.cooldownSeconds = 30;
+        candidate.teleport.cooldownSeconds = 30;candidate.integrations.coreBridge=false;
         var reloaded = original.dynamicFrom(candidate);
-        assertTrue(reloaded.command("home")); assertEquals(30, reloaded.teleport.cooldownSeconds);
+        assertTrue(reloaded.command("home")); assertEquals(30, reloaded.teleport.cooldownSeconds);assertTrue(reloaded.integrations.coreBridge);
     }
     @Test void upgradingNeverRestoresOmittedOldPermissionsCommandsOrFeatures() throws Exception {
         var s=Settings.load(dir);s.permissions.defaults.remove("home");s.commands.commands.remove("home");s.modules.features.remove("home_limits");s.modules.modules.remove("homes");
