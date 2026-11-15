@@ -102,3 +102,20 @@ A integração Cobblemon 1.8.3 consulta a API pública de batalhas por UUID. Se 
 `invsee` é uma fotografia somente leitura, não um editor de inventário remoto. Apelidos afetam as mensagens/listas do mod e o chat público quando a formatação estiver explicitamente ativada. Não há vanish nesta versão. O mod não promete paridade total com toda a cobertura do EssentialsX.
 
 Leia [comandos/permissões](docs/COMANDOS.md), [arquitetura](docs/ARQUITETURA.md), [migração](docs/MIGRACAO.md) e [testes](docs/TESTES.md).
+
+## Integração Guard 0.4.0 — entrada por comando
+
+A versão 0.3.2-guard.1 captura a autorização por comando exato e a mantém somente
+na operação de teleporte correspondente, inclusive durante warmup e carga de chunks.
+Para autorizar apenas `/warp loja` na região `loja`, use no Guard atualizado:
+
+```mcfunction
+/sg flag loja entry-mode command-only
+/sg entry-command loja add warp loja
+```
+
+Outros warps, TPA aceito e `/back` continuam sujeitos à proteção do destino e não
+herdam o token. Aliases precisam de cadastro pelo comando completo digitado.
+Teleporte de sistema não usa a autorização de um warmup pendente. Recusas do Guard
+ocorrem antes de gravar histórico/cooldown. Sem Guard, os fluxos comuns permanecem.
+A integração de `/raid entrar` usa a API anterior e continua independente.

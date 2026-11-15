@@ -1,0 +1,1 @@
+adc21358ae8dcd538db8c519a336216c3c974cd0307a28d401599f989b56dcda  shirokai-essentials-0.3.2-guard.1.jar

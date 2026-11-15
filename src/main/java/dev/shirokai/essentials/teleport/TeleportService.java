@@ -20,9 +20,9 @@ import java.util.function.Supplier;
 public final class TeleportService {
     public static Position position(ServerPlayerEntity p) { return new Position(p.getServerWorld().getRegistryKey().getValue().toString(), p.getX(), p.getY(), p.getZ(), p.getYaw(), p.getPitch(), System.currentTimeMillis()); }
     private static final net.minecraft.server.world.ChunkTicketType<UUID> TICKET = net.minecraft.server.world.ChunkTicketType.create("shirokai_essentials", Comparator.comparing(UUID::toString), 600);
-    private record Loading(UUID token, UUID actor, UUID player, ServerWorld world, net.minecraft.util.math.ChunkPos chunk, Position origin, float health, long expires) {}
+    private record Loading(UUID token, UUID actor, UUID player, ServerWorld world, net.minecraft.util.math.ChunkPos chunk, Position origin, float health, long expires, UUID guardToken) {}
     private final Map<UUID,Loading> loading = new HashMap<>(), held = new HashMap<>();
-    private record Pending(UUID actor, UUID player, Position destination, Position origin, float health, long due, String permission, java.util.function.Predicate<ServerPlayerEntity> authorization) {}
+    private record Pending(UUID actor, UUID player, Position destination, Position origin, float health, long due, String permission, java.util.function.Predicate<ServerPlayerEntity> authorization, UUID guardToken) {}
     private final Map<UUID, Pending> pending = new HashMap<>();
     public final Requests requests = new Requests();
     private final Supplier<Settings> settings;
@@ -68,6 +68,9 @@ public final class TeleportService {
         return teleport(player,player,destination,permission,true,authorization);
     }
     private int teleport(ServerPlayerEntity actor, ServerPlayerEntity player, Position destination, String permission, boolean mayLoad, java.util.function.Predicate<ServerPlayerEntity> authorization) throws IOException {
+        return teleport(actor,player,destination,permission,mayLoad,authorization,null);
+    }
+    private int teleport(ServerPlayerEntity actor, ServerPlayerEntity player, Position destination, String permission, boolean mayLoad, java.util.function.Predicate<ServerPlayerEntity> authorization, UUID guardToken) throws IOException {
         var source = player.getCommandSource();
         if (!authorization.test(actor)) return messages.error(source,"denied");
         if (battleRestriction.test(player) || restriction.test(player)) return messages.error(source, "unsafe");
@@ -78,16 +81,18 @@ public final class TeleportService {
         long now = System.currentTimeMillis();
         long cooldown = data.get().player(player.getUuid()).nextTeleportAt;
         if (cfg.feature("teleport_cooldown") && cooldown > now && !permissions.has(source, "bypass.cooldown")) return messages.error(source, "cooldown", "time", (cooldown - now + 999) / 1000);
+        if (mayLoad) guardToken = GuardTeleportAccess.capture(player,destination);
         if (!safe(player.getServer(), destination)) {
             var targetWorld=world(player.getServer(),destination);
             var block=BlockPos.ofFloored(destination.x(),destination.y(),destination.z());
-            if(mayLoad && cfg.teleport.asyncChunkLoading && targetWorld!=null && targetWorld.getWorldBorder().contains(block) && destination.y()>=targetWorld.getBottomY() && destination.y()+2<targetWorld.getTopY() && !cfg.teleport.blockedWorlds.contains(destination.dimension()) && !chunksLoaded(targetWorld,block))return load(actor,player,destination,permission,targetWorld,false,authorization);
+            if(mayLoad && cfg.teleport.asyncChunkLoading && targetWorld!=null && targetWorld.getWorldBorder().contains(block) && destination.y()>=targetWorld.getBottomY() && destination.y()+2<targetWorld.getTopY() && !cfg.teleport.blockedWorlds.contains(destination.dimension()) && !chunksLoaded(targetWorld,block))return load(actor,player,destination,permission,targetWorld,false,authorization,guardToken);
+            GuardTeleportAccess.revoke(guardToken);
             return messages.error(source,"unsafe");
         }
         int warmup = cfg.feature("teleport_warmup") && !permissions.has(source, "bypass.warmup") ? cfg.teleport.warmupSeconds : 0;
-        if (warmup == 0) return perform(player, destination);
-        if (pending.size() + loading.size() >= cfg.teleport.maxPendingTeleports) return messages.error(source, "busy");
-        pending.put(player.getUuid(), new Pending(actor.getUuid(), player.getUuid(), destination, position(player), player.getHealth() + player.getAbsorptionAmount(), now + warmup * 1000L, permission, authorization));
+        if (warmup == 0) return perform(player, destination, false, guardToken);
+        if (pending.size() + loading.size() >= cfg.teleport.maxPendingTeleports) { GuardTeleportAccess.revoke(guardToken); return messages.error(source, "busy"); }
+        pending.put(player.getUuid(), new Pending(actor.getUuid(), player.getUuid(), destination, position(player), player.getHealth() + player.getAbsorptionAmount(), now + warmup * 1000L, permission, authorization, guardToken));
         return messages.send(source, "warmup", "time", warmup);
     }
     private boolean chunksLoaded(ServerWorld world, BlockPos pos) {
@@ -96,9 +101,12 @@ public final class TeleportService {
     }
     private int load(ServerPlayerEntity actor,ServerPlayerEntity p,Position destination,String permission,ServerWorld world) { return load(actor,p,destination,permission,world,false,ignored -> true); }
     private int load(ServerPlayerEntity actor,ServerPlayerEntity p,Position destination,String permission,ServerWorld world,boolean surface,java.util.function.Predicate<ServerPlayerEntity> authorization) {
-        if(pending.size()+loading.size()>=settings.get().teleport.maxPendingTeleports)return messages.error(p.getCommandSource(),"busy");
+        return load(actor,p,destination,permission,world,surface,authorization,null);
+    }
+    private int load(ServerPlayerEntity actor,ServerPlayerEntity p,Position destination,String permission,ServerWorld world,boolean surface,java.util.function.Predicate<ServerPlayerEntity> authorization,UUID guardToken) {
+        if(pending.size()+loading.size()>=settings.get().teleport.maxPendingTeleports){GuardTeleportAccess.revoke(guardToken);return messages.error(p.getCommandSource(),"busy");}
         var chunk=new net.minecraft.util.math.ChunkPos(BlockPos.ofFloored(destination.x(),destination.y(),destination.z()));
-        var job=new Loading(UUID.randomUUID(),actor.getUuid(),p.getUuid(),world,chunk,position(p),p.getHealth()+p.getAbsorptionAmount(),System.currentTimeMillis()+settings.get().teleport.asyncTimeoutSeconds*1000L);
+        var job=new Loading(UUID.randomUUID(),actor.getUuid(),p.getUuid(),world,chunk,position(p),p.getHealth()+p.getAbsorptionAmount(),System.currentTimeMillis()+settings.get().teleport.asyncTimeoutSeconds*1000L,guardToken);
         loading.put(p.getUuid(),job);held.put(p.getUuid(),job);
         world.getChunkManager().addTicket(TICKET,chunk,2,p.getUuid());
         List<java.util.concurrent.CompletableFuture<net.minecraft.server.world.OptionalChunk<net.minecraft.world.chunk.Chunk>>> futures=new ArrayList<>();
@@ -117,7 +125,7 @@ public final class TeleportService {
                     if(settings.get().teleport.cancelOnMovement&&moved){messages.send(current.getCommandSource(),"cancelled");return;}
                     Position actual=destination;
                     if(surface){var top=world.getTopPosition(net.minecraft.world.Heightmap.Type.MOTION_BLOCKING_NO_LEAVES,BlockPos.ofFloored(destination.x(),0,destination.z()));actual=new Position(destination.dimension(),destination.x(),top.getY(),destination.z(),destination.yaw(),destination.pitch(),System.currentTimeMillis());}
-                    teleport(initiator,current,actual,permission,false,authorization);
+                    teleport(initiator,current,actual,permission,false,authorization,job.guardToken);
                 } catch(IOException e){ShirokaiEssentials.LOGGER.error("Falha no teleporte após carga de chunk",e);if(current!=null)messages.error(current.getCommandSource(),"storage_error");}
                 finally{if(!pending.containsKey(p.getUuid()))release(p.getUuid());}
             });
@@ -134,10 +142,22 @@ public final class TeleportService {
         return load(p,p,dest,"rtp",p.getServerWorld(),true,ignored -> true);
     }
     private void release(UUID id) {
-        var job=held.remove(id);if(job!=null)job.world.getChunkManager().removeTicket(TICKET,job.chunk,2,id);
+        var job=held.remove(id);if(job!=null){GuardTeleportAccess.revoke(job.guardToken);job.world.getChunkManager().removeTicket(TICKET,job.chunk,2,id);}
     }
     private int perform(ServerPlayerEntity p, Position destination) throws IOException { return perform(p,destination,false); }
     private int perform(ServerPlayerEntity p, Position destination, boolean system) throws IOException {
+        return perform(p,destination,system,null);
+    }
+    private int perform(ServerPlayerEntity p, Position destination, boolean system, UUID token) throws IOException {
+        try {
+            return GuardTeleportAccess.run(token,p,destination,() -> {
+                try { return performNow(p,destination,system); }
+                catch(IOException error) { throw new java.io.UncheckedIOException(error); }
+            });
+        } catch(java.io.UncheckedIOException error) { throw error.getCause(); }
+        finally { GuardTeleportAccess.revoke(token); }
+    }
+    private int performNow(ServerPlayerEntity p, Position destination, boolean system) throws IOException {
         if (battleRestriction.test(p) || (!system && restriction.test(p))) return messages.error(p.getCommandSource(), "unsafe");
         if (!safe(p.getServer(), destination) || !p.isAlive() || p.hasVehicle() || p.hasPassengers() || p.isSleeping()) return messages.error(p.getCommandSource(), "unsafe");
         var cfg = settings.get();
@@ -173,24 +193,26 @@ public final class TeleportService {
         while (iterator.hasNext()) {
             Pending item = iterator.next();
             var p = server.getPlayerManager().getPlayer(item.player());
-            if (p == null) { iterator.remove(); release(item.player()); continue; }
+            if (p == null) { iterator.remove(); GuardTeleportAccess.revoke(item.guardToken()); release(item.player()); continue; }
             var cfg = settings.get();
             boolean moved = !p.getServerWorld().getRegistryKey().getValue().toString().equals(item.origin().dimension()) || p.getPos().squaredDistanceTo(item.origin().x(), item.origin().y(), item.origin().z()) > cfg.teleport.movementTolerance * cfg.teleport.movementTolerance;
             boolean damaged = p.getHealth() + p.getAbsorptionAmount() < item.health();
             var actor = server.getPlayerManager().getPlayer(item.actor());
             boolean needsOthers = !item.actor().equals(item.player()) && Set.of("tphere", "tpall").contains(item.permission());
             if (actor == null || battleRestriction.test(p) || !item.authorization().test(actor) || (needsOthers && !permissions.has(actor.getCommandSource(), item.permission() + ".others")) || !cfg.command(item.permission()) || !permissions.has(actor.getCommandSource(), item.permission()) || !p.isAlive() || (cfg.teleport.cancelOnMovement && moved) || (cfg.teleport.cancelOnDamage && damaged)) {
-                iterator.remove(); release(p.getUuid()); messages.send(p.getCommandSource(), "cancelled"); continue;
+                iterator.remove(); GuardTeleportAccess.revoke(item.guardToken()); release(p.getUuid()); messages.send(p.getCommandSource(), "cancelled"); continue;
             }
             if (now >= item.due()) {
                 iterator.remove();
-                try { perform(p, item.destination()); } catch (IOException e) { ShirokaiEssentials.LOGGER.error("Falha ao persistir teleporte", e); messages.error(p.getCommandSource(), "storage_error"); } finally { release(p.getUuid()); }
+                try { perform(p, item.destination(),false,item.guardToken()); } catch (IOException e) { ShirokaiEssentials.LOGGER.error("Falha ao persistir teleporte", e); messages.error(p.getCommandSource(), "storage_error"); } finally { release(p.getUuid()); }
             }
         }
     }
     public void damage(ServerPlayerEntity p) {
         if (settings.get().teleport.cancelOnDamage) {
-            boolean cancelled=pending.remove(p.getUuid())!=null;
+            var cancelledJob=pending.remove(p.getUuid());
+            if(cancelledJob!=null)GuardTeleportAccess.revoke(cancelledJob.guardToken());
+            boolean cancelled=cancelledJob!=null;
             cancelled=(loading.remove(p.getUuid())!=null)||cancelled;
             if(cancelled){release(p.getUuid());messages.send(p.getCommandSource(),"cancelled");}
         }
@@ -199,7 +221,7 @@ public final class TeleportService {
         Set<UUID> remove=new HashSet<>();
         pending.values().forEach(p->{if(p.player().equals(id)||p.actor().equals(id))remove.add(p.player());});
         loading.values().forEach(p->{if(p.player.equals(id)||p.actor.equals(id))remove.add(p.player);});
-        for(UUID player:remove){pending.remove(player);loading.remove(player);release(player);} requests.disconnect(id);
+        for(UUID player:remove){var job=pending.remove(player);if(job!=null)GuardTeleportAccess.revoke(job.guardToken());loading.remove(player);release(player);} requests.disconnect(id);
     }
     public void cancelAll(MinecraftServer server) {
         for (UUID id : pending.keySet()) {
@@ -208,5 +230,5 @@ public final class TeleportService {
         }
         clear();
     }
-    public void clear() { for(UUID id:List.copyOf(held.keySet()))release(id);loading.clear();pending.clear();requests.clear(); }
+    public void clear() { pending.values().forEach(job->GuardTeleportAccess.revoke(job.guardToken())); for(UUID id:List.copyOf(held.keySet()))release(id);loading.clear();pending.clear();requests.clear(); }
 }
