@@ -141,6 +141,7 @@ public final class TeleportService {
         if (battleRestriction.test(p) || (!system && restriction.test(p))) return messages.error(p.getCommandSource(), "unsafe");
         if (!safe(p.getServer(), destination) || !p.isAlive() || p.hasVehicle() || p.hasPassengers() || p.isSleeping()) return messages.error(p.getCommandSource(), "unsafe");
         var cfg = settings.get();
+        if (!GuardTeleportAccess.allowed(p, destination)) return messages.error(p.getCommandSource(), "unsafe");
         Position origin = position(p);
         // Commit history/cooldown before changing worlds. A failed write cancels the teleport.
         data.get().update(p.getUuid(), d -> {
@@ -148,6 +149,9 @@ public final class TeleportService {
             if (cfg.feature("teleport_cooldown")) d.nextTeleportAt = System.currentTimeMillis() + cfg.teleport.cooldownSeconds * 1000L;
         });
         p.teleport(world(p.getServer(), destination), destination.x(), destination.y(), destination.z(), destination.yaw(), destination.pitch());
+        if (p.getServerWorld() != world(p.getServer(), destination)
+            || p.getPos().squaredDistanceTo(destination.x(),destination.y(),destination.z()) > 1e-8)
+            return messages.error(p.getCommandSource(), "unsafe");
         p.fallDistance = 0;
         return messages.send(p.getCommandSource(), "teleported");
     }
