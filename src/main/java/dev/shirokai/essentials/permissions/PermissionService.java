@@ -28,9 +28,19 @@ public final class PermissionService {
             var user = api.getUserManager().getUser(source.getPlayer().getUuid());
             if (user == null) return false; // no cached user: fail closed
             var options = api.getContextManager().getQueryOptions(user).orElse(api.getContextManager().getStaticQueryOptions());
-            Tristate result = user.getCachedData().getPermissionData(options).checkPermission(node);
+            var permission = user.getCachedData().getPermissionData(options).queryPermission(node);
+            Tristate result = enderChestResult(node, permission.result(), permission.node() == null ? null : permission.node().getKey());
             return result == Tristate.UNDEFINED ? null : result.asBoolean();
         } catch (IllegalStateException | LinkageError e) { return false; }
+    }
+    /** LuckPerms shorthand may expand a plain parent grant to its child nodes. */
+    static Tristate enderChestResult(String requested, Tristate result, String origin) {
+        if (requested.equals("shirokai.essentials.enderchest.others") && result == Tristate.TRUE
+                && (origin == null || requested.startsWith(origin + "."))) {
+            // Ignore the inferred grant; explicit configuration/OP fallback still applies.
+            return Tristate.UNDEFINED;
+        }
+        return result;
     }
     public int rank(net.minecraft.server.MinecraftServer server, java.util.UUID id) {
         var player=server.getPlayerManager().getPlayer(id);

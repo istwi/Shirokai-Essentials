@@ -1,0 +1,1 @@
+{"schemaVersion":1,"id":"essentials_permission_checks","version":"1","environment":"server","entrypoints":{"server":["dev.shirokai.test.EnderChestChecks"]},"depends":{"shirokai_essentials":"*","luckperms":"*"}}

@@ -1,4 +1,4 @@
-# Comandos e permissões — 0.3.0
+# Comandos e permissões — 0.3.3-guard.1
 
 Todos os nós próprios começam com `shirokai.essentials.`. As tabelas mostram o sufixo. Por padrão, comandos administrativos exigem OP nível 2 se `opFallback=true`; console segue nível 4. Com `requireLuckPerms=true`, jogadores precisam de concessões LuckPerms explícitas, sem fallback OP. Uma negação explícita do LuckPerms prevalece sobre OP.
 
@@ -85,3 +85,7 @@ Teleporte e kits não têm cobrança. A economia foi removida do Essentials; com
 `/shirokaiessentials status`, `version`, `reload`, `conflicts` e `conflicts report` usam, respectivamente, `status`, `version`, `reload`, `conflicts` e `conflicts.report`. Cada subcomando pode ser desabilitado em `commands.json`.
 
 `/ecimport dry-run <cópia relativa ao mundo>` exige `ecimport`; `/ecimport apply <cópia>` também exige `ecimport.apply`, console, servidor vazio e Essential Commands inativo. Veja [MIGRACAO.md](MIGRACAO.md).
+
+### Ender Chest: próprio e de terceiros
+
+`shirokai.essentials.enderchest` libera `/enderchest` para o próprio jogador. Para `/enderchest <outro jogador>`, conceda também `shirokai.essentials.enderchest.others` apenas à administração. Desde a 0.3.3-guard.1, shorthand do nó principal não libera terceiros. Wildcards administrativos e fallback OP configurado continuam válidos; negações explícitas prevalecem. Aliases seguem a mesma verificação.

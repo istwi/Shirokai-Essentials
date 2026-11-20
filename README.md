@@ -1,13 +1,19 @@
-# Shirokai Essentials 0.3.0
+# Shirokai Essentials 0.3.3-guard.1
 
 Mod **Minecraft Java 1.21.1 / Fabric / Java 21, somente servidor**. A linha 0.2 acrescenta chat, correio offline, AFK, informações, utilidades, administração, moderação, kits e migração ao núcleo de homes/warps/spawn/teleporte da 0.1.0.
 
 O projeto segue [a especificação fornecida](docs/ESPECIFICACAO.txt), com as limitações descritas abaixo. Não usa Bukkit, Paper, Spigot ou Vault. Conforme a alteração solicitada, desde a versão 0.2.2 não há economia do Essentials: **teleportes e kits são gratuitos**, mantendo permissões, cooldowns e proteções. O Impactor funciona de forma independente.
 
+## Hotfix do Ender Chest
+
+A 0.3.3-guard.1 impede que a expansão automática do LuckPerms transforme `shirokai.essentials.enderchest` em acesso aos baús de outros jogadores. Mantenha essa permissão para o baú próprio; acesso a terceiros exige `.enderchest.others` ou privilégios administrativos configurados. IDs e configurações existentes foram preservados.
+
+Build e 51 testes automatizados aprovados, mais 17 verificações em servidor com LuckPerms real e jogadores simulados. [Reprodução, resultados e limites](docs/ENDERCHEST-0.3.3-guard.1.md). Pacotes em [releases/v0.3.3-guard.1](releases/v0.3.3-guard.1).
+
 ## Instalar e atualizar
 
 1. Faça backup do mundo e das configurações.
-2. Substitua o JAR antigo pelo `shirokai-essentials-0.3.0.jar` em `mods/`. Não mantenha duas versões do mesmo mod.
+2. Substitua o JAR antigo pelo `shirokai-essentials-0.3.3-guard.1.jar` em `mods/`. Não mantenha duas versões do mesmo mod.
 3. Use Fabric API para Minecraft 1.21.1 e Java 21. **Com Cobblemon 1.8.3, Fabric Loader deve ser 0.17.2 ou superior.** O mod também foi testado sem Cobblemon no Loader 0.16.14.
 4. Reinicie o servidor. Clientes não precisam instalar **Shirokai Essentials**; continuam precisando dos mods cliente exigidos pelo restante do servidor, como Cobblemon.
 5. Ative os módulos novos que desejar em `modules.json`. Eles vêm **desligados por padrão** para preservar o comportamento da instalação anterior.
@@ -26,7 +32,7 @@ Requer **JDK 21 completo**, incluindo `javac`, e acesso aos repositórios Gradle
 
 No Windows: `gradlew.bat build`. O wrapper fixa Gradle 8.12.1 e verifica a distribuição por SHA-256.
 
-Artefato instalável: `build/libs/shirokai-essentials-0.3.0.jar`. O arquivo `-sources.jar` contém fontes. Adventure/MiniMessage são incluídos no JAR; LuckPerms é uma integração opcional e não é redistribuído. O Essentials não depende do Impactor. Nenhuma tarefa de build publica release ou faz deploy.
+Artefato instalável: `build/libs/shirokai-essentials-0.3.3-guard.1.jar`. O arquivo `-sources.jar` contém fontes. Adventure/MiniMessage são incluídos no JAR; LuckPerms é uma integração opcional e não é redistribuído. O Essentials não depende do Impactor. Nenhuma tarefa de build publica release ou faz deploy.
 
 Integração opcional com **Shirokai-tab/Core 0.18.0-dev**: apelidos, AFK, proteção de chat e placeholders de homes/kits. Veja [instalação e opções](docs/INTEGRACAO-SHIROKAI-TAB.md).
 

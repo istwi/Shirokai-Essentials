@@ -1,0 +1,36 @@
+{
+  "version": "0.3.3-guard.1",
+  "baselineCommit": "1a586e0455f6feaeba1f782ae4f5769dfcd2e906",
+  "runtime": {
+    "minecraft": "1.21.1",
+    "java": "21.0.9",
+    "fabricLoader": "0.17.2",
+    "fabricApi": "0.116.7+1.21.1",
+    "luckperms": "5.4.140",
+    "apply-shorthand": true,
+    "players": "simulated server players"
+  },
+  "observedLuckPermsQuery": {
+    "requested": "shirokai.essentials.enderchest.others",
+    "result": "TRUE",
+    "origin": "shirokai.essentials.enderchest"
+  },
+  "artifacts": {
+    "shirokai-essentials-0.3.3-guard.1.jar": "42bfd9475b03b46f76f4bfbb39090548397fd5714cb978b275e83cb3d5c2c9a7",
+    "shirokai-essentials-0.3.3-guard.1-zorykai-visual.jar": "772fea4e612f416d5f3a0a0284aef99301b42bbf766b561aa3a5843ec93afcbe"
+  },
+  "baseline": {
+    "checks": 17,
+    "passed": 11,
+    "artifactSHA256": "b59fbc050495796319c19d716a901d1e9e991eb8b7c0241fc30d55925b82d8ca"
+  },
+  "fixed": {
+    "checks": 17,
+    "passed": 17,
+    "artifactSHA256": "772fea4e612f416d5f3a0a0284aef99301b42bbf766b561aa3a5843ec93afcbe"
+  },
+  "junit": {
+    "tests": 51,
+    "failures": 0
+  }
+}

@@ -1,0 +1,2 @@
+42bfd9475b03b46f76f4bfbb39090548397fd5714cb978b275e83cb3d5c2c9a7  shirokai-essentials-0.3.3-guard.1.jar
+772fea4e612f416d5f3a0a0284aef99301b42bbf766b561aa3a5843ec93afcbe  shirokai-essentials-0.3.3-guard.1-zorykai-visual.jar

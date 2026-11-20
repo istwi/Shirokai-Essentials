@@ -1,0 +1,70 @@
+[
+  {
+    "name": "non operator player",
+    "passed": true
+  },
+  {
+    "name": "own grant allowed",
+    "passed": true
+  },
+  {
+    "name": "own grant never grants other chest",
+    "passed": true
+  },
+  {
+    "name": "own command opens own chest",
+    "passed": true
+  },
+  {
+    "name": "targeted command denied with own grant only",
+    "passed": true
+  },
+  {
+    "name": "alias cannot bypass others permission",
+    "passed": true
+  },
+  {
+    "name": "selector cannot bypass others permission",
+    "passed": true
+  },
+  {
+    "name": "service denies other chest independently",
+    "passed": true
+  },
+  {
+    "name": "explicit others permission opens target chest",
+    "passed": true
+  },
+  {
+    "name": "parsed command rechecks revoked others permission",
+    "passed": true
+  },
+  {
+    "name": "revoked others permission denied",
+    "passed": true
+  },
+  {
+    "name": "explicit others inherited from admin group allowed",
+    "passed": true
+  },
+  {
+    "name": "operator fallback retained",
+    "passed": true
+  },
+  {
+    "name": "administrative wildcard retained",
+    "passed": true
+  },
+  {
+    "name": "explicit denial wins wildcard",
+    "passed": true
+  },
+  {
+    "name": "explicit denial wins operator fallback",
+    "passed": true
+  },
+  {
+    "name": "inventories unchanged after rejected requests",
+    "passed": true
+  }
+]
