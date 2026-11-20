@@ -16,7 +16,7 @@ public final class Settings {
         for (String s : List.of("warp", "warps", "setwarp", "delwarp")) map.put(s, "warps");
         for (String s : List.of("spawn", "setspawn")) map.put(s, "spawn");
         for (String name : List.of("msg", "tell", "whisper", "r", "reply", "ignore", "unignore", "mail", "socialspy", "msgtoggle", "broadcast", "me", "afk", "nick", "realname", "help", "rules", "motd", "info", "list", "seen", "whois")) map.put(name, "chat");
-        for (String name : List.of("fly", "god", "heal", "feed", "speed", "invsee", "enderchest", "workbench", "anvil", "repair", "hat", "clearinventory", "ping", "gc")) map.put(name, "utilities");
+        for (String name : List.of("fly", "god", "heal", "feed", "speed", "invsee", "enderchest", "workbench", "anvil", "grindstone", "luz", "esquentar", "repair", "hat", "clearinventory", "ping", "gc")) map.put(name, "utilities");
         for (String name : List.of("sudo", "time", "weather")) map.put(name, "administration");
         for (String name : List.of("kick", "ban", "tempban", "unban", "mute", "tempmute", "unmute", "warn", "warnings", "clearwarnings", "setjail", "deljail", "jail", "unjail", "freeze")) map.put(name, "moderation");
         for (String name : List.of("kit", "kits", "createkit", "delkit", "showkit", "resetkit", "kitrecover")) map.put(name, "kits");
@@ -41,10 +41,15 @@ public final class Settings {
     public static class Command { public boolean enabled = true; public List<String> aliases = new ArrayList<>(); public Map<String, Boolean> aliasEnabled = new LinkedHashMap<>(); }
     public static class Commands {
         public int schemaVersion = 1;
+        public int utilityAliasesVersion = 1;
         public Map<String, Command> commands = new LinkedHashMap<>();
         public Map<String, Boolean> adminSubcommands = new LinkedHashMap<>();
         public Commands() {
             COMMAND_MODULE.keySet().forEach(s -> commands.put(s, new Command()));
+            commands.get("workbench").aliases.addAll(List.of("craft", "bancada"));
+            commands.get("anvil").aliases.add("bigorna");
+            commands.get("repair").aliases.add("reparar");
+            commands.get("grindstone").aliases.add("rebolo");
             for (String s : List.of("status", "version", "reload", "conflicts", "report")) adminSubcommands.put(s, true);
         }
     }
@@ -119,7 +124,9 @@ public final class Settings {
         Settings s = new Settings();
         s.general = JsonFiles.read(dir.resolve("config.json"), General.class, new General());
         s.modules = JsonFiles.read(dir.resolve("modules.json"), Modules.class, new Modules());
-        s.commands = JsonFiles.read(dir.resolve("commands.json"), Commands.class, new Commands());
+        var commandPath = dir.resolve("commands.json");
+        s.commands = JsonFiles.read(commandPath, Commands.class, new Commands());
+        boolean migrateUtilityAliases = !com.google.gson.JsonParser.parseString(java.nio.file.Files.readString(commandPath)).getAsJsonObject().has("utilityAliasesVersion");
         s.conflicts = JsonFiles.read(dir.resolve("conflicts.json"), Conflicts.class, new Conflicts());
         s.permissions = JsonFiles.read(dir.resolve("permissions.json"), Permissions.class, new Permissions());
         s.teleport = JsonFiles.read(dir.resolve("teleport.json"), Teleport.class, new Teleport());
@@ -148,6 +155,28 @@ public final class Settings {
         new Modules().modules.forEach((k,v)->{if(newModules.contains(k))s.modules.modules.putIfAbsent(k,v);});
         new Permissions().defaults.forEach((k,v)->{if(newModules.contains(COMMAND_MODULE.get(k)))s.permissions.defaults.putIfAbsent(k,v);});
         try { s.validate(); } catch (RuntimeException e) { throw new IOException("Configuração inválida: " + e.getMessage(), e); }
+        if (migrateUtilityAliases || s.commands.utilityAliasesVersion < 1) {
+            var defaults = new Commands();
+            for (String key : List.of("workbench", "anvil", "repair", "grindstone"))
+                for (String alias : defaults.commands.get(key).aliases)
+                    if (!s.commands.commands.get(key).aliases.contains(alias)) s.commands.commands.get(key).aliases.add(alias);
+            s.commands.utilityAliasesVersion = 1;
+            var path = dir.resolve("commands.json");
+            var json = com.google.gson.JsonParser.parseString(java.nio.file.Files.readString(path)).getAsJsonObject();
+            var commands = json.getAsJsonObject("commands");
+            for (String key : List.of("workbench", "anvil", "repair", "grindstone", "luz", "esquentar")) {
+                if (!commands.has(key)) commands.add(key, JsonFiles.GSON.toJsonTree(s.commands.commands.get(key)));
+                else commands.getAsJsonObject(key).add("aliases", JsonFiles.GSON.toJsonTree(s.commands.commands.get(key).aliases));
+            }
+            json.addProperty("utilityAliasesVersion", 1);
+            JsonFiles.write(path, json);
+        }
+        var utilityPath = dir.resolve("utilities.json");
+        var utilityJson = com.google.gson.JsonParser.parseString(java.nio.file.Files.readString(utilityPath)).getAsJsonObject();
+        boolean updatedUtilities = false;
+        if (!utilityJson.has("smeltCooldownSeconds")) { utilityJson.addProperty("smeltCooldownSeconds", s.utilities.smeltCooldownSeconds); updatedUtilities = true; }
+        if (!utilityJson.has("smeltItems")) { utilityJson.add("smeltItems", JsonFiles.GSON.toJsonTree(s.utilities.smeltItems)); updatedUtilities = true; }
+        if (updatedUtilities) JsonFiles.write(utilityPath, utilityJson);
         return s;
     }
     public boolean feature(String name) { return modules.features.getOrDefault(name, false); }
@@ -179,6 +208,7 @@ public final class Settings {
         for(var lines:List.of(chat.motd,chat.rules,chat.help,chat.info))if(lines.size()>100||lines.stream().anyMatch(line->line==null||line.length()>4096))throw new IllegalArgumentException("Texto de chat excessivo");
         if(moderation.ranks.values().stream().anyMatch(rank->rank==null||rank<0||rank>10000))throw new IllegalArgumentException("Hierarquia inválida");
         Objects.requireNonNull(moderation.mutedCommandRoots);
+        if (utilities.smeltCooldownSeconds < 0 || utilities.smeltCooldownSeconds > 86400 || utilities.smeltItems == null || utilities.smeltItems.stream().anyMatch(x -> x == null || !x.matches("[a-z0-9_.-]+:[a-z0-9_./-]+"))) throw new IllegalArgumentException("Configuração de fundição inválida");
         Objects.requireNonNull(utilities.sudoAllowedCommands); Objects.requireNonNull(moderation.ranks); Objects.requireNonNull(kits.kits);
         for (var e : kits.kits.entrySet()) if (!validName(e.getKey()) || e.getValue() == null || e.getValue().items == null || e.getValue().items.size() > 54 || e.getValue().items.stream().anyMatch(i->i==null||i.isJsonNull()) || e.getValue().permission==null || e.getValue().rewardCommands == null || e.getValue().cooldownSeconds < 0 || e.getValue().cooldownSeconds > 31536000) throw new IllegalArgumentException("Kit inválido: " + e.getKey());
         if (general.schemaVersion != 1 || modules.schemaVersion != 1 || commands.schemaVersion != 1 || conflicts.schemaVersion != 1 || permissions.schemaVersion != 1 || teleport.schemaVersion != 1 || homes.schemaVersion != 1 || warps.schemaVersion != 1 || spawn.schemaVersion != 1 || messages.schemaVersion != 1) throw new IllegalArgumentException("schemaVersion não suportado");

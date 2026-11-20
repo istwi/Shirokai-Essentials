@@ -42,6 +42,14 @@ public final class MoreMessages {
         m.put("kit_recovered", "Pendência {id} encerrada sem reenviar itens.");
         m.put("import_report", "Migração em modo {mode}. Relatório: {path}.");
         m.put("import_blocked", "Importação bloqueada: {reason}.");
+        m.put("repair_done", "Item na mão de {player} reparado.");
+        m.put("grindstone_title", "Rebolo");
+        m.put("light_on", "Visão noturna ativada. Use /luz novamente para desativar.");
+        m.put("light_off", "Visão noturna desativada.");
+        m.put("smelt_invalid", "Segure um minério válido na mão principal para usar /esquentar.");
+        m.put("smelt_wait", "Aguarde {time} para usar /esquentar novamente.");
+        m.put("smelt_space", "O resultado não cabe em uma pilha. Segure menos minérios e tente novamente.");
+        m.put("smelt_done", "Fundição concluída! {count} unidade(s) convertida(s).");
         return m;
     }
 }

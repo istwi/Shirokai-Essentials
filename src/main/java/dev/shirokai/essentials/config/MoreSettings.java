@@ -16,6 +16,8 @@ public final class MoreSettings {
     public static class Utilities {
         public int schemaVersion = 1;
         public boolean persistModes = false, allowSudo = false;
+        public int smeltCooldownSeconds = 300;
+        public List<String> smeltItems = new ArrayList<>(List.of("minecraft:raw_iron", "minecraft:raw_gold", "minecraft:raw_copper", "minecraft:iron_ore", "minecraft:deepslate_iron_ore", "minecraft:gold_ore", "minecraft:deepslate_gold_ore", "minecraft:nether_gold_ore", "minecraft:copper_ore", "minecraft:deepslate_copper_ore", "minecraft:ancient_debris"));
         public List<String> sudoAllowedCommands = new ArrayList<>(List.of("me"));
     }
     public static class Moderation {

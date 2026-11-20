@@ -1,5 +1,6 @@
 {
   "schemaVersion": 1,
+  "utilityAliasesVersion": 1,
   "commands": {
     "tpa": {
       "enabled": true,
@@ -278,17 +279,41 @@
     },
     "workbench": {
       "enabled": true,
-      "aliases": [],
+      "aliases": [
+        "craft",
+        "bancada"
+      ],
       "aliasEnabled": {}
     },
     "anvil": {
+      "enabled": true,
+      "aliases": [
+        "bigorna"
+      ],
+      "aliasEnabled": {}
+    },
+    "grindstone": {
+      "enabled": true,
+      "aliases": [
+        "rebolo"
+      ],
+      "aliasEnabled": {}
+    },
+    "luz": {
+      "enabled": true,
+      "aliases": [],
+      "aliasEnabled": {}
+    },
+    "esquentar": {
       "enabled": true,
       "aliases": [],
       "aliasEnabled": {}
     },
     "repair": {
       "enabled": true,
-      "aliases": [],
+      "aliases": [
+        "reparar"
+      ],
       "aliasEnabled": {}
     },
     "hat": {

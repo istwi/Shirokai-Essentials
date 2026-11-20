@@ -39,7 +39,7 @@ public final class UtilityService {
             case "heal"->{target.setHealth(target.getMaxHealth());target.clearStatusEffects();}
             case "feed"->{target.getHungerManager().setFoodLevel(20);target.getHungerManager().setSaturationLevel(20);}
             case "speed"->{if(target.getAbilities().flying)target.getAbilities().setFlySpeed(speed/20f);else target.getAbilities().setWalkSpeed(speed/20f);target.sendAbilitiesUpdate();}
-            case "repair"->{var item=target.getMainHandStack();if(!item.isDamageable())return app.messages.error(source,"invalid","value","item sem durabilidade");item.setDamage(0);target.currentScreenHandler.sendContentUpdates();}
+            case "repair"->{var item=target.getMainHandStack();if(!item.isDamageable())return app.messages.error(source,"invalid","value","item sem durabilidade");item.setDamage(0);target.currentScreenHandler.sendContentUpdates();return app.messages.send(source,"repair_done","player",target.getName().getString());}
             case "hat"->{ItemStack item=target.getMainHandStack();ItemStack hat=target.getEquippedStack(EquipmentSlot.HEAD);target.equipStack(EquipmentSlot.HEAD,item.copy());target.setStackInHand(net.minecraft.util.Hand.MAIN_HAND,hat.copy());}
             case "clearinventory"->{target.getInventory().clear();target.currentScreenHandler.sendContentUpdates();}
             case "invsee"->{
@@ -52,8 +52,44 @@ public final class UtilityService {
         }
         return app.messages.send(source,"utility","feature",cmd,"player",target.getName().getString());
     }
-    public int station(ServerPlayerEntity p,String cmd){
-        p.openHandledScreen(new SimpleNamedScreenHandlerFactory((id,inv,user)->cmd.equals("workbench")?new CraftingScreenHandler(id,inv,ScreenHandlerContext.EMPTY):new AnvilScreenHandler(id,inv,ScreenHandlerContext.EMPTY),app.messages.text(cmd.equals("workbench")?"workbench_title":"anvil_title")));return 1;
+    public int light(ServerPlayerEntity player) {
+        var effect = net.minecraft.entity.effect.StatusEffects.NIGHT_VISION;
+        boolean enabled = !player.hasStatusEffect(effect);
+        if (enabled) player.addStatusEffect(new net.minecraft.entity.effect.StatusEffectInstance(effect, -1, 0, false, false, true));
+        else player.removeStatusEffect(effect);
+        return app.messages.send(player.getCommandSource(), enabled ? "light_on" : "light_off");
+    }
+    public int smelt(ServerPlayerEntity player) throws IOException {
+        var source = player.getCommandSource();
+        long now = System.currentTimeMillis();
+        long next = app.data().player(player.getUuid()).nextSmeltAt;
+        if (next > now) {
+            long seconds = (next-now+999)/1000;
+            String wait = seconds < 60 ? seconds + "s" : seconds/60 + "min" + (seconds%60 == 0 ? "" : " " + seconds%60 + "s");
+            return app.messages.error(source,"smelt_wait","time",wait);
+        }
+        ItemStack input = player.getMainHandStack();
+        String id = net.minecraft.registry.Registries.ITEM.getId(input.getItem()).toString();
+        if (input.isEmpty() || !app.settings().utilities.smeltItems.contains(id)) return app.messages.error(source,"smelt_invalid");
+        var recipeInput = new net.minecraft.recipe.input.SingleStackRecipeInput(input);
+        var recipe = player.getServer().getRecipeManager().getFirstMatch(net.minecraft.recipe.RecipeType.SMELTING, recipeInput, player.getServerWorld());
+        if (recipe.isEmpty()) return app.messages.error(source,"smelt_invalid");
+        ItemStack output = recipe.get().value().craft(recipeInput, player.getRegistryManager());
+        if (output.isEmpty()) return app.messages.error(source,"smelt_invalid");
+        long count = (long) output.getCount() * input.getCount();
+        if (count > output.getMaxCount()) return app.messages.error(source,"smelt_space");
+        int consumed = input.getCount();
+        output.setCount((int) count);
+        app.data().audit(source.getName(),"esquentar",id,"count="+consumed);
+        app.data().update(player.getUuid(), data -> data.nextSmeltAt = now + app.settings().utilities.smeltCooldownSeconds * 1000L);
+        player.setStackInHand(net.minecraft.util.Hand.MAIN_HAND, output);
+        player.currentScreenHandler.sendContentUpdates();
+        return app.messages.send(source,"smelt_done","count",consumed,"item",output.getName().getString());
+    }
+    public int station(ServerPlayerEntity p,String cmd) {
+        String title = switch (cmd) { case "workbench" -> "workbench_title"; case "anvil" -> "anvil_title"; case "grindstone" -> "grindstone_title"; default -> throw new IllegalArgumentException(cmd); };
+        p.openHandledScreen(new SimpleNamedScreenHandlerFactory((id,inv,user)->VirtualStations.create(cmd,id,inv,p),app.messages.text(title)));
+        return 1;
     }
     public void disconnect(UUID id){god.remove(id);flight.remove(id);}
     public void clear(){god.clear();flight.clear();}

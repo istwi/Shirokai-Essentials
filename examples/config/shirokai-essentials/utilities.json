@@ -2,6 +2,20 @@
   "schemaVersion": 1,
   "persistModes": false,
   "allowSudo": false,
+  "smeltCooldownSeconds": 300,
+  "smeltItems": [
+    "minecraft:raw_iron",
+    "minecraft:raw_gold",
+    "minecraft:raw_copper",
+    "minecraft:iron_ore",
+    "minecraft:deepslate_iron_ore",
+    "minecraft:gold_ore",
+    "minecraft:deepslate_gold_ore",
+    "minecraft:nether_gold_ore",
+    "minecraft:copper_ore",
+    "minecraft:deepslate_copper_ore",
+    "minecraft:ancient_debris"
+  ],
   "sudoAllowedCommands": [
     "me"
   ]

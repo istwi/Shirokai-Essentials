@@ -107,7 +107,60 @@ public final class EnderChestChecks implements DedicatedServerModInitializer {
         check("explicit denial wins wildcard", !app.permissions.has(source,"enderchest.others"));
         check("explicit denial wins operator fallback", !app.permissions.has(source.withLevel(4),"enderchest.others"));
         check("inventories unchanged after rejected requests", alice.getEnderChestInventory().getStack(0).getCount() == 2 && bob.getEnderChestInventory().getStack(0).getCount() == 5);
+        utilityChecks(server, app, alice, user);
         server.getPlayerManager().getPlayerList().remove(alice);
         server.getPlayerManager().getPlayerList().remove(bob);
     }
+    private void utilityChecks(MinecraftServer server, ShirokaiEssentials app, Player player, net.luckperms.api.model.user.User user) throws Exception {
+        user.data().clear(); user.getCachedData().invalidate();
+        var source=player.getCommandSource();
+        check("luz denied without permission", execute(server,source,"luz")==0 && !player.hasStatusEffect(net.minecraft.entity.effect.StatusEffects.NIGHT_VISION));
+        for (String name : List.of("workbench","anvil","grindstone","repair","luz","esquentar")) user.data().add(PermissionNode.builder("shirokai.essentials."+name).build());
+        user.getCachedData().invalidate();
+        player.addStatusEffect(new net.minecraft.entity.effect.StatusEffectInstance(net.minecraft.entity.effect.StatusEffects.SPEED,1200));
+        check("luz enables night vision",execute(server,source,"luz")==1 && player.hasStatusEffect(net.minecraft.entity.effect.StatusEffects.NIGHT_VISION));
+        check("luz disables only night vision",execute(server,source,"luz")==1 && !player.hasStatusEffect(net.minecraft.entity.effect.StatusEffects.NIGHT_VISION) && player.hasStatusEffect(net.minecraft.entity.effect.StatusEffects.SPEED));
+        for (String name : List.of("craft","bancada","bigorna","rebolo")) {
+            player.getInventory().clear();execute(server,source,name);
+            boolean type = switch(name) {case "craft","bancada" -> player.currentScreenHandler instanceof net.minecraft.screen.CraftingScreenHandler;case "bigorna"->player.currentScreenHandler instanceof net.minecraft.screen.AnvilScreenHandler;default->player.currentScreenHandler instanceof net.minecraft.screen.GrindstoneScreenHandler;};
+            check(name+" opens correct virtual station",type && player.currentScreenHandler.canUse(player));
+            int input=name.equals("craft")||name.equals("bancada")?1:0;
+            player.currentScreenHandler.getSlot(input).setStack(new ItemStack(Items.DIAMOND,3));
+            player.closeHandledScreen();
+            check(name+" returns inputs on close",player.getInventory().count(Items.DIAMOND)==3);
+        }
+        player.getInventory().clear();execute(server,source,"craft");
+        player.currentScreenHandler.getSlot(1).setStack(new ItemStack(Items.OAK_LOG));
+        var output=player.currentScreenHandler.getSlot(0);
+        check("craft calculates vanilla recipe",output.getStack().isOf(Items.OAK_PLANKS) && output.getStack().getCount()==4);
+        var crafted=output.takeStack(4);output.onTakeItem(player,crafted);
+        check("craft consumes input when taking result",player.currentScreenHandler.getSlot(1).getStack().isEmpty() && crafted.getCount()==4);
+        player.closeHandledScreen();
+        player.getInventory().clear();execute(server,source,"bigorna");player.addExperienceLevels(30-player.experienceLevel);
+        var anvil=(net.minecraft.screen.AnvilScreenHandler)player.currentScreenHandler;
+        anvil.getSlot(0).setStack(new ItemStack(Items.DIAMOND_PICKAXE));anvil.setNewItemName("Ferramenta teste");
+        check("bigorna computes renamed item",!anvil.getSlot(2).getStack().isEmpty() && anvil.getSlot(2).getStack().getName().getString().equals("Ferramenta teste"));
+        int cost=anvil.getLevelCost();var renamed=anvil.getSlot(2).takeStack(1);anvil.getSlot(2).onTakeItem(player,renamed);
+        check("bigorna consumes input and charges vanilla levels",cost>0 && player.experienceLevel==30-cost && anvil.getSlot(0).getStack().isEmpty());player.closeHandledScreen();
+        execute(server,source,"rebolo");var grind=player.currentScreenHandler;
+        var worn=new ItemStack(Items.DIAMOND_PICKAXE);worn.setDamage(1000);grind.getSlot(0).setStack(worn.copy());grind.getSlot(1).setStack(worn.copy());
+        check("rebolo computes vanilla tool repair",!grind.getSlot(2).getStack().isEmpty() && grind.getSlot(2).getStack().getDamage()<1000);
+        var repaired=grind.getSlot(2).takeStack(1);grind.getSlot(2).onTakeItem(player,repaired);
+        check("rebolo consumes both input tools",grind.getSlot(0).getStack().isEmpty() && grind.getSlot(1).getStack().isEmpty());player.closeHandledScreen();
+        player.getInventory().clear();var tool=new ItemStack(Items.DIAMOND_PICKAXE);tool.setDamage(100);player.setStackInHand(net.minecraft.util.Hand.MAIN_HAND,tool);
+        check("reparar repairs held tool",execute(server,source,"reparar")==1 && player.getMainHandStack().getDamage()==0);
+        player.getInventory().clear();player.setStackInHand(net.minecraft.util.Hand.MAIN_HAND,new ItemStack(Items.RAW_IRON,64));
+        check("esquentar converts complete stack",execute(server,source,"esquentar")==1 && player.getMainHandStack().isOf(Items.IRON_INGOT) && player.getMainHandStack().getCount()==64);
+        long until=app.data().player(player.getUuid()).nextSmeltAt;
+        check("esquentar sets five minute persistent cooldown",until-System.currentTimeMillis()>298000 && until-System.currentTimeMillis()<=300000);
+        player.setStackInHand(net.minecraft.util.Hand.MAIN_HAND,new ItemStack(Items.RAW_GOLD,5));
+        check("cooldown blocks conversion without consuming ore",execute(server,source,"esquentar")==0 && player.getMainHandStack().isOf(Items.RAW_GOLD) && player.getMainHandStack().getCount()==5 && app.data().player(player.getUuid()).nextSmeltAt==until);
+        app.data().update(player.getUuid(),d->d.nextSmeltAt=0);
+        player.setStackInHand(net.minecraft.util.Hand.MAIN_HAND,new ItemStack(Items.BEEF,3));
+        check("food rejected without consuming cooldown",execute(server,source,"esquentar")==0 && player.getMainHandStack().isOf(Items.BEEF) && app.data().player(player.getUuid()).nextSmeltAt==0);
+        player.setStackInHand(net.minecraft.util.Hand.MAIN_HAND,new ItemStack(Items.DEEPSLATE_GOLD_ORE,8));
+        check("deepslate ore follows furnace recipe",execute(server,source,"esquentar")==1 && player.getMainHandStack().isOf(Items.GOLD_INGOT) && player.getMainHandStack().getCount()==8);
+        app.data().update(player.getUuid(),d->d.nextSmeltAt=0);
+    }
+
 }

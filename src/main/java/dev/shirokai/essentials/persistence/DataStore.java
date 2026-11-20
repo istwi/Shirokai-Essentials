@@ -13,6 +13,7 @@ public final class DataStore {
         public Position back;
         public boolean requestsBlocked = false;
         public long nextTeleportAt;
+        public long nextSmeltAt;
         public Set<UUID> ignored = new HashSet<>();
         public List<Mail> mail = new ArrayList<>();
         public boolean messagesBlocked, socialSpy, fly, managedFlight, god, joined;
