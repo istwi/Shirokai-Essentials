@@ -86,8 +86,38 @@ public final class UtilityService {
         player.currentScreenHandler.sendContentUpdates();
         return app.messages.send(source,"smelt_done","count",consumed,"item",output.getName().getString());
     }
+    public int trash(ServerPlayerEntity player) {
+        player.openHandledScreen(new SimpleNamedScreenHandlerFactory((id,inv,p)->new TrashScreen(id,inv,player,app), app.messages.text("trash_title")));
+        return 1;
+    }
+    public int compact(ServerPlayerEntity player) throws IOException {
+        var input = player.getMainHandStack();
+        var blocks = Map.of(net.minecraft.item.Items.IRON_INGOT,net.minecraft.item.Items.IRON_BLOCK,
+            net.minecraft.item.Items.GOLD_INGOT,net.minecraft.item.Items.GOLD_BLOCK,
+            net.minecraft.item.Items.COPPER_INGOT,net.minecraft.item.Items.COPPER_BLOCK,
+            net.minecraft.item.Items.NETHERITE_INGOT,net.minecraft.item.Items.NETHERITE_BLOCK);
+        var target = blocks.get(input.getItem());
+        if (target == null || input.getCount() < 9 || !input.getComponentChanges().isEmpty()) return app.messages.error(player.getCommandSource(),"compact_invalid");
+        var grid = net.minecraft.recipe.input.CraftingRecipeInput.create(3,3,java.util.Collections.nCopies(9,input.copyWithCount(1)));
+        var recipe = player.getServer().getRecipeManager().getFirstMatch(net.minecraft.recipe.RecipeType.CRAFTING,grid,player.getServerWorld());
+        if (recipe.isEmpty()) return app.messages.error(player.getCommandSource(),"compact_recipe");
+        var output = recipe.get().value().craft(grid,player.getRegistryManager());
+        if (!output.isOf(target) || output.getCount()!=1 || recipe.get().value().getRemainder(grid).stream().anyMatch(stack->!stack.isEmpty())) return app.messages.error(player.getCommandSource(),"compact_recipe");
+        int count = input.getCount()/9, remainder = input.getCount()%9;
+        if (count>output.getMaxCount()) return app.messages.error(player.getCommandSource(),"compact_space");
+        output.setCount(count);
+        var inventory = player.getInventory();
+        var proposed = inventory.main.stream().map(ItemStack::copy).collect(java.util.stream.Collectors.toCollection(java.util.ArrayList::new));
+        proposed.set(inventory.selectedSlot,output);
+        var plan = dev.shirokai.essentials.kits.InventoryPlan.create(proposed,remainder==0 ? List.of() : List.of(input.copyWithCount(remainder)));
+        if (plan.isEmpty()) return app.messages.error(player.getCommandSource(),"compact_space");
+        app.data().audit(player.getName().getString(),"compactar",net.minecraft.registry.Registries.ITEM.getId(input.getItem()).toString(),"blocks="+count+" remainder="+remainder);
+        for (int i=0;i<inventory.main.size();i++) inventory.main.set(i,plan.get().get(i));
+        inventory.markDirty();player.currentScreenHandler.sendContentUpdates();
+        return app.messages.send(player.getCommandSource(),"compact_done","count",count,"remainder",remainder);
+    }
     public int station(ServerPlayerEntity p,String cmd) {
-        String title = switch (cmd) { case "workbench" -> "workbench_title"; case "anvil" -> "anvil_title"; case "grindstone" -> "grindstone_title"; default -> throw new IllegalArgumentException(cmd); };
+        String title = switch (cmd) { case "workbench" -> "workbench_title"; case "anvil" -> "anvil_title"; case "grindstone" -> "grindstone_title"; case "cortador" -> "stonecutter_title"; case "tear" -> "loom_title"; default -> throw new IllegalArgumentException(cmd); };
         p.openHandledScreen(new SimpleNamedScreenHandlerFactory((id,inv,user)->VirtualStations.create(cmd,id,inv,p),app.messages.text(title)));
         return 1;
     }

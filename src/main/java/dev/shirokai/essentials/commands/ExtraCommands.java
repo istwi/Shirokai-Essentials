@@ -62,9 +62,11 @@ final class ExtraCommands {
                 .then(argument("player",EntityArgumentType.player()).requires(s->app.permissions.has(s,cmd+".others")).executes(owner.action(cmd,c->app.utilities.execute(c.getSource(),cmd,EntityArgumentType.getPlayer(c,"player"),1))));
             case "speed" -> b.then(argument("speed",IntegerArgumentType.integer(1,10)).executes(owner.action(cmd,c->app.utilities.execute(c.getSource(),cmd,c.getSource().getPlayerOrThrow(),IntegerArgumentType.getInteger(c,"speed"))))
                 .then(argument("player",EntityArgumentType.player()).requires(s->app.permissions.has(s,"speed.others")).executes(owner.action(cmd,c->app.utilities.execute(c.getSource(),cmd,EntityArgumentType.getPlayer(c,"player"),IntegerArgumentType.getInteger(c,"speed"))))));
+            case "lixeira" -> b.executes(owner.action(cmd,c->app.utilities.trash(c.getSource().getPlayerOrThrow())));
+            case "compactar" -> b.executes(owner.action(cmd,c->app.utilities.compact(c.getSource().getPlayerOrThrow())));
             case "luz" -> b.executes(owner.action(cmd,c->app.utilities.light(c.getSource().getPlayerOrThrow())));
             case "esquentar" -> b.executes(owner.action(cmd,c->app.utilities.smelt(c.getSource().getPlayerOrThrow())));
-            case "workbench","anvil","grindstone" -> b.executes(owner.action(cmd,c->app.utilities.station(c.getSource().getPlayerOrThrow(),cmd)));
+            case "workbench","anvil","grindstone","cortador","tear" -> b.executes(owner.action(cmd,c->app.utilities.station(c.getSource().getPlayerOrThrow(),cmd)));
             case "ping" -> b.executes(owner.action(cmd,c->app.messages.send(c.getSource(),"ping","ping",c.getSource().getPlayerOrThrow().networkHandler.getLatency())));
             case "gc" -> b.executes(owner.action(cmd,c->{var runtime=Runtime.getRuntime();return app.messages.send(c.getSource(),"memory","used",(runtime.totalMemory()-runtime.freeMemory())/(1024*1024),"max",runtime.maxMemory()/(1024*1024),"count",c.getSource().getServer().getCurrentPlayerCount());}));
             case "sudo" -> b.then(argument("player",EntityArgumentType.player()).requires(s->app.permissions.has(s,"sudo.others")).then(argument("message",StringArgumentType.greedyString()).executes(owner.action(cmd,this::sudo))));

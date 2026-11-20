@@ -50,6 +50,16 @@ public final class MoreMessages {
         m.put("smelt_wait", "Aguarde {time} para usar /esquentar novamente.");
         m.put("smelt_space", "O resultado não cabe em uma pilha. Segure menos minérios e tente novamente.");
         m.put("smelt_done", "Fundição concluída! {count} unidade(s) convertida(s).");
+        m.put("stonecutter_title", "Cortador de pedras");m.put("loom_title", "Tear");
+        m.put("trash_title", "Lixeira");
+        m.put("trash_review", "Revisar descarte");m.put("trash_confirm", "Confirmar descarte de {count} itens");
+        m.put("trash_cancel", "Cancelar e devolver itens");m.put("trash_empty", "Coloque os itens nas duas primeiras linhas da lixeira.");
+        m.put("trash_cursor", "Guarde o item no cursor antes de confirmar.");m.put("trash_review_message", "Confira os itens na lixeira. Clique novamente em Confirmar para descartá-los definitivamente. Fechar ou cancelar devolve os itens.");
+        m.put("trash_done", "Descarte concluído: {count} itens removidos.");
+        m.put("compact_invalid", "Segure pelo menos 9 barras comuns de ferro, ouro, cobre ou netherita na mão. Itens personalizados não são compactados.");
+        m.put("compact_recipe", "Não há uma receita compatível de nove barras para um bloco neste servidor.");
+        m.put("compact_space", "Libere espaço no inventário para guardar as barras restantes. Nenhum item foi alterado.");
+        m.put("compact_done", "Compactação concluída: {count} bloco(s). Barras restantes: {remainder}.");
         return m;
     }
 }

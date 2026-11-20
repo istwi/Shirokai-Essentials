@@ -25,6 +25,12 @@ final class VirtualStations {
             case "grindstone" -> new GrindstoneScreenHandler(id, inventory, context) {
                 @Override public boolean canUse(PlayerEntity player) { return player == owner && player.isAlive(); }
             };
+            case "cortador" -> new StonecutterScreenHandler(id, inventory, context) {
+                @Override public boolean canUse(PlayerEntity player) { return player == owner && player.isAlive(); }
+            };
+            case "tear" -> new LoomScreenHandler(id, inventory, context) {
+                @Override public boolean canUse(PlayerEntity player) { return player == owner && player.isAlive(); }
+            };
             default -> throw new IllegalArgumentException(command);
         };
     }

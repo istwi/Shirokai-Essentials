@@ -1,5 +1,5 @@
 plugins { id 'fabric-loom' version '1.9.2' }
-version = '0.4.0-guard.1'
+version = '0.5.0-guard.1'
 group = 'dev.shirokai'
 base { archivesName = 'shirokai-essentials' }
 repositories { mavenCentral() }
@@ -65,5 +65,6 @@ tasks.register('remapPermissionFixtureJar', net.fabricmc.loom.task.RemapJarTask)
     inputFile = tasks.permissionFixtureJar.archiveFile
     archiveBaseName = 'essentials-permission-checks'
     archiveClassifier = ''
+    classpath.from(sourceSets.main.compileClasspath, sourceSets.main.output)
 }
 configurations.permissionFixtureCompileOnly.extendsFrom(configurations.compileOnly)

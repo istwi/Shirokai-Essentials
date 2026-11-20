@@ -1,0 +1,286 @@
+[
+  {
+    "name": "non operator player",
+    "passed": true
+  },
+  {
+    "name": "own grant allowed",
+    "passed": true
+  },
+  {
+    "name": "own grant never grants other chest",
+    "passed": true
+  },
+  {
+    "name": "own command opens own chest",
+    "passed": true
+  },
+  {
+    "name": "targeted command denied with own grant only",
+    "passed": true
+  },
+  {
+    "name": "alias cannot bypass others permission",
+    "passed": true
+  },
+  {
+    "name": "selector cannot bypass others permission",
+    "passed": true
+  },
+  {
+    "name": "service denies other chest independently",
+    "passed": true
+  },
+  {
+    "name": "explicit others permission opens target chest",
+    "passed": true
+  },
+  {
+    "name": "parsed command rechecks revoked others permission",
+    "passed": true
+  },
+  {
+    "name": "revoked others permission denied",
+    "passed": true
+  },
+  {
+    "name": "explicit others inherited from admin group allowed",
+    "passed": true
+  },
+  {
+    "name": "operator fallback retained",
+    "passed": true
+  },
+  {
+    "name": "administrative wildcard retained",
+    "passed": true
+  },
+  {
+    "name": "explicit denial wins wildcard",
+    "passed": true
+  },
+  {
+    "name": "explicit denial wins operator fallback",
+    "passed": true
+  },
+  {
+    "name": "inventories unchanged after rejected requests",
+    "passed": true
+  },
+  {
+    "name": "luz denied without permission",
+    "passed": true
+  },
+  {
+    "name": "luz enables night vision",
+    "passed": true
+  },
+  {
+    "name": "luz disables only night vision",
+    "passed": true
+  },
+  {
+    "name": "craft opens correct virtual station",
+    "passed": true
+  },
+  {
+    "name": "craft returns inputs on close",
+    "passed": true
+  },
+  {
+    "name": "bancada opens correct virtual station",
+    "passed": true
+  },
+  {
+    "name": "bancada returns inputs on close",
+    "passed": true
+  },
+  {
+    "name": "bigorna opens correct virtual station",
+    "passed": true
+  },
+  {
+    "name": "bigorna returns inputs on close",
+    "passed": true
+  },
+  {
+    "name": "rebolo opens correct virtual station",
+    "passed": true
+  },
+  {
+    "name": "rebolo returns inputs on close",
+    "passed": true
+  },
+  {
+    "name": "craft calculates vanilla recipe",
+    "passed": true
+  },
+  {
+    "name": "craft consumes input when taking result",
+    "passed": true
+  },
+  {
+    "name": "bigorna computes renamed item",
+    "passed": true
+  },
+  {
+    "name": "bigorna consumes input and charges vanilla levels",
+    "passed": true
+  },
+  {
+    "name": "rebolo computes vanilla tool repair",
+    "passed": true
+  },
+  {
+    "name": "rebolo consumes both input tools",
+    "passed": true
+  },
+  {
+    "name": "reparar repairs held tool",
+    "passed": true
+  },
+  {
+    "name": "esquentar converts complete stack",
+    "passed": true
+  },
+  {
+    "name": "esquentar sets five minute persistent cooldown",
+    "passed": true
+  },
+  {
+    "name": "cooldown blocks conversion without consuming ore",
+    "passed": true
+  },
+  {
+    "name": "food rejected without consuming cooldown",
+    "passed": true
+  },
+  {
+    "name": "deepslate ore follows furnace recipe",
+    "passed": true
+  },
+  {
+    "name": "trash denied without permission",
+    "passed": true
+  },
+  {
+    "name": "cortador opens correct vanilla station",
+    "passed": true
+  },
+  {
+    "name": "cortador returns input on close",
+    "passed": true
+  },
+  {
+    "name": "tear opens correct vanilla station",
+    "passed": true
+  },
+  {
+    "name": "tear returns input on close",
+    "passed": true
+  },
+  {
+    "name": "stonecutter computes real recipe",
+    "passed": true
+  },
+  {
+    "name": "stonecutter consumes one input",
+    "passed": true
+  },
+  {
+    "name": "loom computes real banner pattern",
+    "passed": true
+  },
+  {
+    "name": "loom consumes banner and one dye",
+    "passed": true
+  },
+  {
+    "name": "compact 64 minecraft:iron_ingot into 7 blocks and 1 remainder",
+    "passed": true
+  },
+  {
+    "name": "compact 64 minecraft:gold_ingot into 7 blocks and 1 remainder",
+    "passed": true
+  },
+  {
+    "name": "compact 64 minecraft:copper_ingot into 7 blocks and 1 remainder",
+    "passed": true
+  },
+  {
+    "name": "compact 64 minecraft:netherite_ingot into 7 blocks and 1 remainder",
+    "passed": true
+  },
+  {
+    "name": "compact rejects less than 9 without mutation",
+    "passed": true
+  },
+  {
+    "name": "compact rejects custom currency bars",
+    "passed": true
+  },
+  {
+    "name": "compact full inventory with remainder refuses safely",
+    "passed": true
+  },
+  {
+    "name": "compact full inventory with no remainder succeeds",
+    "passed": true
+  },
+  {
+    "name": "trash first click only reviews",
+    "passed": true
+  },
+  {
+    "name": "inventory interaction invalidates trash review",
+    "passed": true
+  },
+  {
+    "name": "trash close returns reviewed items",
+    "passed": true
+  },
+  {
+    "name": "trash cancel returns items",
+    "passed": true
+  },
+  {
+    "name": "trash shift click moves player items into input slots",
+    "passed": true
+  },
+  {
+    "name": "trash shift click returns escrow without duplication",
+    "passed": true
+  },
+  {
+    "name": "trash preserves cursor and input on close",
+    "passed": true
+  },
+  {
+    "name": "trash audit failure preserves items",
+    "passed": true
+  },
+  {
+    "name": "trash audit failure still allows cancellation",
+    "passed": true
+  },
+  {
+    "name": "changed trash contents require a new review",
+    "passed": true
+  },
+  {
+    "name": "trash confirmed deletion removes only escrowed items",
+    "passed": true
+  },
+  {
+    "name": "trash decorative buttons cannot be extracted",
+    "passed": true
+  },
+  {
+    "name": "revoked trash permission cannot delete",
+    "passed": true
+  },
+  {
+    "name": "revoked trash access returns items",
+    "passed": true
+  }
+]

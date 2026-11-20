@@ -299,6 +299,26 @@
       ],
       "aliasEnabled": {}
     },
+    "cortador": {
+      "enabled": true,
+      "aliases": [],
+      "aliasEnabled": {}
+    },
+    "tear": {
+      "enabled": true,
+      "aliases": [],
+      "aliasEnabled": {}
+    },
+    "lixeira": {
+      "enabled": true,
+      "aliases": [],
+      "aliasEnabled": {}
+    },
+    "compactar": {
+      "enabled": true,
+      "aliases": [],
+      "aliasEnabled": {}
+    },
     "luz": {
       "enabled": true,
       "aliases": [],

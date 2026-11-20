@@ -21,6 +21,12 @@ class UtilitySettingsTest {
   assertEquals(300,Settings.load(dir).utilities.smeltCooldownSeconds);
   var j=com.google.gson.JsonParser.parseString(Files.readString(path)).getAsJsonObject();assertEquals("keep",j.get("custom").getAsString());assertTrue(j.has("smeltItems"));
  }
+ @Test void newCommandsAreAddedWithoutResettingDisabledCommands() throws Exception {
+  var s=Settings.load(dir);var path=dir.resolve("commands.json");var json=com.google.gson.JsonParser.parseString(Files.readString(path)).getAsJsonObject();
+  var commands=json.getAsJsonObject("commands");commands.remove("cortador");commands.remove("tear");commands.remove("compactar");commands.getAsJsonObject("lixeira").addProperty("enabled",false);Files.writeString(path,json.toString());
+  var loaded=Settings.load(dir);assertFalse(loaded.commands.commands.get("lixeira").enabled);var saved=com.google.gson.JsonParser.parseString(Files.readString(path)).getAsJsonObject().getAsJsonObject("commands");
+  assertTrue(saved.has("cortador")&&saved.has("tear")&&saved.has("compactar"));assertFalse(saved.getAsJsonObject("lixeira").get("enabled").getAsBoolean());
+ }
  @Test void invalidCooldownPreservesConfig() throws Exception {
   var s=Settings.load(dir);s.utilities.smeltCooldownSeconds=-1;var path=dir.resolve("utilities.json");JsonFiles.write(path,s.utilities);String before=Files.readString(path);assertThrows(java.io.IOException.class,()->Settings.load(dir));assertEquals(before,Files.readString(path));
  }

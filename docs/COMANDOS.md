@@ -1,4 +1,4 @@
-# Comandos e permissões — 0.4.0-guard.1
+# Comandos e permissões — 0.5.0-guard.1
 
 Todos os nós próprios começam com `shirokai.essentials.`. As tabelas mostram o sufixo. Por padrão, comandos administrativos exigem OP nível 2 se `opFallback=true`; console segue nível 4. Com `requireLuckPerms=true`, jogadores precisam de concessões LuckPerms explícitas, sem fallback OP. Uma negação explícita do LuckPerms prevalece sobre OP.
 
@@ -93,3 +93,7 @@ Teleporte e kits não têm cobrança. A economia foi removida do Essentials; com
 ### Bancadas, visão noturna e fundição
 
 `/craft` e `/bancada` usam `workbench`; `/bigorna` usa `anvil`; `/rebolo` usa `grindstone`; `/reparar` usa `repair`. Prefixo das permissões: `shirokai.essentials.`. `/luz` e `/esquentar` usam os nós com seus próprios nomes e atuam somente no próprio jogador. `/esquentar` tem recarga persistente de 300 segundos. [Detalhes e configuração](UTILIDADES-0.4.0-guard.1.md).
+
+### Lixeira, compactação e outras bancadas
+
+`/lixeira`, `/compactar`, `/cortador` e `/tear` pertencem ao módulo `utilities` e usam as permissões `shirokai.essentials.<comando>`. A lixeira exige revisão e confirmação do descarte. Compactação usa apenas a pilha na mão, preservando as sobras. [Funcionamento, configuração e limites](UTILIDADES-0.5.0-guard.1.md).

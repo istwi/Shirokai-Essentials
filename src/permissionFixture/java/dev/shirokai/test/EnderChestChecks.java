@@ -108,6 +108,7 @@ public final class EnderChestChecks implements DedicatedServerModInitializer {
         check("explicit denial wins operator fallback", !app.permissions.has(source.withLevel(4),"enderchest.others"));
         check("inventories unchanged after rejected requests", alice.getEnderChestInventory().getStack(0).getCount() == 2 && bob.getEnderChestInventory().getStack(0).getCount() == 5);
         utilityChecks(server, app, alice, user);
+        moreUtilities(server, app, alice, user);
         server.getPlayerManager().getPlayerList().remove(alice);
         server.getPlayerManager().getPlayerList().remove(bob);
     }
@@ -161,6 +162,81 @@ public final class EnderChestChecks implements DedicatedServerModInitializer {
         player.setStackInHand(net.minecraft.util.Hand.MAIN_HAND,new ItemStack(Items.DEEPSLATE_GOLD_ORE,8));
         check("deepslate ore follows furnace recipe",execute(server,source,"esquentar")==1 && player.getMainHandStack().isOf(Items.GOLD_INGOT) && player.getMainHandStack().getCount()==8);
         app.data().update(player.getUuid(),d->d.nextSmeltAt=0);
+    }
+
+    private void moreUtilities(MinecraftServer server, ShirokaiEssentials app, Player player, net.luckperms.api.model.user.User user) throws Exception {
+        var source=player.getCommandSource();player.closeHandledScreen();player.getInventory().clear();
+        check("trash denied without permission",execute(server,source,"lixeira")==0 && player.currentScreenHandler==player.playerScreenHandler);
+        for(String cmd:List.of("lixeira","compactar","cortador","tear"))user.data().add(PermissionNode.builder("shirokai.essentials."+cmd).build());user.getCachedData().invalidate();
+        for(String cmd:List.of("cortador","tear")) {
+            execute(server,source,cmd);var screen=player.currentScreenHandler;
+            check(cmd+" opens correct vanilla station",(cmd.equals("cortador")?screen instanceof net.minecraft.screen.StonecutterScreenHandler:screen instanceof net.minecraft.screen.LoomScreenHandler)&&screen.canUse(player));
+            screen.getSlot(0).setStack(new ItemStack(cmd.equals("cortador")?Items.STONE:Items.WHITE_BANNER,1));player.closeHandledScreen();
+            check(cmd+" returns input on close",player.getInventory().count(cmd.equals("cortador")?Items.STONE:Items.WHITE_BANNER)==1);player.getInventory().clear();
+        }
+        execute(server,source,"cortador");var cutter=(net.minecraft.screen.StonecutterScreenHandler)player.currentScreenHandler;
+        cutter.getSlot(0).setStack(new ItemStack(Items.STONE,2));cutter.onButtonClick(player,0);
+        check("stonecutter computes real recipe",!cutter.getSlot(1).getStack().isEmpty());
+        var cut=cutter.getSlot(1).takeStack(cutter.getSlot(1).getStack().getCount());cutter.getSlot(1).onTakeItem(player,cut);
+        check("stonecutter consumes one input",cutter.getSlot(0).getStack().getCount()==1);player.closeHandledScreen();player.getInventory().clear();
+        execute(server,source,"tear");var loom=(net.minecraft.screen.LoomScreenHandler)player.currentScreenHandler;
+        loom.getBannerSlot().setStack(new ItemStack(Items.WHITE_BANNER));loom.getDyeSlot().setStack(new ItemStack(Items.RED_DYE,2));loom.onButtonClick(player,0);
+        check("loom computes real banner pattern",!loom.getOutputSlot().getStack().isEmpty());
+        var banner=loom.getOutputSlot().takeStack(1);loom.getOutputSlot().onTakeItem(player,banner);
+        check("loom consumes banner and one dye",loom.getBannerSlot().getStack().isEmpty()&&loom.getDyeSlot().getStack().getCount()==1);player.closeHandledScreen();player.getInventory().clear();
+        for(var material:List.of(Items.IRON_INGOT,Items.GOLD_INGOT,Items.COPPER_INGOT,Items.NETHERITE_INGOT)) {
+            player.getInventory().clear();player.setStackInHand(net.minecraft.util.Hand.MAIN_HAND,new ItemStack(material,64));
+            var block=Map.of(Items.IRON_INGOT,Items.IRON_BLOCK,Items.GOLD_INGOT,Items.GOLD_BLOCK,Items.COPPER_INGOT,Items.COPPER_BLOCK,Items.NETHERITE_INGOT,Items.NETHERITE_BLOCK).get(material);
+            check("compact 64 "+material+" into 7 blocks and 1 remainder",execute(server,source,"compactar")==1 && player.getMainHandStack().isOf(block)&&player.getMainHandStack().getCount()==7&&player.getInventory().count(material)==1);
+        }
+        player.getInventory().clear();player.setStackInHand(net.minecraft.util.Hand.MAIN_HAND,new ItemStack(Items.IRON_INGOT,8));
+        check("compact rejects less than 9 without mutation",execute(server,source,"compactar")==0&&player.getMainHandStack().getCount()==8);
+        player.getMainHandStack().set(net.minecraft.component.DataComponentTypes.CUSTOM_NAME,Text.literal("Moeda especial"));player.getMainHandStack().setCount(18);
+        check("compact rejects custom currency bars",execute(server,source,"compactar")==0&&player.getMainHandStack().getName().getString().equals("Moeda especial")&&player.getMainHandStack().getCount()==18);
+        for(int n=0;n<36;n++)player.getInventory().main.set(n,new ItemStack(Items.STONE,64));player.setStackInHand(net.minecraft.util.Hand.MAIN_HAND,new ItemStack(Items.IRON_INGOT,64));
+        check("compact full inventory with remainder refuses safely",execute(server,source,"compactar")==0&&player.getMainHandStack().isOf(Items.IRON_INGOT)&&player.getMainHandStack().getCount()==64);
+        player.setStackInHand(net.minecraft.util.Hand.MAIN_HAND,new ItemStack(Items.IRON_INGOT,63));
+        check("compact full inventory with no remainder succeeds",execute(server,source,"compactar")==1&&player.getMainHandStack().isOf(Items.IRON_BLOCK)&&player.getMainHandStack().getCount()==7);
+        player.getInventory().clear();execute(server,source,"lixeira");var trash=(dev.shirokai.essentials.utilities.TrashScreen)player.currentScreenHandler;
+        trash.getSlot(0).setStack(new ItemStack(Items.DIAMOND,5));
+        trash.onSlotClick(22,0,net.minecraft.screen.slot.SlotActionType.PICKUP,player);
+        check("trash first click only reviews",trash.getSlot(0).getStack().getCount()==5&&player.currentScreenHandler==trash);
+        trash.onSlotClick(27,0,net.minecraft.screen.slot.SlotActionType.PICKUP,player);trash.onSlotClick(22,0,net.minecraft.screen.slot.SlotActionType.PICKUP,player);
+        check("inventory interaction invalidates trash review",trash.getSlot(0).getStack().getCount()==5&&player.currentScreenHandler==trash);
+        player.closeHandledScreen();check("trash close returns reviewed items",player.getInventory().count(Items.DIAMOND)==5);
+        player.getInventory().clear();execute(server,source,"lixeira");trash=(dev.shirokai.essentials.utilities.TrashScreen)player.currentScreenHandler;
+        trash.getSlot(0).setStack(new ItemStack(Items.DIAMOND,5));trash.onSlotClick(26,0,net.minecraft.screen.slot.SlotActionType.PICKUP,player);
+        check("trash cancel returns items",player.getInventory().count(Items.DIAMOND)==5&&player.currentScreenHandler==player.playerScreenHandler);
+        player.getInventory().clear();player.setStackInHand(net.minecraft.util.Hand.MAIN_HAND,new ItemStack(Items.EMERALD,6));execute(server,source,"lixeira");trash=(dev.shirokai.essentials.utilities.TrashScreen)player.currentScreenHandler;
+        trash.onSlotClick(54,0,net.minecraft.screen.slot.SlotActionType.QUICK_MOVE,player);
+        check("trash shift click moves player items into input slots",trash.getSlot(0).getStack().isOf(Items.EMERALD)&&trash.getSlot(0).getStack().getCount()==6&&player.getInventory().count(Items.EMERALD)==0);
+        trash.onSlotClick(0,0,net.minecraft.screen.slot.SlotActionType.QUICK_MOVE,player);
+        check("trash shift click returns escrow without duplication",trash.getSlot(0).getStack().isEmpty()&&player.getInventory().count(Items.EMERALD)==6);player.closeHandledScreen();
+        player.getInventory().clear();execute(server,source,"lixeira");trash=(dev.shirokai.essentials.utilities.TrashScreen)player.currentScreenHandler;
+        trash.getSlot(0).setStack(new ItemStack(Items.DIAMOND,2));trash.setCursorStack(new ItemStack(Items.GOLD_INGOT,3));trash.onSlotClick(22,0,net.minecraft.screen.slot.SlotActionType.PICKUP,player);player.closeHandledScreen();
+        check("trash preserves cursor and input on close",player.getInventory().count(Items.DIAMOND)==2&&player.getInventory().count(Items.GOLD_INGOT)==3);
+        player.getInventory().clear();execute(server,source,"lixeira");trash=(dev.shirokai.essentials.utilities.TrashScreen)player.currentScreenHandler;
+        trash.getSlot(0).setStack(new ItemStack(Items.DIAMOND,2));trash.onSlotClick(22,0,net.minecraft.screen.slot.SlotActionType.PICKUP,player);
+        var audit=app.data().root().resolve("audit.jsonl");var backup=audit.resolveSibling("audit-test-backup-"+UUID.randomUUID()+".jsonl");Files.move(audit,backup);
+        try {
+            Files.createDirectory(audit);trash.onSlotClick(22,0,net.minecraft.screen.slot.SlotActionType.PICKUP,player);
+            check("trash audit failure preserves items",trash.getSlot(0).getStack().getCount()==2&&player.currentScreenHandler==trash);
+        } finally { Files.delete(audit);Files.move(backup,audit); }
+        player.closeHandledScreen();check("trash audit failure still allows cancellation",player.getInventory().count(Items.DIAMOND)==2);
+        player.getInventory().clear();execute(server,source,"lixeira");trash=(dev.shirokai.essentials.utilities.TrashScreen)player.currentScreenHandler;
+        player.setStackInHand(net.minecraft.util.Hand.MAIN_HAND,new ItemStack(Items.IRON_INGOT,7));
+        trash.getSlot(0).setStack(new ItemStack(Items.DIAMOND,5));trash.onSlotClick(22,0,net.minecraft.screen.slot.SlotActionType.PICKUP,player);
+        trash.getSlot(1).setStack(new ItemStack(Items.EMERALD,3));trash.onSlotClick(22,0,net.minecraft.screen.slot.SlotActionType.PICKUP,player);
+        check("changed trash contents require a new review",trash.getSlot(0).getStack().getCount()==5&&trash.getSlot(1).getStack().getCount()==3);
+        trash.onSlotClick(22,0,net.minecraft.screen.slot.SlotActionType.PICKUP,player);
+        check("trash confirmed deletion removes only escrowed items",player.currentScreenHandler==player.playerScreenHandler&&player.getInventory().count(Items.DIAMOND)==0&&player.getInventory().count(Items.EMERALD)==0&&player.getInventory().count(Items.IRON_INGOT)==7);
+        player.getInventory().clear();execute(server,source,"lixeira");trash=(dev.shirokai.essentials.utilities.TrashScreen)player.currentScreenHandler;
+        for(var action:net.minecraft.screen.slot.SlotActionType.values())for(int button:List.of(0,1,2,40))trash.onSlotClick(18,button,action,player);
+        trash.quickMove(player,22);
+        check("trash decorative buttons cannot be extracted",player.getInventory().isEmpty()&&trash.getCursorStack().isEmpty()&&!trash.getSlot(18).getStack().isEmpty());
+        trash.getSlot(0).setStack(new ItemStack(Items.DIAMOND,2));user.data().add(PermissionNode.builder("shirokai.essentials.lixeira").value(false).build());user.getCachedData().invalidate();
+        trash.onSlotClick(22,0,net.minecraft.screen.slot.SlotActionType.PICKUP,player);trash.onSlotClick(22,0,net.minecraft.screen.slot.SlotActionType.PICKUP,player);
+        check("revoked trash permission cannot delete",!trash.canUse(player)&&trash.getSlot(0).getStack().getCount()==2);player.closeHandledScreen();check("revoked trash access returns items",player.getInventory().count(Items.DIAMOND)==2);
     }
 
 }

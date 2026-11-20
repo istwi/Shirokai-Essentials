@@ -16,7 +16,7 @@ public final class Settings {
         for (String s : List.of("warp", "warps", "setwarp", "delwarp")) map.put(s, "warps");
         for (String s : List.of("spawn", "setspawn")) map.put(s, "spawn");
         for (String name : List.of("msg", "tell", "whisper", "r", "reply", "ignore", "unignore", "mail", "socialspy", "msgtoggle", "broadcast", "me", "afk", "nick", "realname", "help", "rules", "motd", "info", "list", "seen", "whois")) map.put(name, "chat");
-        for (String name : List.of("fly", "god", "heal", "feed", "speed", "invsee", "enderchest", "workbench", "anvil", "grindstone", "luz", "esquentar", "repair", "hat", "clearinventory", "ping", "gc")) map.put(name, "utilities");
+        for (String name : List.of("fly", "god", "heal", "feed", "speed", "invsee", "enderchest", "workbench", "anvil", "grindstone", "cortador", "tear", "lixeira", "compactar", "luz", "esquentar", "repair", "hat", "clearinventory", "ping", "gc")) map.put(name, "utilities");
         for (String name : List.of("sudo", "time", "weather")) map.put(name, "administration");
         for (String name : List.of("kick", "ban", "tempban", "unban", "mute", "tempmute", "unmute", "warn", "warnings", "clearwarnings", "setjail", "deljail", "jail", "unjail", "freeze")) map.put(name, "moderation");
         for (String name : List.of("kit", "kits", "createkit", "delkit", "showkit", "resetkit", "kitrecover")) map.put(name, "kits");
@@ -164,13 +164,22 @@ public final class Settings {
             var path = dir.resolve("commands.json");
             var json = com.google.gson.JsonParser.parseString(java.nio.file.Files.readString(path)).getAsJsonObject();
             var commands = json.getAsJsonObject("commands");
-            for (String key : List.of("workbench", "anvil", "repair", "grindstone", "luz", "esquentar")) {
+            for (String key : List.of("workbench", "anvil", "repair", "grindstone", "cortador", "tear", "lixeira", "compactar", "luz", "esquentar")) {
                 if (!commands.has(key)) commands.add(key, JsonFiles.GSON.toJsonTree(s.commands.commands.get(key)));
                 else commands.getAsJsonObject(key).add("aliases", JsonFiles.GSON.toJsonTree(s.commands.commands.get(key).aliases));
             }
             json.addProperty("utilityAliasesVersion", 1);
             JsonFiles.write(path, json);
         }
+        var extraCommands = com.google.gson.JsonParser.parseString(java.nio.file.Files.readString(commandPath)).getAsJsonObject();
+        boolean addedUtilityCommands = false;
+        for (String key : List.of("lixeira", "compactar", "cortador", "tear")) {
+            if (!extraCommands.getAsJsonObject("commands").has(key)) {
+                extraCommands.getAsJsonObject("commands").add(key, JsonFiles.GSON.toJsonTree(s.commands.commands.get(key)));
+                addedUtilityCommands = true;
+            }
+        }
+        if (addedUtilityCommands) JsonFiles.write(commandPath, extraCommands);
         var utilityPath = dir.resolve("utilities.json");
         var utilityJson = com.google.gson.JsonParser.parseString(java.nio.file.Files.readString(utilityPath)).getAsJsonObject();
         boolean updatedUtilities = false;
