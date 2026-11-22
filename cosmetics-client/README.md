@@ -1,13 +1,15 @@
 # Zorykai Cosmetics — teste de asas 3D
 
-Minecraft 1.21.1, Fabric e Java 21. Modelo original de asa de anjo, com penas em camadas, pontas compridas e animação leve. Seis paletas usam o mesmo modelo nesta primeira versão. Não concede voo.
+Minecraft 1.21.1, Fabric e Java 21. Modelo original de asa de anjo, com um único par de penas principais, pontas compridas e batida lenta ao andar. Seis paletas usam o mesmo modelo nesta primeira versão. Não concede voo.
 
-![Asa de anjo no Minecraft](docs/angel.png)
+[Correções da versão 0.1.1](docs/CHANGELOG-0.1.1.md)
+
+![Asa de anjo no Minecraft](docs/v0.1.1/angel.png)
 
 ## Instalar e testar
 
 1. No servidor: substitua o Essentials anterior pelo `shirokai-essentials-0.6.2-guard.1-zorykai-visual.jar`. Preserve configs e dados; reinicie.
-2. No Minecraft do jogador: coloque `zorykai-cosmetics-client-0.1.0-test.1.jar` na pasta `mods`, com Fabric API para 1.21.1. Não instale o Essentials no cliente.
+2. No Minecraft do jogador: coloque `zorykai-cosmetics-client-0.1.1-test.1.jar` na pasta `mods`, com Fabric API para 1.21.1. Não instale o Essentials no cliente.
 3. Libere `shirokai.essentials.cosmetics.use` e `shirokai.essentials.cosmetics.wings_stars` no LuckPerms. Use os demais IDs para outras cores, como `wings_fire`.
 4. Abra `/cosmeticos` → **Asas** → **Estelar**, e use F5 para ver pelas costas. O menu ainda conserva a descrição de partículas para clientes sem o complemento.
 

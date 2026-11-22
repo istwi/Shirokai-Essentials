@@ -1,9 +1,13 @@
 plugins { id 'fabric-loom' version '1.9.2' }
-version = '0.1.0-test.1'
+version = '0.1.1-test.1'
 group = 'dev.zorykai'
 base { archivesName='zorykai-cosmetics-client' }
 repositories { mavenCentral() }
+test { useJUnitPlatform() }
 dependencies {
+    testImplementation platform('org.junit:junit-bom:5.11.4')
+    testImplementation 'org.junit.jupiter:junit-jupiter'
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
     minecraft 'com.mojang:minecraft:1.21.1'
     mappings 'net.fabricmc:yarn:1.21.1+build.3:v2'
     modImplementation 'net.fabricmc:fabric-loader:0.16.14'

@@ -19,10 +19,12 @@ public final class VisualChecks implements ClientModInitializer {
     public void onInitializeClient() {
         ClientTickEvents.END_CLIENT_TICK.register(client->{
             if(!Boolean.getBoolean("zorykai.cosmetics.visualChecks")||client.player==null||client.world==null)return;
+            if(!client.player.isAlive()){client.player.requestRespawn();return;}
             ticks++;
+            if(ticks==10){client.player.networkHandler.sendChatCommand("time set day");client.player.networkHandler.sendChatCommand("gamerule doDaylightCycle false");}
             client.options.setPerspective(ticks>=400&&ticks<420?Perspective.FIRST_PERSON:Perspective.THIRD_PERSON_BACK);
-            client.options.hudHidden=true;client.player.setYaw(0);client.player.setPitch(0);
-            client.options.forwardKey.setPressed(ticks>=120&&ticks<160);
+            client.options.hudHidden=true;client.player.setYaw(0);client.player.setPitch(ticks>=590?70:0);
+            client.options.forwardKey.setPressed((ticks>=120&&ticks<160)||(ticks>=440&&ticks<580));
             client.options.sneakKey.setPressed(ticks>=180&&ticks<210);
             if(ticks==100)check("initial server selection received", "stars".equals(CosmeticsClient.wings(client.player.getUuid())));
             if(ticks==170)check("selection retained while moving", "stars".equals(CosmeticsClient.wings(client.player.getUuid())));
@@ -38,10 +40,11 @@ public final class VisualChecks implements ClientModInitializer {
             if(ticks==300)client.player.networkHandler.sendChatCommand("cosmeticos desativar");
             if(ticks==320)check("disable removes client model",CosmeticsClient.wings(client.player.getUuid())==null);
             if(ticks==380)check("resume restores saved fire model", "fire".equals(CosmeticsClient.wings(client.player.getUuid())));
-            if(java.util.Set.of(100,160,200,280,320,380,410).contains(ticks)) {
+            if(java.util.Set.of(100,160,200,280,320,380,410,460,477,495,512,600).contains(ticks)) {
                 ScreenshotRecorder.saveScreenshot(client.runDirectory,"wings-"+ticks+".png",client.getFramebuffer(),message->System.out.println("COSMETICS SCREENSHOT "+message.getString()));
             }
-            if(ticks==440) {
+            if(ticks==640) {
+                check("alive through walking recording",client.player.isAlive());
                 try {Files.writeString(client.runDirectory.toPath().resolve("visual-results.json"),new com.google.gson.GsonBuilder().setPrettyPrinting().create().toJson(checks));}
                 catch(Exception e){throw new RuntimeException(e);}
                 client.scheduleStop();

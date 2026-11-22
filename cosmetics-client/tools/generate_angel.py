@@ -5,9 +5,8 @@ root=Path(__file__).resolve().parents[1]
 elements=[];groups=[];lines=[]
 def uid():return str(uuid.uuid5(uuid.NAMESPACE_URL,'zorykai:'+str(len(elements))+':'+str(len(groups)) ))
 def feather(name,x,y,z,width,length,roll,layer):
-    # Three steps give broad feathers a tapered tip and a raised central shaft.
-    boxes=[(0,0,0,width,length*.58,1.1),(width*.12,length*.55,.04,width*.76,length*.29,1.0),(width*.28,length*.81,.08,width*.44,length*.19,.85)]
-    if layer==0:boxes.append((width*.45,.8,1.11,.17,length*.72,.14))
+    # Segments meet edge-to-edge: no overlapping coplanar faces inside a feather.
+    boxes=[(0,0,0,width,length*.70,1.0),(width*.12,length*.70,0,width*.76,length*.20,1.0),(width*.30,length*.90,0,width*.40,length*.10,1.0)]
     for side in [1,-1]:
         n=name+('_left' if side==1 else '_right');origin=[side*(2+x),22-y,3+z];children=[]
         parts=[]
@@ -18,14 +17,9 @@ def feather(name,x,y,z,width,length,roll,layer):
             elements.append({'name':n,'uuid':u,'type':'cube','from':[origin[0]+xx,origin[1]-by-h,origin[2]+bz],'to':[origin[0]+xx+w,origin[1]-by,origin[2]+bz+d],'origin':origin,'rotation':[0,0,0],'box_uv':True,'uv_offset':[0 if layer==0 else 64,0],'faces':{face:{'uv':[0,0,4,28],'texture':0} for face in ['north','south','east','west','up','down']}})
         groups.append({'name':n,'origin':origin,'rotation':[0,0,-side*roll*180/math.pi],'uuid':str(uuid.uuid5(uuid.NAMESPACE_URL,n)),'children':children})
         lines.append(f'        {"left" if side==1 else "right"}.addChild("{name}",ModelPartBuilder.create(){"".join(parts)},ModelTransform.of({side*x:.4f}f,{y:.4f}f,{z:.4f}f,0,0,{side*roll:.4f}f));')
-# Swept shoulder and cascading long primary feathers. Positive roll folds tips inward.
-for i,(x,y,l,r) in enumerate([(0,2,10,-.08),(1.8,.5,13,-.04),(3.7,-1.2,16,.02),(5.6,-2,19,.10),(7.5,-1.2,20,.17),(9.1,.5,19,.24)]):
-    feather('primary_'+str(i),x,y,.2+i*.13,3.1,l,r,0)
-for row in range(2):
-    for i in range(5):
-        feather('cover_'+str(row)+'_'+str(i),i*1.85+.15,1.4-math.sin(i/4*math.pi)*3+row*3,2.6+row*.8+i*.14,3.2,5.4+row,.05+i*.045,1)
-for i,(x,y,r) in enumerate([(0,-.4,-.5),(2,-2.2,-.4),(4,-3,.05),(6.3,-2.4,.48),(8.3,-.5,.55)]):
-    feather('shoulder_'+str(i),x,y,4.5+i*.1,3.2,5.0,r,1)
+# One pair only: continuous primary feathers, no coverts or extra shoulder pieces.
+for i,(x,y,l,r) in enumerate([(0,1,12,.10),(1.6,0,14,.10),(3.2,-1,16,.10),(4.8,-1.6,18,.10),(6.4,-1,19.5,.10),(8,.2,19,.10)]):
+    feather('primary_'+str(i),x,y,.2+i*.24,3.4,l,r,0)
 java='''package dev.zorykai.cosmetics.client;
 import net.minecraft.client.model.*;
 /** Generated from tools/generate_angel.py; matching editable asset: models/angel.bbmodel. */

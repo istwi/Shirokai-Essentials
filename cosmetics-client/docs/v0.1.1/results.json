@@ -1,0 +1,70 @@
+{
+  "version": "0.1.1-test.1",
+  "clientSha256": "c697438973b4a2b64c83cd25733a627a30835d9d7e5b0a7d829c4871dbc967ab",
+  "graphicalChecks": [
+    {
+      "passed": true,
+      "name": "menu available at step 30"
+    },
+    {
+      "passed": true,
+      "name": "menu available at step 40"
+    },
+    {
+      "passed": true,
+      "name": "initial server selection received"
+    },
+    {
+      "passed": true,
+      "name": "selection retained while moving"
+    },
+    {
+      "passed": true,
+      "name": "model selection retained while crouching"
+    },
+    {
+      "passed": true,
+      "name": "menu available at step 230"
+    },
+    {
+      "passed": true,
+      "name": "menu available at step 240"
+    },
+    {
+      "passed": true,
+      "name": "fire selected through separate wings submenu"
+    },
+    {
+      "passed": true,
+      "name": "disable removes client model"
+    },
+    {
+      "passed": true,
+      "name": "menu available at step 350"
+    },
+    {
+      "passed": true,
+      "name": "resume restores saved fire model"
+    },
+    {
+      "passed": true,
+      "name": "alive through walking recording"
+    }
+  ],
+  "unitSuites": [
+    {
+      "name": "dev.zorykai.cosmetics.client.WingMotionTest",
+      "passed": 5
+    }
+  ],
+  "geometry": {
+    "wingGroups": 12,
+    "cuboids": 36,
+    "extraLayers": 0
+  },
+  "runtime": "Minecraft 1.21.1 / Fabric 0.17.2 / Java 21 / software OpenGL; actual menu clicks, movement, screenshots and X11 recording",
+  "limits": [
+    "Visual run did not include shaders or user modpack.",
+    "No server code changed; uses Essentials 0.6.2-guard.1."
+  ]
+}

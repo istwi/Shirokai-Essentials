@@ -14,6 +14,7 @@ import net.minecraft.util.Identifier;
 public final class WingsFeature extends FeatureRenderer<AbstractClientPlayerEntity,PlayerEntityModel<AbstractClientPlayerEntity>> {
     private static final Identifier TEXTURE=Identifier.of("zorykai_cosmetics","textures/wings.png");
     private final ModelPart root,left,right;
+    private final java.util.Map<AbstractClientPlayerEntity,WingMotion> motions=new java.util.WeakHashMap<>();
     public WingsFeature(FeatureRendererContext<AbstractClientPlayerEntity,PlayerEntityModel<AbstractClientPlayerEntity>> context) {
         super(context);
         root=AngelGeometry.create();left=root.getChild("left");right=root.getChild("right");
@@ -23,9 +24,10 @@ public final class WingsFeature extends FeatureRenderer<AbstractClientPlayerEnti
         var client=MinecraftClient.getInstance();
         if(style==null||!player.isAlive()||player.isInvisible()||player.isSpectator()||player.hasVehicle()||player.isSwimming()||player.isFallFlying())return;
         if(player==client.player&&client.options.getPerspective().isFirstPerson())return;
-        float flap=(float)Math.sin((player.age+tickDelta)*(.12f+Math.min(limbDistance,.5f)*.12f))*.045f;
+        var motion=motions.computeIfAbsent(player,key->new WingMotion());
+        float flap=motion.update(player.age+tickDelta,limbDistance);
         left.yaw=-.22f-flap;right.yaw=.22f+flap;
-        left.roll=0;right.roll=0;
+        left.roll=-flap*.13f;right.roll=flap*.13f;
         matrices.push();
         getContextModel().body.rotate(matrices);
         root.render(matrices,consumers.getBuffer(RenderLayer.getEntityCutoutNoCull(TEXTURE)),light,OverlayTexture.DEFAULT_UV,tint(style));
