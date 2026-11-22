@@ -38,7 +38,7 @@ public final class CosmeticCatalog {
     public static Map<String,String> collection(String style) {
         if(!Set.of("stars","fire","water","nature","electric","soul").contains(style))throw new IllegalArgumentException("Coleção desconhecida");
         var result=new TreeMap<String,String>();
-        for(String category:ORDER) if(!category.equals("nick"))result.put(category,category+"_"+style);
+        for(String category:ORDER) if(!category.equals("nick")&&!category.equals("footprint"))result.put(category,category+"_"+style);
         return result;
     }
     private CosmeticCatalog() {}

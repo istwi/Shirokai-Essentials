@@ -47,7 +47,9 @@ public final class CosmeticScreen extends GenericContainerScreenHandler {
             if(page.equals("main")) {
                 int i=0;
                 for(String category:CosmeticCatalog.ORDER) {
+                    if(category.equals("footprint"))continue;
                     var e=CosmeticCatalog.find(state.cosmetics.get(category));
+                    if(e==null&&category.equals("trail"))e=CosmeticCatalog.find(state.cosmetics.get("footprint"));
                     button(POSITIONS[i++],icon(category),title(category),List.of("Selecionado: "+(e==null?"Nenhum":e.label()),description(category),"Clique para ver as opções."),Formatting.AQUA,()->service.open(owner,category));
                 }
                 button(30,Items.CLOCK,"Cosméticos sazonais",List.of("Opções disponíveis em meses especiais.","Confira o período de cada efeito."),Formatting.GOLD,()->service.open(owner,"seasonal"));
@@ -59,7 +61,7 @@ public final class CosmeticScreen extends GenericContainerScreenHandler {
                     var entries=CosmeticCatalog.collection(style);
                     boolean unlocked=entries.values().stream().map(CosmeticCatalog::find).allMatch(e->service.unlocked(owner,e));
                     String label=CosmeticCatalog.find("aura_"+style).label();
-                    button(POSITIONS[i++],unlocked?Items.AMETHYST_SHARD:Items.IRON_BARS,label,List.of(unlocked?"Disponível":"Bloqueada: faltam efeitos para desbloquear.","Combina rastro, aura, pegadas, asas,", "coroa, círculo e efeitos de eventos.","A cor do nick será mantida.","Clique para equipar o conjunto."),unlocked?Formatting.AQUA:Formatting.DARK_GRAY,()->{service.collection(owner,style);render();});
+                    button(POSITIONS[i++],unlocked?Items.AMETHYST_SHARD:Items.IRON_BARS,label,List.of(unlocked?"Disponível":"Bloqueada: faltam efeitos para desbloquear.","Combina rastro, aura e asas,", "coroa, círculo e efeitos de eventos.","A cor do nick será mantida.","Clique para equipar o conjunto."),unlocked?Formatting.AQUA:Formatting.DARK_GRAY,()->{service.collection(owner,style);render();});
                 }
             } else {
                 var entries=CosmeticCatalog.ENTRIES.stream().filter(e->page.equals("seasonal")?e.month()!=0:e.category().equals(page)&&e.month()==0).toList();
@@ -84,7 +86,7 @@ public final class CosmeticScreen extends GenericContainerScreenHandler {
         sendContentUpdates();
     }
     private static String description(String category) {
-        return switch(category) {case "nick"->"Altera a cor do nome; não muda seu nick.";case "trail"->"Partículas ao caminhar.";case "footprint"->"Partículas nos pés ao andar no chão.";case "aura"->"Partículas orbitando ao seu redor.";case "crown"->"Uma coroa de partículas acima da cabeça.";case "wings"->"Asas visuais nas costas. Não permitem voar.";case "circle"->"Um anel de partículas ao redor dos pés.";case "teleport"->"Efeito ao chegar de um teleporte detectado.";case "join"->"Efeito breve ao entrar no servidor.";case "victory"->"Celebração ao vencer PvP ou via integração.";case "raid"->"Celebração ativada pela integração de raid.";default->"Efeito visual.";};
+        return switch(category) {case "nick"->"Altera a cor do nome; não muda seu nick.";case "trail"->"Marcas maiores ao andar, com intervalo.";case "footprint"->"Partículas nos pés ao andar no chão.";case "aura"->"Uma espiral dos pés até a cabeça.";case "crown"->"Uma coroa envolvendo a cabeça.";case "wings"->"Asas visuais nas costas. Não permitem voar.";case "circle"->"Um anel de partículas ao redor dos pés.";case "teleport"->"Efeito ao chegar de um teleporte detectado.";case "join"->"Efeito breve ao entrar no servidor.";case "victory"->"Celebração ao vencer PvP ou via integração.";case "raid"->"Celebração ativada pela integração de raid.";default->"Efeito visual.";};
     }
     @Override public boolean canUse(PlayerEntity player) {return player==owner&&owner.isAlive()&&service.canUse(owner);}
     @Override public void onSlotClick(int slot,int button,SlotActionType action,PlayerEntity player) {

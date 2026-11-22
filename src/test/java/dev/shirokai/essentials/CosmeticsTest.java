@@ -25,7 +25,7 @@ class CosmeticsTest {
     }
     @Test void collectionsCoverVisualCategoriesWithoutChangingNickname() {
         for(String style:List.of("stars","fire","water","nature","electric","soul")) {
-            var entries=CosmeticCatalog.collection(style);assertEquals(10,entries.size());assertFalse(entries.containsKey("nick"));
+            var entries=CosmeticCatalog.collection(style);assertEquals(9,entries.size());assertFalse(entries.containsKey("nick"));
             entries.forEach((category,id)->assertEquals(category,CosmeticCatalog.find(id).category()));
         }
         assertThrows(IllegalArgumentException.class,()->CosmeticCatalog.collection("unknown"));
@@ -34,7 +34,9 @@ class CosmeticsTest {
         var file=root.resolve("cosmetics.json");var cfg=CosmeticSettings.load(file);cfg.maxParticlesPerTick=0;
         assertThrows(IOException.class,cfg::validate);
         cfg.maxParticlesPerTick=400;cfg.intervalTicks=0;assertThrows(IOException.class,cfg::validate);
-        cfg.intervalTicks=5;cfg.timezone="invalid/zone";assertThrows(IOException.class,cfg::validate);
+        cfg.intervalTicks=5;cfg.wingsIntervalTicks=3;assertThrows(IOException.class,cfg::validate);
+        cfg.wingsIntervalTicks=4;cfg.trailDelayTicks=0;assertThrows(IOException.class,cfg::validate);
+        cfg.trailDelayTicks=10;cfg.timezone="invalid/zone";assertThrows(IOException.class,cfg::validate);
         Files.writeString(file,"{broken");assertThrows(IOException.class,()->CosmeticSettings.load(file));assertEquals("{broken",Files.readString(file));
     }
     @Test void cosmeticChoicesPersistAndFailedSaveDoesNotPublishNewSelection() throws Exception {

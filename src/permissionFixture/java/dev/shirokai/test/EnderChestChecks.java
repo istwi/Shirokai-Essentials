@@ -276,7 +276,7 @@ public final class EnderChestChecks implements DedicatedServerModInitializer {
         user.data().add(PermissionNode.builder("shirokai.essentials.cosmetics.wings_stars").build());user.getCachedData().invalidate();
         svc.collection(p,"stars");check("collection requires all component grants",!svc.state(p).cosmetics.containsKey("wings"));
         user.data().add(PermissionNode.builder("shirokai.essentials.cosmetics.*").build());user.getCachedData().invalidate();
-        svc.collection(p,"stars");check("complete collection equips all ten visual categories",svc.state(p).cosmetics.size()==10);
+        svc.collection(p,"stars");check("complete collection equips nine distinct visual categories",svc.state(p).cosmetics.size()==9);
         svc.equip(p,dev.shirokai.essentials.cosmetics.CosmeticCatalog.find("nick_cyan"));
         var tick=svc.getClass().getDeclaredMethod("tick",MinecraftServer.class);tick.setAccessible(true);
         var time=svc.getClass().getDeclaredField("ticks");time.setAccessible(true);time.setLong(svc,19);tick.invoke(svc,server);
@@ -296,14 +296,21 @@ public final class EnderChestChecks implements DedicatedServerModInitializer {
         var global=svc.getClass().getDeclaredField("globalBudget");global.setAccessible(true);
         var local=svc.getClass().getDeclaredField("playerBudget");local.setAccessible(true);
         p.setBodyYaw(0);global.setInt(svc,400);local.setInt(svc,36);shape.invoke(svc,p,"wings",p.getPos());
-        check("wings emit fourteen particle positions",p.particles.size()==14);
+        check("wings emit symmetric feather contours",p.particles.size()==32);
         check("wings render behind player",p.particles.stream().allMatch(packet->packet.getZ()<p.getZ()));
+        check("attached wings use short colored dust",p.particles.stream().allMatch(packet->packet.getParameters() instanceof net.minecraft.particle.DustParticleEffect dust&&Math.abs(dust.getScale()-.095f)<.0001));
+        p.particles.clear();global.setInt(svc,400);local.setInt(svc,100);shape.invoke(svc,p,"aura",p.getPos());
+        check("aura spans feet to head",p.particles.size()==20&&p.particles.stream().mapToDouble(packet->packet.getY()-p.getY()).min().orElse(1)<.1&&p.particles.stream().mapToDouble(packet->packet.getY()-p.getY()).max().orElse(0)>p.getHeight()-.1);
+        p.particles.clear();global.setInt(svc,400);local.setInt(svc,100);shape.invoke(svc,p,"crown",p.getPos());
+        check("crown surrounds head below its top",p.particles.size()==12&&p.particles.stream().allMatch(packet->packet.getY()<p.getY()+p.getHeight()&&packet.getY()>p.getY()+p.getHeight()-.3));
+        p.particles.clear();global.setInt(svc,400);local.setInt(svc,100);shape.invoke(svc,p,"trail",p.getPos());
+        check("trail emits a wide patch instead of a dot",p.particles.size()==svc.config().trailPoints&&p.particles.stream().mapToDouble(net.minecraft.network.packet.s2c.play.ParticleS2CPacket::getX).max().orElse(0)-p.particles.stream().mapToDouble(net.minecraft.network.packet.s2c.play.ParticleS2CPacket::getX).min().orElse(0)>.6);
         p.particles.clear();p.setBodyYaw(180);global.setInt(svc,400);local.setInt(svc,36);shape.invoke(svc,p,"wings",p.getPos());
-        check("wings follow body direction",p.particles.size()==14&&p.particles.stream().allMatch(packet->packet.getZ()>p.getZ()));
+        check("wings follow body direction",p.particles.size()==32&&p.particles.stream().allMatch(packet->packet.getZ()>p.getZ()));
         p.particles.clear();p.setBodyYaw(0);global.setInt(svc,400);local.setInt(svc,3);shape.invoke(svc,p,"wings",p.getPos());
-        check("per player particle budget enforced",p.particles.size()==3);
+        check("per player budget skips incomplete wings",p.particles.isEmpty());
         p.particles.clear();global.setInt(svc,2);local.setInt(svc,36);shape.invoke(svc,p,"wings",p.getPos());
-        check("global particle budget enforced",p.particles.size()==2);
+        check("global budget skips incomplete wings",p.particles.isEmpty());
         other.setPosition(p.getPos().add(100,0,0));other.particles.clear();global.setInt(svc,400);local.setInt(svc,36);shape.invoke(svc,p,"circle",p.getPos());
         check("distant viewers receive no particles",other.particles.isEmpty());
         p.particles.clear();p.networkHandler.requestTeleport(p.getX()+1,p.getY(),p.getZ(),0,0);
@@ -324,6 +331,21 @@ public final class EnderChestChecks implements DedicatedServerModInitializer {
                 check("raid transformed callback emits particles for actual participant",!p.particles.isEmpty());
             }
         }
+        var disabledBefore=new HashSet<>(svc.config().disabled);
+        svc.config().disabled.addAll(dev.shirokai.essentials.cosmetics.CosmeticCatalog.ENTRIES.stream().map(dev.shirokai.essentials.cosmetics.CosmeticCatalog.Entry::id).filter(id->!id.equals("trail_stars")&&!id.equals("footprint_stars")).toList());
+        var lastTrail=svc.getClass().getDeclaredField("lastTrail");lastTrail.setAccessible(true);((Map<?,?>)lastTrail.get(svc)).clear();
+        p.setOnGround(true);p.particles.clear();p.setPosition(p.getPos().add(.4,0,0));time.setLong(svc,49);tick.invoke(svc,server);
+        check("walking emits first trail patch",p.particles.size()==svc.config().trailPoints);
+        p.particles.clear();p.setPosition(p.getPos().add(.4,0,0));time.setLong(svc,54);tick.invoke(svc,server);
+        check("trail delay suppresses intermediate patch",p.particles.isEmpty());
+        p.particles.clear();p.setPosition(p.getPos().add(.4,0,0));time.setLong(svc,59);tick.invoke(svc,server);
+        check("trail resumes after configured ten ticks",p.particles.size()==svc.config().trailPoints);
+        svc.remove(p,"trail");svc.equip(p,dev.shirokai.essentials.cosmetics.CosmeticCatalog.find("footprint_stars"));
+        p.particles.clear();global.setInt(svc,400);local.setInt(svc,100);shape.invoke(svc,p,"trail",p.getPos());
+        check("legacy footprint selection still renders unified trail",p.particles.size()==svc.config().trailPoints);
+        svc.equip(p,dev.shirokai.essentials.cosmetics.CosmeticCatalog.find("trail_stars"));
+        check("new trail clears duplicate legacy footprint",!svc.state(p).cosmetics.containsKey("footprint"));
+        svc.config().disabled.clear();svc.config().disabled.addAll(disabledBefore);
         world.getPlayers().remove(p);world.getPlayers().remove(other);
         user.data().add(PermissionNode.builder("shirokai.essentials.cosmetics.trail_stars").value(false).build());user.getCachedData().invalidate();
         check("explicit option denial wins wildcard",!svc.unlocked(p,dev.shirokai.essentials.cosmetics.CosmeticCatalog.find("trail_stars")));

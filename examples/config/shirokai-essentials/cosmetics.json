@@ -8,5 +8,8 @@
   "viewDistance": 32,
   "celebrationCooldownSeconds": 10,
   "timezone": "America/Sao_Paulo",
-  "disabled": []
+  "disabled": [],
+  "wingsIntervalTicks": 4,
+  "trailDelayTicks": 10,
+  "trailPoints": 12
 }

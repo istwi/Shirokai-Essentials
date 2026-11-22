@@ -1,11 +1,11 @@
 {
-  "version": "0.6.0-guard.1",
+  "version": "0.6.1-guard.1",
   "artifacts": {
-    "shirokai-essentials-0.6.0-guard.1.jar": "bac9e04852328a2976d86a21349cd7896ad20b6f720f98e38f7899426e10d32e",
-    "shirokai-essentials-0.6.0-guard.1-zorykai-visual.jar": "85f21549f4eec0168ad897cef50fc955e3c7fc433d45ae67c462b027437aae66"
+    "shirokai-essentials-0.6.1-guard.1.jar": "d01fb841043d88660a7f43b20a6d0f79d089c630f24d7911862dea2eada27205",
+    "shirokai-essentials-0.6.1-guard.1-zorykai-visual.jar": "0bfe8449be85f3700e5457172c709923ddd42a59b26486f02ff023273b48da06"
   },
   "unitPassed": 62,
-  "nativePassed": 206,
+  "nativePassed": 224,
   "unitSuites": [
     {
       "suite": "dev.shirokai.essentials.ConflictsTest",
@@ -55,10 +55,10 @@
   "nativeSuites": [
     {
       "suite": "without-cobblemon",
-      "artifactSha256": "85f21549f4eec0168ad897cef50fc955e3c7fc433d45ae67c462b027437aae66",
-      "passed": 102,
+      "artifactSha256": "0bfe8449be85f3700e5457172c709923ddd42a59b26486f02ff023273b48da06",
+      "passed": 111,
       "mods": {
-        "shirokai_essentials": "0.6.0-guard.1",
+        "shirokai_essentials": "0.6.1-guard.1",
         "essentials_permission_checks": "1",
         "fabric-api": "0.116.7+1.21.1",
         "luckperms": "5.4.140"
@@ -401,7 +401,7 @@
           "passed": true
         },
         {
-          "name": "complete collection equips all ten visual categories",
+          "name": "complete collection equips nine distinct visual categories",
           "passed": true
         },
         {
@@ -417,7 +417,7 @@
           "passed": true
         },
         {
-          "name": "wings emit fourteen particle positions",
+          "name": "wings emit symmetric feather contours",
           "passed": true
         },
         {
@@ -425,15 +425,31 @@
           "passed": true
         },
         {
+          "name": "attached wings use short colored dust",
+          "passed": true
+        },
+        {
+          "name": "aura spans feet to head",
+          "passed": true
+        },
+        {
+          "name": "crown surrounds head below its top",
+          "passed": true
+        },
+        {
+          "name": "trail emits a wide patch instead of a dot",
+          "passed": true
+        },
+        {
           "name": "wings follow body direction",
           "passed": true
         },
         {
-          "name": "per player particle budget enforced",
+          "name": "per player budget skips incomplete wings",
           "passed": true
         },
         {
-          "name": "global particle budget enforced",
+          "name": "global budget skips incomplete wings",
           "passed": true
         },
         {
@@ -461,6 +477,26 @@
           "passed": true
         },
         {
+          "name": "walking emits first trail patch",
+          "passed": true
+        },
+        {
+          "name": "trail delay suppresses intermediate patch",
+          "passed": true
+        },
+        {
+          "name": "trail resumes after configured ten ticks",
+          "passed": true
+        },
+        {
+          "name": "legacy footprint selection still renders unified trail",
+          "passed": true
+        },
+        {
+          "name": "new trail clears duplicate legacy footprint",
+          "passed": true
+        },
+        {
           "name": "explicit option denial wins wildcard",
           "passed": true
         },
@@ -476,10 +512,10 @@
     },
     {
       "suite": "with-cobblemon-raids-guard",
-      "artifactSha256": "85f21549f4eec0168ad897cef50fc955e3c7fc433d45ae67c462b027437aae66",
-      "passed": 104,
+      "artifactSha256": "0bfe8449be85f3700e5457172c709923ddd42a59b26486f02ff023273b48da06",
+      "passed": 113,
       "mods": {
-        "shirokai_essentials": "0.6.0-guard.1",
+        "shirokai_essentials": "0.6.1-guard.1",
         "impactor": "5.3.5+1.21.1",
         "cobblemon": "1.8.3+1.21.1",
         "shirokai_raids": "0.1.25-returnspawn.1",
@@ -826,7 +862,7 @@
           "passed": true
         },
         {
-          "name": "complete collection equips all ten visual categories",
+          "name": "complete collection equips nine distinct visual categories",
           "passed": true
         },
         {
@@ -842,7 +878,7 @@
           "passed": true
         },
         {
-          "name": "wings emit fourteen particle positions",
+          "name": "wings emit symmetric feather contours",
           "passed": true
         },
         {
@@ -850,15 +886,31 @@
           "passed": true
         },
         {
+          "name": "attached wings use short colored dust",
+          "passed": true
+        },
+        {
+          "name": "aura spans feet to head",
+          "passed": true
+        },
+        {
+          "name": "crown surrounds head below its top",
+          "passed": true
+        },
+        {
+          "name": "trail emits a wide patch instead of a dot",
+          "passed": true
+        },
+        {
           "name": "wings follow body direction",
           "passed": true
         },
         {
-          "name": "per player particle budget enforced",
+          "name": "per player budget skips incomplete wings",
           "passed": true
         },
         {
-          "name": "global particle budget enforced",
+          "name": "global budget skips incomplete wings",
           "passed": true
         },
         {
@@ -891,6 +943,26 @@
         },
         {
           "name": "raid transformed callback emits particles for actual participant",
+          "passed": true
+        },
+        {
+          "name": "walking emits first trail patch",
+          "passed": true
+        },
+        {
+          "name": "trail delay suppresses intermediate patch",
+          "passed": true
+        },
+        {
+          "name": "trail resumes after configured ten ticks",
+          "passed": true
+        },
+        {
+          "name": "legacy footprint selection still renders unified trail",
+          "passed": true
+        },
+        {
+          "name": "new trail clears duplicate legacy footprint",
           "passed": true
         },
         {

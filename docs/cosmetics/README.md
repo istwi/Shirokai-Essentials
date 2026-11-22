@@ -1,4 +1,4 @@
-# Cosméticos — Essentials 0.6.0-guard.1
+# Cosméticos — Essentials 0.6.1-guard.1
 
 Sistema server-side para Minecraft 1.21.1 / Fabric / Java 21. Não precisa de pacote de recursos ou outro mod no cliente. São efeitos visuais com partículas do Minecraft; asas não permitem voar. Não altera itens, Pokémon, recompensas ou atributos de combate.
 
@@ -7,20 +7,19 @@ Sistema server-side para Minecraft 1.21.1 / Fabric / Java 21. Não precisa de pa
 `/cosmeticos` abre as categorias. Cada categoria tem seu próprio submenu, com estado da opção, permissão, descrição, remover, voltar e fechar.
 
 - Cor do nick: ciano, dourado e arco-íris alternando a cada dois segundos.
-- Rastros: ao caminhar.
-- Auras: partículas orbitando.
-- Pegadas elementais: nos pés enquanto caminha no chão.
-- Coroas: acima da cabeça.
-- Asas: contorno de partículas atrás do corpo, seguindo a direção do tronco. Ocultadas ao montar, nadar ou planar.
+- Rastros: marcas de 12 partículas, com 0,65 bloco de largura, ao caminhar no chão. Por padrão, uma marca a cada 10 ticks (0,5 s a 20 TPS).
+- Auras: espiral de duas voltas, dos pés até a cabeça, com cores do tema.
+- Coroas: anel com pequenas pontas envolvendo a cabeça, abaixo do topo.
+- Asas: dois contornos de penas com 32 pontos coloridos, atrás do corpo e seguindo a direção do tronco. Ocultadas ao montar, nadar ou planar.
 - Círculos: anel aos pés.
 - Teleporte: efeito na chegada, observado no caminho de teleporte do Minecraft, inclusive deslocamentos curtos. Atualizações sucessivas são agrupadas. Não gera efeito na saída.
 - Entrada: efeito cerca de dois segundos após entrar. Se estiver invisível, restrito, sem permissão ou em combate nesse momento, é cancelado.
 - Vitória: PvP entre jogadores do Minecraft ou chamada de integração administrativa. Vitória em batalha Pokémon comum ainda não está integrada.
 - Raid: celebração na transição de vitória do Shirokai/Zorykai Raids, para os participantes informados pelo próprio Raids.
 - Sazonais: Halloween em outubro, Natal em dezembro e Dia dos Namorados em junho. Fora do mês, a escolha fica salva mas não emite partículas.
-- Coleções: Estelar, Fogo, Água, Natureza, Elétrico e Fantasma. Equipa as dez categorias de partículas de uma vez, mantendo a cor do nick. Exige acesso a todos os componentes.
+- Coleções: Estelar, Fogo, Água, Natureza, Elétrico e Fantasma. Equipa as nove categorias de partículas de uma vez, mantendo a cor do nick. Exige acesso a todos os componentes.
 
-São 66 opções: três cores de nick, seis estilos para cada uma das dez categorias de partículas e três sazonais.
+São 66 opções: três cores de nick, seis estilos para cada uma das nove categorias de partículas e três sazonais.
 
 No principal, **Desativar tudo** mantém a seleção, remove a cor de nick gerenciada pelo mod e oculta suas partículas. Também deixa de enviar a você partículas geradas por este sistema para outros jogadores. Não oculta partículas de outros mods. O botão passa a **Reativar cosméticos**. `/cosmeticos desativar` tem o mesmo efeito.
 
@@ -39,7 +38,7 @@ shirokai.essentials.cosmetics.raid_soul
 shirokai.essentials.cosmetics.admin
 ```
 
-Cada opção exibe sua permissão. IDs de partículas: `<categoria>_<estilo>`, onde categorias são `trail`, `aura`, `footprint`, `crown`, `wings`, `circle`, `teleport`, `join`, `victory`, `raid`; estilos são `stars`, `fire`, `water`, `nature`, `electric`, `soul`. Sazonais: `trail_halloween`, `aura_christmas`, `circle_valentine`.
+Cada opção exibe sua permissão. IDs de partículas: `<categoria>_<estilo>`, onde categorias são `trail`, `aura`, `crown`, `wings`, `circle`, `teleport`, `join`, `victory`, `raid`; estilos são `stars`, `fire`, `water`, `nature`, `electric`, `soul`. Sazonais: `trail_halloween`, `aura_christmas`, `circle_valentine`.
 
 Exemplo LuckPerms:
 
@@ -60,6 +59,9 @@ Arquivo gerado: `config/shirokai-essentials/cosmetics.json`.
   "nickEnabled": true,
   "suppressInBattle": true,
   "intervalTicks": 5,
+  "wingsIntervalTicks": 4,
+  "trailDelayTicks": 10,
+  "trailPoints": 12,
   "maxParticlesPerPlayer": 36,
   "maxParticlesPerTick": 400,
   "viewDistance": 32,
@@ -69,11 +71,19 @@ Arquivo gerado: `config/shirokai-essentials/cosmetics.json`.
 }
 ```
 
+`wingsIntervalTicks` controla o intervalo entre desenhos das asas (mínimo 4 ticks). `trailDelayTicks` define o intervalo mínimo entre marcas; a emissão também respeita `intervalTicks`. `trailPoints` define a quantidade por marca (4–40), sujeita aos orçamentos de partículas. Arquivos de configuração antigos recebem os novos padrões em memória; para personalizar, adicione as três chaves mostradas acima.
+
 `disabled` aceita IDs de opções, como `wings_fire`. Configuração inválida não substitui a versão ativa no reload. Para aplicar: `/cosmeticosadmin reload`.
 
-Limites contam pontos de emissão, não pacotes de rede: cada ponto pode ser enviado aos espectadores próximos. O orçamento é compartilhado entre efeitos e eventos; sob carga, efeitos podem ficar incompletos. A prioridade gira entre jogadores. Não é uma garantia de desempenho em qualquer tamanho de servidor. Distância de visão, partículas desativadas no cliente e configurações de gráficos afetam a aparência.
+Limites contam pontos de emissão, não pacotes de rede: cada ponto pode ser enviado aos espectadores próximos. O orçamento é compartilhado entre efeitos e eventos; sob carga, efeitos podem ficar incompletos ou ser omitidos. Asas, coroas e círculos são omitidos quando não há orçamento para o contorno completo. A aura reduz os pontos para dividir o orçamento com coroa e círculo, preservando sua altura total. A prioridade gira entre jogadores. Não é uma garantia de desempenho em qualquer tamanho de servidor. Distância de visão, partículas desativadas no cliente e configurações de gráficos afetam a aparência.
 
 Escolhas ficam nos perfis existentes em `<mundo>/shirokai-essentials/players/<uuid>.json`, com os mesmos salvamentos atômicos/backup do mod. Perfis antigos recebem campos vazios. Não altere esses arquivos com o servidor ligado.
+
+## Correção de sobreposição e compatibilidade de pegadas
+
+Asas, aura, coroa e círculo usam poeira colorida de escala `0.095`. No cliente vanilla 1.21.1, a implementação `AbstractDustParticle` calcula um `maxAge` de 1–3 ticks nessa escala. As asas são redesenhadas a cada quatro ticks por padrão, em vez de acumular partículas END_ROD de longa duração em posições antigas. Não existe um campo de duração arbitrária nos pacotes usados: a escala e o tipo de partícula determinam o comportamento do cliente. Aparência e espaçamento ainda devem ser conferidos em jogo; atraso de rede pode alterar o ritmo percebido.
+
+Rastros continuam usando partículas temáticas que deixam marcas no caminho. A categoria separada de pegadas foi retirada do menu. Uma seleção antiga `footprint_*` é usada como rastro se não existir um rastro equipado e mantém a permissão antiga. Equipar um rastro novo, remover o rastro ou aplicar uma coleção também remove a seleção duplicada de pegadas. Não há duas emissões simultâneas para o mesmo deslocamento.
 
 ## Nick e outros mods
 

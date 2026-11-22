@@ -15,6 +15,7 @@ import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
 import net.minecraft.util.math.Vec3d;
 import java.io.IOException;
+import org.joml.Vector3f;
 import java.time.*;
 import java.util.*;
 
@@ -26,6 +27,7 @@ public final class CosmeticService {
     private final Map<UUID,Vec3d> previous=new HashMap<>();
     private final Map<UUID,String> worlds=new HashMap<>();
     private final Map<UUID,Team> ownedTeams=new HashMap<>();
+    private final Map<UUID,Long> lastTrail=new HashMap<>();
     private final Map<UUID,Long> lastCelebration=new HashMap<>();
     private long ticks;
     private long nextErrorLog;
@@ -78,11 +80,11 @@ public final class CosmeticService {
             entrances.put(p.getUuid(),ticks+40);
         });
         ServerPlayConnectionEvents.DISCONNECT.register((handler,server)->{
-            var p=handler.player;releaseTeam(p);selected.remove(p.getUuid());previous.remove(p.getUuid());worlds.remove(p.getUuid());entrances.remove(p.getUuid());lastCelebration.remove(p.getUuid());pendingTeleports.remove(p.getUuid());
+            var p=handler.player;releaseTeam(p);selected.remove(p.getUuid());previous.remove(p.getUuid());worlds.remove(p.getUuid());entrances.remove(p.getUuid());lastCelebration.remove(p.getUuid());lastTrail.remove(p.getUuid());pendingTeleports.remove(p.getUuid());
         });
         ServerTickEvents.END_SERVER_TICK.register(this::tick);
         ServerLifecycleEvents.SERVER_STOPPING.register(server->{for(var p:server.getPlayerManager().getPlayerList())releaseTeam(p);});
-        ServerLifecycleEvents.SERVER_STOPPED.register(server->{selected.clear();previous.clear();worlds.clear();entrances.clear();ownedTeams.clear();lastCelebration.clear();pendingTeleports.clear();});
+        ServerLifecycleEvents.SERVER_STOPPED.register(server->{selected.clear();previous.clear();worlds.clear();entrances.clear();ownedTeams.clear();lastCelebration.clear();lastTrail.clear();pendingTeleports.clear();});
     }
     private final Map<UUID,Vec3d> pendingTeleports=new HashMap<>();
     public void teleported(ServerPlayerEntity p) {if(selected.containsKey(p.getUuid()))pendingTeleports.put(p.getUuid(),p.getPos());}
@@ -105,15 +107,15 @@ public final class CosmeticService {
     }
     public void equip(ServerPlayerEntity p,CosmeticCatalog.Entry e) {
         if(!unlocked(p,e)){p.sendMessage(message("Esta opção está bloqueada ou fora da temporada."),false);return;}
-        save(p,d->{d.cosmetics.put(e.category(),e.id());d.cosmeticsHidden=false;});
+        save(p,d->{d.cosmetics.put(e.category(),e.id());if(e.category().equals("trail"))d.cosmetics.remove("footprint");d.cosmeticsHidden=false;});
     }
-    public void remove(ServerPlayerEntity p,String category) {save(p,d->d.cosmetics.remove(category));}
+    public void remove(ServerPlayerEntity p,String category) {save(p,d->{d.cosmetics.remove(category);if(category.equals("trail"))d.cosmetics.remove("footprint");});}
     public void disable(ServerPlayerEntity p) {save(p,d->d.cosmeticsHidden=true);}
     public void resume(ServerPlayerEntity p) {save(p,d->d.cosmeticsHidden=false);}
     public void collection(ServerPlayerEntity p,String style) {
         var entries=CosmeticCatalog.collection(style);
         if(entries.values().stream().map(CosmeticCatalog::find).anyMatch(e->!unlocked(p,e))){p.sendMessage(message("Desbloqueie todos os efeitos da coleção para equipá-la."),false);return;}
-        save(p,d->{d.cosmetics.putAll(entries);d.cosmeticsHidden=false;});
+        save(p,d->{d.cosmetics.putAll(entries);d.cosmetics.remove("footprint");d.cosmeticsHidden=false;});
     }
     private void save(ServerPlayerEntity p,java.util.function.Consumer<DataStore.PlayerData> change) {
         if(!canUse(p))return;
@@ -140,6 +142,8 @@ public final class CosmeticService {
                 playerBudget=config.maxParticlesPerPlayer;
                 if(ticks%20==0)updateNick(p);
                 if(entrances.getOrDefault(p.getUuid(),Long.MAX_VALUE)<=ticks) {entrances.remove(p.getUuid());burst(p,"join",p.getPos());}
+                // Attached outlines use their own refresh: short dust expires before a new wing frame.
+                if(ticks%config.wingsIntervalTicks==0)shape(p,"wings",p.getPos());
                 if(ticks%config.intervalTicks!=0)continue;
                 Vec3d old=previous.get(p.getUuid());String oldWorld=worlds.get(p.getUuid());
                 boolean same=p.getServerWorld().getRegistryKey().getValue().toString().equals(oldWorld);
@@ -147,8 +151,8 @@ public final class CosmeticService {
                 boolean moved=same&&distance>.008&&distance<64;
                 // Coalesce repeated network updates into one effect at the final arrival.
                 if(pendingTeleports.remove(p.getUuid())!=null)burst(p,"teleport",p.getPos());
-                if(moved) {shape(p,"trail",p.getPos());if(p.isOnGround())shape(p,"footprint",p.getPos());}
-                for(String category:List.of("aura","crown","wings","circle"))shape(p,category,p.getPos());
+                if(moved&&p.isOnGround()&&ticks-lastTrail.getOrDefault(p.getUuid(),-200L)>=config.trailDelayTicks) {shape(p,"trail",p.getPos());lastTrail.put(p.getUuid(),ticks);}
+                for(String category:List.of("aura","crown","circle"))shape(p,category,p.getPos());
                 remember(p);
             } catch(RuntimeException e) {if(ticks>=nextErrorLog){error(null,e);nextErrorLog=ticks+1200;}releaseTeam(p);remember(p);}
         }
@@ -167,36 +171,73 @@ public final class CosmeticService {
         for(int i=0;i<24;i++){double a=i*Math.PI/12;emit(p,e.style(),origin.add(Math.cos(a)*.8,.15+i*.06,Math.sin(a)*.8));}
     }
     private void shape(ServerPlayerEntity p,String category,Vec3d origin) {
-        var e=equipped(p,category);if(e==null)return;
+        var e=equipped(p,category);if(e==null&&category.equals("trail"))e=equipped(p,"footprint");if(e==null)return;
         double phase=ticks*.08;
         switch(category) {
-            case "trail" -> emit(p,e.style(),origin.add(0,.2,0));
-            case "footprint" -> {double yaw=Math.toRadians(p.getBodyYaw());for(int side:new int[]{-1,1})emit(p,e.style(),origin.add(Math.cos(yaw)*.18*side,.04,Math.sin(yaw)*.18*side));}
-            case "aura" -> {for(int i=0;i<4;i++){double a=phase+i*Math.PI/2;emit(p,e.style(),origin.add(Math.cos(a)*.65,.6+Math.sin(a*2)*.4,Math.sin(a)*.65));}}
-            case "circle" -> {for(int i=0;i<8;i++){double a=phase+i*Math.PI/4;emit(p,e.style(),origin.add(Math.cos(a)*.85,.08,Math.sin(a)*.85));}}
-            case "crown" -> {for(int i=0;i<6;i++){double a=phase*.3+i*Math.PI/3;emit(p,e.style(),origin.add(Math.cos(a)*.28,p.getHeight()+.23+(i%2)*.15,Math.sin(a)*.28));}}
-            case "wings" -> {
-                if(p.hasVehicle()||p.isSwimming()||p.isFallFlying())return;
+            case "trail", "footprint" -> {
+                // A visible patch across the walking path instead of one isolated dot.
                 double yaw=Math.toRadians(p.getBodyYaw());
-                for(int side:new int[]{-1,1})for(int i=0;i<7;i++) {
-                    double t=i/6.0,x=side*(.2+1.05*t),back=.22+Math.sin(phase)*.1*t;
-                    double y=p.getHeight()*.65+Math.sin(t*Math.PI)*.65-t*.35;
-                    emit(p,e.style(),origin.add(Math.cos(yaw)*x+Math.sin(yaw)*back,y,Math.sin(yaw)*x-Math.cos(yaw)*back));
+                for(int i=0;i<config.trailPoints;i++) {
+                    double across=((i%4)/3.0-.5)*.65, behind=.1+(i/4)*.17;
+                    emit(p,e.style(),origin.add(Math.cos(yaw)*across+Math.sin(yaw)*behind,.06,Math.sin(yaw)*across-Math.cos(yaw)*behind));
+                }
+            }
+            case "aura" -> {
+                int reserve=(equipped(p,"crown")!=null?12:0)+(equipped(p,"circle")!=null?12:0);
+                int points=Math.min(20,Math.max(12,playerBudget-reserve));
+                if(playerBudget<points||globalBudget<points)return;
+                for(int i=0;i<points;i++) {
+                    double t=i/(double)(points-1),a=phase+t*Math.PI*4;
+                    attached(p,e.style(),origin.add(Math.cos(a)*.55,.08+t*(p.getHeight()-.1),Math.sin(a)*.55));
+                }
+            }
+            case "circle" -> {if(playerBudget<12||globalBudget<12)return;for(int i=0;i<12;i++){double a=phase+i*Math.PI/6;attached(p,e.style(),origin.add(Math.cos(a)*.85,.08,Math.sin(a)*.85));}}
+            case "crown" -> {
+                if(playerBudget<12||globalBudget<12)return;
+                for(int i=0;i<12;i++) {
+                    double a=i*Math.PI/6;
+                    attached(p,e.style(),origin.add(Math.cos(a)*.36,p.getHeight()-.18+(i%2)*.04,Math.sin(a)*.36));
+                }
+            }
+            case "wings" -> {
+                if(p.hasVehicle()||p.isSwimming()||p.isFallFlying()||playerBudget<32||globalBudget<32)return;
+                double yaw=Math.toRadians(p.getBodyYaw());
+                // Mirrored feather contours: upper edge, pointed tip, scalloped lower edge and root.
+                double[][] outline={{.14,.66},{.32,.78},{.52,.9},{.76,.98},{1.0,1.04},{1.26,1.08},{1.16,.9},{1.04,.73},{.94,.6},{.86,.7},{.72,.49},{.64,.59},{.49,.4},{.4,.52},{.25,.44},{.14,.57}};
+                for(int side:new int[]{-1,1})for(var point:outline) {
+                    double x=side*point[0],back=.3+Math.sin(phase)*.04*point[0];
+                    attached(p,e.style(),origin.add(Math.cos(yaw)*x+Math.sin(yaw)*back,point[1]*p.getHeight(),Math.sin(yaw)*x-Math.cos(yaw)*back));
                 }
             }
         }
     }
+    /** Vanilla dust scale 0.095 has a 1–3 tick maxAge in MC 1.21.1's AbstractDustParticle.
+     * Refresh wings no faster than four ticks. No invented lifetime field in particle packets.
+     */
+    private void attached(ServerPlayerEntity p,String style,Vec3d pos) {
+        Vector3f color=switch(style) {
+            case "fire" -> new Vector3f(1,.35f,.08f);
+            case "water" -> new Vector3f(.15f,.65f,1);
+            case "nature" -> new Vector3f(.25f,1,.35f);
+            case "electric" -> new Vector3f(1,.9f,.12f);
+            case "soul" -> new Vector3f(.6f,.3f,1);
+            case "heart" -> new Vector3f(1,.35f,.6f);
+            default -> new Vector3f(.75f,1,1);
+        };
+        emit(p,new DustParticleEffect(color,.095f),pos);
+    }
     private static SimpleParticleType particle(String style) {
         return switch(style) {case "fire"->ParticleTypes.FLAME;case "water"->ParticleTypes.SPLASH;case "nature"->ParticleTypes.HAPPY_VILLAGER;case "electric"->ParticleTypes.ELECTRIC_SPARK;case "soul"->ParticleTypes.SOUL;case "snow"->ParticleTypes.SNOWFLAKE;case "heart"->ParticleTypes.HEART;default->ParticleTypes.END_ROD;};
     }
-    private void emit(ServerPlayerEntity p,String style,Vec3d pos) {
+    private void emit(ServerPlayerEntity p,String style,Vec3d pos) {emit(p,particle(style),pos);}
+    private void emit(ServerPlayerEntity p,ParticleEffect effect,Vec3d pos) {
         if(globalBudget<=0||playerBudget<=0)return;
         globalBudget--;playerBudget--;
         for(var viewer:p.getServerWorld().getPlayers()) {
             var state=selected.get(viewer.getUuid());
             if(state!=null&&state.cosmeticsHidden)continue; // personal opt-out also hides other players' effects
             if(viewer.getPos().squaredDistanceTo(pos)<=config.viewDistance*config.viewDistance)
-                p.getServerWorld().spawnParticles(viewer,particle(style),false,pos.x,pos.y,pos.z,1,0,0,0,0);
+                p.getServerWorld().spawnParticles(viewer,effect,false,pos.x,pos.y,pos.z,1,0,0,0,0);
         }
     }
     private static final Formatting[] RAINBOW={Formatting.AQUA,Formatting.BLUE,Formatting.LIGHT_PURPLE,Formatting.RED,Formatting.GOLD,Formatting.YELLOW,Formatting.GREEN};
