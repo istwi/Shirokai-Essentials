@@ -23,6 +23,7 @@ public final class CosmeticService {
     private CosmeticSettings config=new CosmeticSettings();
     private final Map<UUID,DataStore.PlayerData> selected=new HashMap<>();
     private final Map<UUID,Vec3d> trailAnchors=new HashMap<>();
+    private final Map<UUID,Double> trailCredits=new HashMap<>();
     private final Map<UUID,String> worlds=new HashMap<>();
     private final Map<UUID,Team> ownedTeams=new HashMap<>();
     private final Map<UUID,Long> lastCelebration=new HashMap<>();
@@ -73,15 +74,16 @@ public final class CosmeticService {
             catch(IOException e) {error(p,e);return;}
             remember(p);
             trailAnchors.put(p.getUuid(),p.getPos());
+            trailCredits.put(p.getUuid(),0d);
             // A single entrance, after a short delay; cancellation on disconnect is implicit.
             entrances.put(p.getUuid(),ticks+40);
         });
         ServerPlayConnectionEvents.DISCONNECT.register((handler,server)->{
-            var p=handler.player;releaseTeam(p);selected.remove(p.getUuid());trailAnchors.remove(p.getUuid());worlds.remove(p.getUuid());entrances.remove(p.getUuid());lastCelebration.remove(p.getUuid());
+            var p=handler.player;releaseTeam(p);selected.remove(p.getUuid());trailAnchors.remove(p.getUuid());trailCredits.remove(p.getUuid());worlds.remove(p.getUuid());entrances.remove(p.getUuid());lastCelebration.remove(p.getUuid());
         });
         ServerTickEvents.END_SERVER_TICK.register(this::tick);
         ServerLifecycleEvents.SERVER_STOPPING.register(server->{for(var p:server.getPlayerManager().getPlayerList())releaseTeam(p);});
-        ServerLifecycleEvents.SERVER_STOPPED.register(server->{selected.clear();trailAnchors.clear();worlds.clear();entrances.clear();ownedTeams.clear();lastCelebration.clear();});
+        ServerLifecycleEvents.SERVER_STOPPED.register(server->{selected.clear();trailAnchors.clear();trailCredits.clear();worlds.clear();entrances.clear();ownedTeams.clear();lastCelebration.clear();});
     }
     private final Map<UUID,Long> entrances=new HashMap<>();
     public static Text message(String text) {return Text.literal("✦ ").formatted(Formatting.AQUA).append(Text.literal("SHIROKAI ").formatted(Formatting.WHITE,Formatting.BOLD)).append(Text.literal("» "+text).formatted(Formatting.GRAY));}
@@ -141,17 +143,20 @@ public final class CosmeticService {
         for(int i=0;i<players.size();i++) {
             var p=players.get((i+rotation)%players.size());
             try {
-                if(!visible(p)||selected.get(p.getUuid())==null||selected.get(p.getUuid()).cosmeticsHidden) {releaseTeam(p);remember(p);trailAnchors.put(p.getUuid(),p.getPos());entrances.remove(p.getUuid());continue;}
+                if(!visible(p)||selected.get(p.getUuid())==null||selected.get(p.getUuid()).cosmeticsHidden) {releaseTeam(p);remember(p);resetTrail(p);entrances.remove(p.getUuid());continue;}
                 playerBudget=config.maxParticlesPerPlayer;
                 if(ticks%20==0)updateNick(p);
                 if(entrances.getOrDefault(p.getUuid(),Long.MAX_VALUE)<=ticks) {entrances.remove(p.getUuid());burst(p,"join",p.getPos());}
                 String oldWorld=worlds.get(p.getUuid());
                 boolean same=p.getServerWorld().getRegistryKey().getValue().toString().equals(oldWorld);
-                if(ticks%config.trailIntervalTicks==0) {
-                    Vec3d anchor=trailAnchors.get(p.getUuid());double trailDistance=anchor==null?0:p.getPos().squaredDistanceTo(anchor);
-                    if(same&&p.isOnGround()&&trailDistance>.0004&&trailDistance<16)trail(p,anchor,p.getPos());
-                    trailAnchors.put(p.getUuid(),p.getPos());
-                } else if(!same||!p.isOnGround())trailAnchors.put(p.getUuid(),p.getPos());
+                Vec3d anchor=trailAnchors.get(p.getUuid());double trailDistance=anchor==null?0:p.getPos().squaredDistanceTo(anchor);
+                var trail=equipped(p,"trail");
+                if(!same||!p.isOnGround()||trail==null||trailDistance>=16)resetTrail(p);
+                else if(trailDistance>.0004) {
+                    var pref=preferences(p);double credit=trailCredits.getOrDefault(p.getUuid(),0d)+(config.trailBaseDensity*pref.density*trailMultiplier(trail.style()))/(double)config.trailIntervalTicks;
+                    int count=(int)Math.floor(credit);trailCredits.put(p.getUuid(),credit-count);
+                    if(count>0){trail(p,anchor,p.getPos(),count);trailAnchors.put(p.getUuid(),p.getPos());}
+                }
                 if(ticks%config.intervalTicks==0)shape(p,"aura",p.getPos());
                 remember(p);
             } catch(RuntimeException e) {if(ticks>=nextErrorLog){error(null,e);nextErrorLog=ticks+1200;}releaseTeam(p);remember(p);}
@@ -176,16 +181,16 @@ public final class CosmeticService {
         var pref=preferences(p);double phase=ticks*(.04*pref.speed)*pref.direction,radius=.25+pref.size*.2;
         switch(category) {
             case "trail" -> {
-                double yaw=Math.toRadians(p.getBodyYaw());trail(p,origin.add(Math.sin(yaw)*-.6,0,Math.cos(yaw)*.6),origin);
+                double yaw=Math.toRadians(p.getBodyYaw());int count=Math.min(config.maxParticlesPerPlayer,config.trailBaseDensity*pref.density*trailMultiplier(e.style()));trail(p,origin.add(Math.sin(yaw)*-.6,0,Math.cos(yaw)*.6),origin,count);
             }
             case "aura" -> {int count=pref.density*2;for(int i=0;i<count;i++){double progress=i/(double)Math.max(1,count-1),a=phase+progress*Math.PI*4*pref.direction;emit(p,e.style(),origin.add(Math.cos(a)*radius,2-progress*1.9,Math.sin(a)*radius));}}
         }
     }
-    private void trail(ServerPlayerEntity p,Vec3d from,Vec3d to) {
+    private void resetTrail(ServerPlayerEntity p) {trailAnchors.put(p.getUuid(),p.getPos());trailCredits.put(p.getUuid(),0d);}
+    private void trail(ServerPlayerEntity p,Vec3d from,Vec3d to,int planned) {
         var e=equipped(p,"trail");if(e==null)return;var pref=preferences(p);
         Vec3d delta=to.subtract(from);double horizontal=Math.sqrt(delta.x*delta.x+delta.z*delta.z);if(horizontal<.001)return;
-        int scale=Math.max(1,(int)Math.ceil(horizontal/.6));
-        int count=Math.min(config.maxParticlesPerPlayer,config.trailBaseDensity*pref.density*trailMultiplier(e.style())*scale);
+        int count=Math.min(config.maxParticlesPerPlayer,Math.max(planned,(int)Math.ceil(horizontal/.12)));
         double rightX=-delta.z/horizontal,rightZ=delta.x/horizontal;
         for(int i=0;i<count;i++){
             double progress=(i+.5)/count,side=((i%3)-1)*.11*pref.size;

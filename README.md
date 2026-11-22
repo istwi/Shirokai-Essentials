@@ -138,6 +138,6 @@ Teleporte de sistema não usa a autorização de um warmup pendente. Recusas do 
 ocorrem antes de gravar histórico/cooldown. Sem Guard, os fluxos comuns permanecem.
 A integração de `/raid entrar` usa a API anterior e continua independente.
 
-## Cosméticos simples (0.6.6-continuous-trails.1)
+## Cosméticos simples (0.6.7-staggered-trails.1)
 
-`/cosmeticos`: cor do nick, rastro contínuo interpolado com densidade proporcional ao tamanho da partícula, aura em espiral, entrada, vitória e raid. A personalização permite ajustar velocidade, tamanho, densidade e direção com prévia e limites administrativos. Funciona somente no servidor; aura mantém 5 ticks e o rastro usa intervalo próprio de 6 ticks. [Configuração, permissões e limites](docs/cosmetics/README.md).
+`/cosmeticos`: cor do nick, rastro contínuo interpolado e escalonado no tempo, aura em espiral, entrada, vitória e raid. A personalização permite ajustar velocidade, tamanho, densidade e direção com prévia e limites administrativos. Funciona somente no servidor; o rastro distribui seu lote por uma janela de 6 ticks para não desaparecer em blocos. [Configuração, permissões e limites](docs/cosmetics/README.md).

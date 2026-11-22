@@ -1,4 +1,4 @@
-# Cosméticos simples — Essentials 0.6.6-continuous-trails.1
+# Cosméticos simples — Essentials 0.6.7-staggered-trails.1
 
 Versão exclusivamente server-side para Minecraft 1.21.1, Fabric e Java 21. Não exige mod nem pacote de recursos no cliente.
 
@@ -11,7 +11,7 @@ Versão exclusivamente server-side para Minecraft 1.21.1, Fabric e Java 21. Não
 - **Efeito de vitória:** celebração ao vencer PvP do Minecraft ou quando uma integração administrativa chama o evento.
 - **Celebração de raid:** acionada para os participantes na transição de vitória do Shirokai/Zorykai Raids.
 
-Aura e demais efeitos contínuos mantêm o intervalo original de `5` ticks. O rastro usa `trailIntervalTicks: 6` e interpola todas as partículas entre a última amostra e a posição atual. Assim, o caminho é preenchido continuamente em vez de formar blocos separados.
+Aura e demais efeitos contínuos mantêm o intervalo original de `5` ticks. No rastro, `trailIntervalTicks: 6` funciona como uma janela de distribuição: o lote é dividido entre os seis ticks, e não emitido inteiro de uma vez. As partículas passam a ter idades diferentes e deixam de desaparecer em blocos. Cada pequena linha também é interpolada entre a última posição emitida e a atual.
 
 A densidade básica do rastro é `4`. Partículas pequenas recebem multiplicadores proporcionais: água usa `3x`; elétrico, fantasma, neve, magia e encantado usam `2x`; partículas visualmente maiores usam `1x`. Todos continuam sujeitos aos orçamentos por jogador e por tick.
 

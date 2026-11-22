@@ -1,8 +1,8 @@
 {
-  "version": "0.6.6-continuous-trails.1",
+  "version": "0.6.7-staggered-trails.1",
   "artifacts": {
-    "shirokai-essentials-0.6.6-continuous-trails.1.jar": "694b83db84bc421acee155eb4e9f450f825fab42515e8f49b48a47413e35c8d4",
-    "shirokai-essentials-0.6.6-continuous-trails.1-zorykai-visual.jar": "64e7e56005a1696aa15e0e55541c1758fffce8fac54ddc82ecb58c8078a5fc1e"
+    "shirokai-essentials-0.6.7-staggered-trails.1.jar": "c0270e18e1aefb45aa7037d5c85c31d11b65e0ff7c3287c249a6e236532dd0c0",
+    "shirokai-essentials-0.6.7-staggered-trails.1-zorykai-visual.jar": "793ff33afb32fe366b4910ac6fb5ec7373fbb1b9b4708e3443fef566c22db1c5"
   },
   "unitPassed": 63,
   "nativePassed": 208,
@@ -55,10 +55,10 @@
   "nativeSuites": [
     {
       "suite": "without-cobblemon",
-      "artifactSha256": "64e7e56005a1696aa15e0e55541c1758fffce8fac54ddc82ecb58c8078a5fc1e",
+      "artifactSha256": "793ff33afb32fe366b4910ac6fb5ec7373fbb1b9b4708e3443fef566c22db1c5",
       "passed": 103,
       "mods": {
-        "shirokai_essentials": "0.6.6-continuous-trails.1",
+        "shirokai_essentials": "0.6.7-staggered-trails.1",
         "essentials_permission_checks": "1",
         "fabric-api": "0.116.7+1.21.1",
         "luckperms": "5.4.140"
@@ -480,10 +480,10 @@
     },
     {
       "suite": "with-cobblemon-raids-guard",
-      "artifactSha256": "64e7e56005a1696aa15e0e55541c1758fffce8fac54ddc82ecb58c8078a5fc1e",
+      "artifactSha256": "793ff33afb32fe366b4910ac6fb5ec7373fbb1b9b4708e3443fef566c22db1c5",
       "passed": 105,
       "mods": {
-        "shirokai_essentials": "0.6.6-continuous-trails.1",
+        "shirokai_essentials": "0.6.7-staggered-trails.1",
         "impactor": "5.3.5+1.21.1",
         "cobblemon": "1.8.3+1.21.1",
         "shirokai_raids": "0.1.25-returnspawn.1",
