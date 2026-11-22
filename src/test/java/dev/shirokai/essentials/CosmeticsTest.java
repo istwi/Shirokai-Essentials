@@ -17,33 +17,34 @@ class CosmeticsTest {
         for(var category:CosmeticCatalog.ORDER)assertTrue(CosmeticCatalog.ENTRIES.stream().anyMatch(e->e.category().equals(category)));
         assertNull(CosmeticCatalog.find(null));
     }
-    @Test void seasonsUseTheirMonthsAndOrdinaryEntriesRemainAvailable() {
-        assertTrue(CosmeticCatalog.find("trail_halloween").available(LocalDate.of(2026,10,31)));
-        assertFalse(CosmeticCatalog.find("trail_halloween").available(LocalDate.of(2026,11,1)));
-        assertTrue(CosmeticCatalog.find("circle_valentine").available(LocalDate.of(2026,6,12)));
-        assertTrue(CosmeticCatalog.find("trail_stars").available(LocalDate.of(2026,1,1)));
-    }
-    @Test void collectionsCoverVisualCategoriesWithoutChangingNickname() {
-        for(String style:List.of("stars","fire","water","nature","electric","soul")) {
-            var entries=CosmeticCatalog.collection(style);assertEquals(10,entries.size());assertFalse(entries.containsKey("nick"));
-            entries.forEach((category,id)->assertEquals(category,CosmeticCatalog.find(id).category()));
-        }
-        assertThrows(IllegalArgumentException.class,()->CosmeticCatalog.collection("unknown"));
+    @Test void catalogueContainsOnlyTheSixSimpleCategories() {
+        assertEquals(List.of("nick","trail","aura","join","victory","raid"),CosmeticCatalog.ORDER);
+        assertEquals(33,CosmeticCatalog.ENTRIES.size());
+        for(String removed:List.of("wings_stars","crown_fire","circle_water","footprint_nature","teleport_soul","trail_halloween"))
+            assertNull(CosmeticCatalog.find(removed));
     }
     @Test void settingsRejectUnboundedWorkAndMalformedFilesWithoutOverwriting() throws Exception {
         var file=root.resolve("cosmetics.json");var cfg=CosmeticSettings.load(file);cfg.maxParticlesPerTick=0;
         assertThrows(IOException.class,cfg::validate);
         cfg.maxParticlesPerTick=400;cfg.intervalTicks=0;assertThrows(IOException.class,cfg::validate);
-        cfg.intervalTicks=5;cfg.timezone="invalid/zone";assertThrows(IOException.class,cfg::validate);
+        cfg.intervalTicks=5;cfg.disabled.add("wings_stars");cfg.validate();assertTrue(cfg.disabled.isEmpty());
         Files.writeString(file,"{broken");assertThrows(IOException.class,()->CosmeticSettings.load(file));assertEquals("{broken",Files.readString(file));
     }
     @Test void cosmeticChoicesPersistAndFailedSaveDoesNotPublishNewSelection() throws Exception {
         var id=UUID.randomUUID();var store=new DataStore(root);
-        store.update(id,p->{p.cosmetics.put("wings","wings_stars");p.cosmeticsHidden=true;});
-        var reloaded=new DataStore(root);assertEquals("wings_stars",reloaded.player(id).cosmetics.get("wings"));assertTrue(reloaded.player(id).cosmeticsHidden);
+        store.update(id,p->{p.cosmetics.put("trail","trail_stars");p.cosmeticsHidden=true;});
+        var reloaded=new DataStore(root);assertEquals("trail_stars",reloaded.player(id).cosmetics.get("trail"));assertTrue(reloaded.player(id).cosmeticsHidden);
         var path=root.resolve("players").resolve(id+".json");Files.delete(path);Files.createDirectory(path);Files.writeString(path.resolve("blocked"),"fixture");
-        assertThrows(IOException.class,()->store.update(id,p->p.cosmetics.put("wings","wings_fire")));
-        assertEquals("wings_stars",store.player(id).cosmetics.get("wings"));
+        assertThrows(IOException.class,()->store.update(id,p->p.cosmetics.put("trail","trail_fire")));
+        assertEquals("trail_stars",store.player(id).cosmetics.get("trail"));
+    }
+    @Test void removedChoicesRemainReadableButAreInactive() throws Exception {
+        var id=UUID.randomUUID();var store=new DataStore(root);
+        store.update(id,p->{p.cosmetics.put("wings","wings_stars");p.cosmetics.put("trail","trail_water");});
+        var reloaded=new DataStore(root).player(id);
+        assertEquals("wings_stars",reloaded.cosmetics.get("wings"));
+        assertNull(CosmeticCatalog.find(reloaded.cosmetics.get("wings")));
+        assertNotNull(CosmeticCatalog.find(reloaded.cosmetics.get("trail")));
     }
     @Test void legacyProfilesAcquireEmptyCosmeticChoices() throws Exception {
         var id=UUID.randomUUID();var path=root.resolve("players").resolve(id+".json");Files.createDirectories(path.getParent());Files.writeString(path,"{\"schemaVersion\":2,\"nickname\":\"Legacy\"}");

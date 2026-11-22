@@ -138,6 +138,6 @@ Teleporte de sistema não usa a autorização de um warmup pendente. Recusas do 
 ocorrem antes de gravar histórico/cooldown. Sem Guard, os fluxos comuns permanecem.
 A integração de `/raid entrar` usa a API anterior e continua independente.
 
-## Cosméticos (0.6.0-guard.1)
+## Cosméticos simples (0.6.3-simple.1)
 
-`/cosmeticos`: categorias em menus separados, opções por permissão, coleções, sazonais e efeitos de movimento/eventos. [Configuração, permissões e limites](docs/cosmetics/README.md).
+`/cosmeticos`: cor do nick, rastros no chão, aura, entrada, vitória e raid. Funciona somente no servidor e mantém o intervalo original de 5 ticks. [Configuração, permissões e limites](docs/cosmetics/README.md).

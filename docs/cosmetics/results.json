@@ -1,11 +1,11 @@
 {
-  "version": "0.6.0-guard.1",
+  "version": "0.6.3-simple.1",
   "artifacts": {
-    "shirokai-essentials-0.6.0-guard.1.jar": "bac9e04852328a2976d86a21349cd7896ad20b6f720f98e38f7899426e10d32e",
-    "shirokai-essentials-0.6.0-guard.1-zorykai-visual.jar": "85f21549f4eec0168ad897cef50fc955e3c7fc433d45ae67c462b027437aae66"
+    "shirokai-essentials-0.6.3-simple.1.jar": "d6a7127354b43bd49c203e53cf6c6b3439111046a8ff0a64e771003d35e729d1",
+    "shirokai-essentials-0.6.3-simple.1-zorykai-visual.jar": "c9f8e89764d24d6fbf50ef61ac2e66b2c6e3a9f6db62afb33d0edb93f558b325"
   },
   "unitPassed": 62,
-  "nativePassed": 206,
+  "nativePassed": 198,
   "unitSuites": [
     {
       "suite": "dev.shirokai.essentials.ConflictsTest",
@@ -55,10 +55,10 @@
   "nativeSuites": [
     {
       "suite": "without-cobblemon",
-      "artifactSha256": "85f21549f4eec0168ad897cef50fc955e3c7fc433d45ae67c462b027437aae66",
-      "passed": 102,
+      "artifactSha256": "c9f8e89764d24d6fbf50ef61ac2e66b2c6e3a9f6db62afb33d0edb93f558b325",
+      "passed": 98,
       "mods": {
-        "shirokai_essentials": "0.6.0-guard.1",
+        "shirokai_essentials": "0.6.3-simple.1",
         "essentials_permission_checks": "1",
         "fabric-api": "0.116.7+1.21.1",
         "luckperms": "5.4.140"
@@ -357,7 +357,7 @@
           "passed": true
         },
         {
-          "name": "cosmetics menu displays dedicated categories",
+          "name": "cosmetics menu displays six simple categories",
           "passed": true
         },
         {
@@ -397,11 +397,11 @@
           "passed": true
         },
         {
-          "name": "collection requires all component grants",
+          "name": "removed legacy choices remain stored for compatibility",
           "passed": true
         },
         {
-          "name": "complete collection equips all ten visual categories",
+          "name": "removed choices are absent from active catalogue",
           "passed": true
         },
         {
@@ -417,35 +417,19 @@
           "passed": true
         },
         {
-          "name": "wings emit fourteen particle positions",
+          "name": "ground trail emits two foot-level particles without extra delay",
           "passed": true
         },
         {
-          "name": "wings render behind player",
+          "name": "simple aura emits original four points",
           "passed": true
         },
         {
-          "name": "wings follow body direction",
-          "passed": true
-        },
-        {
-          "name": "per player particle budget enforced",
-          "passed": true
-        },
-        {
-          "name": "global particle budget enforced",
+          "name": "removed wings emit no particles",
           "passed": true
         },
         {
           "name": "distant viewers receive no particles",
-          "passed": true
-        },
-        {
-          "name": "short vanilla teleport observed",
-          "passed": true
-        },
-        {
-          "name": "arrival consumes queued teleport",
           "passed": true
         },
         {
@@ -476,10 +460,10 @@
     },
     {
       "suite": "with-cobblemon-raids-guard",
-      "artifactSha256": "85f21549f4eec0168ad897cef50fc955e3c7fc433d45ae67c462b027437aae66",
-      "passed": 104,
+      "artifactSha256": "c9f8e89764d24d6fbf50ef61ac2e66b2c6e3a9f6db62afb33d0edb93f558b325",
+      "passed": 100,
       "mods": {
-        "shirokai_essentials": "0.6.0-guard.1",
+        "shirokai_essentials": "0.6.3-simple.1",
         "impactor": "5.3.5+1.21.1",
         "cobblemon": "1.8.3+1.21.1",
         "shirokai_raids": "0.1.25-returnspawn.1",
@@ -782,7 +766,7 @@
           "passed": true
         },
         {
-          "name": "cosmetics menu displays dedicated categories",
+          "name": "cosmetics menu displays six simple categories",
           "passed": true
         },
         {
@@ -822,11 +806,11 @@
           "passed": true
         },
         {
-          "name": "collection requires all component grants",
+          "name": "removed legacy choices remain stored for compatibility",
           "passed": true
         },
         {
-          "name": "complete collection equips all ten visual categories",
+          "name": "removed choices are absent from active catalogue",
           "passed": true
         },
         {
@@ -842,35 +826,19 @@
           "passed": true
         },
         {
-          "name": "wings emit fourteen particle positions",
+          "name": "ground trail emits two foot-level particles without extra delay",
           "passed": true
         },
         {
-          "name": "wings render behind player",
+          "name": "simple aura emits original four points",
           "passed": true
         },
         {
-          "name": "wings follow body direction",
-          "passed": true
-        },
-        {
-          "name": "per player particle budget enforced",
-          "passed": true
-        },
-        {
-          "name": "global particle budget enforced",
+          "name": "removed wings emit no particles",
           "passed": true
         },
         {
           "name": "distant viewers receive no particles",
-          "passed": true
-        },
-        {
-          "name": "short vanilla teleport observed",
-          "passed": true
-        },
-        {
-          "name": "arrival consumes queued teleport",
           "passed": true
         },
         {
@@ -917,6 +885,7 @@
     "Jogadores simulados; nenhum cliente gráfico.",
     "Raids: classe real transformada e callback injetado exercitado; batalha/vitória completa não executada.",
     "Vitória em batalha Pokémon comum não integrada.",
-    "Teste não constitui medição de desempenho em servidor cheio."
+    "Teste não constitui medição de desempenho em servidor cheio.",
+    "Categorias removidas permanecem nos perfis antigos, mas ficam inativas."
   ]
 }

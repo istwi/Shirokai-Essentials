@@ -1,5 +1,5 @@
 plugins { id 'fabric-loom' version '1.9.2' }
-version = '0.6.0-guard.1'
+version = '0.6.3-simple.1'
 group = 'dev.shirokai'
 base { archivesName = 'shirokai-essentials' }
 repositories { mavenCentral() }

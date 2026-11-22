@@ -4,8 +4,7 @@
   "compatibilityLevel": "JAVA_21",
   "mixins": [
     "CommandGuardMixin",
-    "RaidCosmeticsMixin",
-    "CosmeticTeleportMixin"
+    "RaidCosmeticsMixin"
   ],
   "injectors": {
     "defaultRequire": 1
