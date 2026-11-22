@@ -38,6 +38,13 @@ class CosmeticsTest {
         assertThrows(IOException.class,()->store.update(id,p->p.cosmetics.put("trail","trail_fire")));
         assertEquals("trail_stars",store.player(id).cosmetics.get("trail"));
     }
+    @Test void cosmeticPersonalizationPersistsWithinSafeBounds() throws Exception {
+        var id=UUID.randomUUID();var store=new DataStore(root);
+        store.update(id,p->{p.cosmeticPreferences.speed=3;p.cosmeticPreferences.size=1;p.cosmeticPreferences.density=3;p.cosmeticPreferences.direction=-1;});
+        var saved=new DataStore(root).player(id).cosmeticPreferences;
+        assertEquals(3,saved.speed);assertEquals(1,saved.size);assertEquals(3,saved.density);assertEquals(-1,saved.direction);
+        assertThrows(IOException.class,()->store.update(id,p->p.cosmeticPreferences.density=4));
+    }
     @Test void removedChoicesRemainReadableButAreInactive() throws Exception {
         var id=UUID.randomUUID();var store=new DataStore(root);
         store.update(id,p->{p.cosmetics.put("wings","wings_stars");p.cosmetics.put("trail","trail_water");});
@@ -48,6 +55,6 @@ class CosmeticsTest {
     }
     @Test void legacyProfilesAcquireEmptyCosmeticChoices() throws Exception {
         var id=UUID.randomUUID();var path=root.resolve("players").resolve(id+".json");Files.createDirectories(path.getParent());Files.writeString(path,"{\"schemaVersion\":2,\"nickname\":\"Legacy\"}");
-        var data=new DataStore(root).player(id);assertEquals("Legacy",data.nickname);assertTrue(data.cosmetics.isEmpty());assertFalse(data.cosmeticsHidden);
+        var data=new DataStore(root).player(id);assertEquals("Legacy",data.nickname);assertTrue(data.cosmetics.isEmpty());assertFalse(data.cosmeticsHidden);assertEquals(2,data.cosmeticPreferences.density);
     }
 }

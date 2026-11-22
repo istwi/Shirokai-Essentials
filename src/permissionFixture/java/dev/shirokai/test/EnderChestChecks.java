@@ -254,6 +254,7 @@ public final class EnderChestChecks implements DedicatedServerModInitializer {
         check("cosmetics command opens category menu",execute(server,p.getCommandSource(),"cosmeticos")==1&&p.currentScreenHandler instanceof dev.shirokai.essentials.cosmetics.CosmeticScreen);
         var menu=p.currentScreenHandler;
         check("cosmetics menu displays six simple categories",menu.getSlot(10).getStack().getName().getString().equals("Cor do nick")&&menu.getSlot(11).getStack().getName().getString().equals("Rastros no chão")&&menu.getSlot(15).getStack().getName().getString().equals("Celebração de raid")&&menu.getSlot(16).getStack().getName().getString().isBlank());
+        check("customization is visibly locked without permission",menu.getSlot(31).getStack().isOf(Items.IRON_BARS));
         menu.onSlotClick(11,0,net.minecraft.screen.slot.SlotActionType.PICKUP,p);
         check("category opens a separate submenu",p.currentScreenHandler!=menu&&p.currentScreenHandler instanceof dev.shirokai.essentials.cosmetics.CosmeticScreen);
         menu=p.currentScreenHandler;menu.onSlotClick(10,0,net.minecraft.screen.slot.SlotActionType.PICKUP,p);
@@ -274,6 +275,12 @@ public final class EnderChestChecks implements DedicatedServerModInitializer {
         check("disable preserves selections",svc.state(p).cosmeticsHidden&&svc.state(p).cosmetics.containsKey("trail"));
         svc.resume(p);check("resume restores saved selection",!svc.state(p).cosmeticsHidden);
         user.data().add(PermissionNode.builder("shirokai.essentials.cosmetics.*").build());user.getCachedData().invalidate();
+        svc.open(p,"main");menu=p.currentScreenHandler;menu.onSlotClick(31,0,net.minecraft.screen.slot.SlotActionType.PICKUP,p);
+        check("customization opens only after permission grant",p.currentScreenHandler!=menu&&p.currentScreenHandler.getSlot(10).getStack().getName().getString().startsWith("Velocidade:"));
+        menu=p.currentScreenHandler;for(int slot:List.of(10,12,14,16))menu.onSlotClick(slot,0,net.minecraft.screen.slot.SlotActionType.PICKUP,p);menu.onSlotClick(33,0,net.minecraft.screen.slot.SlotActionType.PICKUP,p);
+        var personalized=app.data().player(p.getUuid()).cosmeticPreferences;
+        check("customization applies and persists safe values",personalized.speed==3&&personalized.size==3&&personalized.density==3&&personalized.direction==-1);
+        svc.preferences(p,new dev.shirokai.essentials.persistence.DataStore.CosmeticPreferences());
         app.data().update(p.getUuid(),d->{d.cosmetics.put("wings","wings_stars");d.cosmetics.put("crown","crown_stars");});
         check("removed legacy choices remain stored for compatibility",app.data().player(p.getUuid()).cosmetics.containsKey("wings")&&app.data().player(p.getUuid()).cosmetics.containsKey("crown"));
         check("removed choices are absent from active catalogue",dev.shirokai.essentials.cosmetics.CosmeticCatalog.find("wings_stars")==null&&dev.shirokai.essentials.cosmetics.CosmeticCatalog.find("crown_stars")==null);
@@ -299,7 +306,9 @@ public final class EnderChestChecks implements DedicatedServerModInitializer {
         check("ground trail emits two foot-level particles without extra delay",p.particles.size()==2&&p.particles.stream().allMatch(packet->Math.abs(packet.getY()-(p.getY()+.04))<.001));
         svc.equip(p,dev.shirokai.essentials.cosmetics.CosmeticCatalog.find("aura_stars"));
         p.particles.clear();global.setInt(svc,400);local.setInt(svc,36);shape.invoke(svc,p,"aura",p.getPos());
-        check("simple aura emits original four points",p.particles.size()==4);
+        check("simple aura forms four points from head to feet",p.particles.size()==4&&p.particles.stream().mapToDouble(net.minecraft.network.packet.s2c.play.ParticleS2CPacket::getY).max().orElse(0)>p.getY()+1.9&&p.particles.stream().mapToDouble(net.minecraft.network.packet.s2c.play.ParticleS2CPacket::getY).min().orElse(9)<p.getY()+.2);
+        svc.config().maxDensity=1;p.particles.clear();global.setInt(svc,400);local.setInt(svc,36);shape.invoke(svc,p,"aura",p.getPos());
+        check("reduced server limit clamps an existing player preference",p.particles.size()==2);svc.config().maxDensity=3;
         p.particles.clear();global.setInt(svc,400);local.setInt(svc,36);shape.invoke(svc,p,"wings",p.getPos());
         check("removed wings emit no particles",p.particles.isEmpty());
         other.setPosition(p.getPos().add(100,0,0));other.particles.clear();global.setInt(svc,400);local.setInt(svc,36);shape.invoke(svc,p,"aura",p.getPos());

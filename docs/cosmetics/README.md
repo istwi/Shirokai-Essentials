@@ -1,12 +1,12 @@
-# Cosméticos simples — Essentials 0.6.3-simple.1
+# Cosméticos simples — Essentials 0.6.4-personalization.1
 
 Versão exclusivamente server-side para Minecraft 1.21.1, Fabric e Java 21. Não exige mod nem pacote de recursos no cliente.
 
 `/cosmeticos` apresenta somente seis categorias, cada uma em seu submenu:
 
 - **Cor do nick:** ciano, dourado ou arco-íris suave.
-- **Rastros no chão:** duas partículas junto aos pés enquanto o jogador caminha no chão.
-- **Aura:** quatro partículas orbitando o jogador.
+- **Rastros no chão:** partículas junto aos pés enquanto o jogador caminha no chão.
+- **Aura:** espiral de partículas da cabeça aos pés.
 - **Entrada triunfal:** efeito breve cerca de dois segundos depois de entrar.
 - **Efeito de vitória:** celebração ao vencer PvP do Minecraft ou quando uma integração administrativa chama o evento.
 - **Celebração de raid:** acionada para os participantes na transição de vitória do Shirokai/Zorykai Raids.
@@ -15,10 +15,17 @@ O processamento usa o intervalo original de `5` ticks. Não existe ajuste separa
 
 Asas, coroas, círculos, pegadas separadas, teleporte temático, sazonais e coleções foram retirados. O complemento cliente 3D não faz parte desta versão.
 
+## Personalização segura
+
+Jogadores com `shirokai.essentials.cosmetics.customize` podem abrir **Personalizar partículas** e ajustar velocidade, tamanho, densidade e direção. A tela oferece prévia temporária, restauração do padrão, aplicar e cancelar. As escolhas são salvas por UUID.
+
+Os limites administrativos `maxSpeed`, `maxSize` e `maxDensity` aceitam valores de 1 a 3. O jogador nunca ultrapassa esses limites; os orçamentos global e individual de partículas continuam prevalecendo.
+
 ## Permissões
 
 ```text
 shirokai.essentials.cosmetics.use
+shirokai.essentials.cosmetics.customize
 shirokai.essentials.cosmetics.nick_cyan
 shirokai.essentials.cosmetics.nick_gold
 shirokai.essentials.cosmetics.nick_rainbow
@@ -55,6 +62,9 @@ Arquivo `config/shirokai-essentials/cosmetics.json`:
   "maxParticlesPerTick": 400,
   "viewDistance": 32,
   "celebrationCooldownSeconds": 10,
+  "maxSpeed": 3,
+  "maxSize": 3,
+  "maxDensity": 3,
   "disabled": []
 }
 ```

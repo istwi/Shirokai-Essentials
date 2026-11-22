@@ -89,6 +89,7 @@ public final class CosmeticService {
         if(p!=null)p.sendMessage(message("Não foi possível salvar. A seleção anterior foi preservada."),false);
     }
     public boolean canUse(ServerPlayerEntity p) {return config.enabled&&app.permissions.has(p.getCommandSource(),"cosmetics.use");}
+    public boolean canCustomize(ServerPlayerEntity p) {return canUse(p)&&app.permissions.has(p.getCommandSource(),"cosmetics.customize");}
     public boolean unlocked(ServerPlayerEntity p,CosmeticCatalog.Entry e) {
         return canUse(p)&&!config.disabled.contains(e.id())&&app.permissions.has(p.getCommandSource(),"cosmetics."+e.id())&&(!e.category().equals("nick")||config.nickEnabled);
     }
@@ -106,6 +107,18 @@ public final class CosmeticService {
     public void remove(ServerPlayerEntity p,String category) {save(p,d->d.cosmetics.remove(category));}
     public void disable(ServerPlayerEntity p) {save(p,d->d.cosmeticsHidden=true);}
     public void resume(ServerPlayerEntity p) {save(p,d->d.cosmeticsHidden=false);}
+    public void preferences(ServerPlayerEntity p,DataStore.CosmeticPreferences value) {
+        if(!canCustomize(p)){p.sendMessage(message("Você não tem permissão para personalizar."),false);return;}
+        if(value.speed<1||value.speed>config.maxSpeed||value.size<1||value.size>config.maxSize||value.density<1||value.density>config.maxDensity||Math.abs(value.direction)!=1){p.sendMessage(message("Personalização fora dos limites do servidor."),false);return;}
+        save(p,d->{d.cosmeticPreferences.speed=value.speed;d.cosmeticPreferences.size=value.size;d.cosmeticPreferences.density=value.density;d.cosmeticPreferences.direction=value.direction;});
+    }
+    public void preview(ServerPlayerEntity p,DataStore.CosmeticPreferences value) {
+        if(!canCustomize(p)||!visible(p))return;
+        if(globalBudget<=0)return;playerBudget=Math.min(config.maxParticlesPerPlayer,12);
+        value=bounded(value);
+        double radius=.25+value.size*.2, phase=ticks*(.04*value.speed)*value.direction;
+        for(int i=0;i<Math.min(12,value.density*4);i++){double progress=i/(double)Math.max(1,value.density*4-1),a=phase+progress*Math.PI*4*value.direction;emit(p,"stars",p.getPos().add(Math.cos(a)*radius,2-progress*1.9,Math.sin(a)*radius));}
+    }
     private void save(ServerPlayerEntity p,java.util.function.Consumer<DataStore.PlayerData> change) {
         if(!canUse(p))return;
         try {app.data().update(p.getUuid(),change);selected.put(p.getUuid(),app.data().player(p.getUuid()));releaseTeam(p);p.sendMessage(message("Seleção de cosméticos atualizada."),false);}
@@ -153,15 +166,22 @@ public final class CosmeticService {
     }
     private void burst(ServerPlayerEntity p,String category,Vec3d origin) {
         var e=equipped(p,category);if(e==null)return;
-        for(int i=0;i<24;i++){double a=i*Math.PI/12;emit(p,e.style(),origin.add(Math.cos(a)*.8,.15+i*.06,Math.sin(a)*.8));}
+        var pref=preferences(p);int count=pref.density*12;double radius=.4+pref.size*.2;
+        for(int i=0;i<count;i++){double a=i*Math.PI*2/count;emit(p,e.style(),origin.add(Math.cos(a)*radius,.15+i*(1.45/count),Math.sin(a)*radius));}
     }
     private void shape(ServerPlayerEntity p,String category,Vec3d origin) {
         var e=equipped(p,category);if(e==null)return;
-        double phase=ticks*.08;
+        var pref=preferences(p);double phase=ticks*(.04*pref.speed)*pref.direction,radius=.25+pref.size*.2;
         switch(category) {
-            case "trail" -> {double yaw=Math.toRadians(p.getBodyYaw());for(int side:new int[]{-1,1})emit(p,e.style(),origin.add(Math.cos(yaw)*.18*side,.04,Math.sin(yaw)*.18*side));}
-            case "aura" -> {for(int i=0;i<4;i++){double a=phase+i*Math.PI/2;emit(p,e.style(),origin.add(Math.cos(a)*.65,.6+Math.sin(a*2)*.4,Math.sin(a)*.65));}}
+            case "trail" -> {double yaw=Math.toRadians(p.getBodyYaw());for(int i=0;i<pref.density;i++){double side=i-(pref.density-1)/2d;emit(p,e.style(),origin.add(Math.cos(yaw)*.18*side*pref.size,.04,Math.sin(yaw)*.18*side*pref.size));}}
+            case "aura" -> {int count=pref.density*2;for(int i=0;i<count;i++){double progress=i/(double)Math.max(1,count-1),a=phase+progress*Math.PI*4*pref.direction;emit(p,e.style(),origin.add(Math.cos(a)*radius,2-progress*1.9,Math.sin(a)*radius));}}
         }
+    }
+    private DataStore.CosmeticPreferences preferences(ServerPlayerEntity p) {
+        var state=selected.get(p.getUuid());return bounded(state==null||state.cosmeticPreferences==null?new DataStore.CosmeticPreferences():state.cosmeticPreferences);
+    }
+    private DataStore.CosmeticPreferences bounded(DataStore.CosmeticPreferences value) {
+        var safe=new DataStore.CosmeticPreferences();safe.speed=Math.max(1,Math.min(config.maxSpeed,value.speed));safe.size=Math.max(1,Math.min(config.maxSize,value.size));safe.density=Math.max(1,Math.min(config.maxDensity,value.density));safe.direction=value.direction<0?-1:1;return safe;
     }
     private static SimpleParticleType particle(String style) {
         return switch(style) {case "fire"->ParticleTypes.FLAME;case "water"->ParticleTypes.SPLASH;case "nature"->ParticleTypes.HAPPY_VILLAGER;case "electric"->ParticleTypes.ELECTRIC_SPARK;case "soul"->ParticleTypes.SOUL;case "snow"->ParticleTypes.SNOWFLAKE;case "heart"->ParticleTypes.HEART;default->ParticleTypes.END_ROD;};

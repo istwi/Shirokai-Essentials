@@ -1,11 +1,11 @@
 {
-  "version": "0.6.3-simple.1",
+  "version": "0.6.4-personalization.1",
   "artifacts": {
-    "shirokai-essentials-0.6.3-simple.1.jar": "d6a7127354b43bd49c203e53cf6c6b3439111046a8ff0a64e771003d35e729d1",
-    "shirokai-essentials-0.6.3-simple.1-zorykai-visual.jar": "c9f8e89764d24d6fbf50ef61ac2e66b2c6e3a9f6db62afb33d0edb93f558b325"
+    "shirokai-essentials-0.6.4-personalization.1.jar": "c432284bcdaeef616af52eba43d5c4682438742425d15544988fb1aa7729ae4b",
+    "shirokai-essentials-0.6.4-personalization.1-zorykai-visual.jar": "9fa38bfe29f1451c7d2b3bb2534e68ab4751674f10347152035ecad6321ef154"
   },
-  "unitPassed": 62,
-  "nativePassed": 198,
+  "unitPassed": 63,
+  "nativePassed": 206,
   "unitSuites": [
     {
       "suite": "dev.shirokai.essentials.ConflictsTest",
@@ -13,7 +13,7 @@
     },
     {
       "suite": "dev.shirokai.essentials.CosmeticsTest",
-      "passed": 6
+      "passed": 7
     },
     {
       "suite": "dev.shirokai.essentials.DurationsTest",
@@ -55,10 +55,10 @@
   "nativeSuites": [
     {
       "suite": "without-cobblemon",
-      "artifactSha256": "c9f8e89764d24d6fbf50ef61ac2e66b2c6e3a9f6db62afb33d0edb93f558b325",
-      "passed": 98,
+      "artifactSha256": "9fa38bfe29f1451c7d2b3bb2534e68ab4751674f10347152035ecad6321ef154",
+      "passed": 102,
       "mods": {
-        "shirokai_essentials": "0.6.3-simple.1",
+        "shirokai_essentials": "0.6.4-personalization.1",
         "essentials_permission_checks": "1",
         "fabric-api": "0.116.7+1.21.1",
         "luckperms": "5.4.140"
@@ -361,6 +361,10 @@
           "passed": true
         },
         {
+          "name": "customization is visibly locked without permission",
+          "passed": true
+        },
+        {
           "name": "category opens a separate submenu",
           "passed": true
         },
@@ -397,6 +401,14 @@
           "passed": true
         },
         {
+          "name": "customization opens only after permission grant",
+          "passed": true
+        },
+        {
+          "name": "customization applies and persists safe values",
+          "passed": true
+        },
+        {
           "name": "removed legacy choices remain stored for compatibility",
           "passed": true
         },
@@ -421,7 +433,11 @@
           "passed": true
         },
         {
-          "name": "simple aura emits original four points",
+          "name": "simple aura forms four points from head to feet",
+          "passed": true
+        },
+        {
+          "name": "reduced server limit clamps an existing player preference",
           "passed": true
         },
         {
@@ -460,10 +476,10 @@
     },
     {
       "suite": "with-cobblemon-raids-guard",
-      "artifactSha256": "c9f8e89764d24d6fbf50ef61ac2e66b2c6e3a9f6db62afb33d0edb93f558b325",
-      "passed": 100,
+      "artifactSha256": "9fa38bfe29f1451c7d2b3bb2534e68ab4751674f10347152035ecad6321ef154",
+      "passed": 104,
       "mods": {
-        "shirokai_essentials": "0.6.3-simple.1",
+        "shirokai_essentials": "0.6.4-personalization.1",
         "impactor": "5.3.5+1.21.1",
         "cobblemon": "1.8.3+1.21.1",
         "shirokai_raids": "0.1.25-returnspawn.1",
@@ -770,6 +786,10 @@
           "passed": true
         },
         {
+          "name": "customization is visibly locked without permission",
+          "passed": true
+        },
+        {
           "name": "category opens a separate submenu",
           "passed": true
         },
@@ -806,6 +826,14 @@
           "passed": true
         },
         {
+          "name": "customization opens only after permission grant",
+          "passed": true
+        },
+        {
+          "name": "customization applies and persists safe values",
+          "passed": true
+        },
+        {
           "name": "removed legacy choices remain stored for compatibility",
           "passed": true
         },
@@ -830,7 +858,11 @@
           "passed": true
         },
         {
-          "name": "simple aura emits original four points",
+          "name": "simple aura forms four points from head to feet",
+          "passed": true
+        },
+        {
+          "name": "reduced server limit clamps an existing player preference",
           "passed": true
         },
         {
