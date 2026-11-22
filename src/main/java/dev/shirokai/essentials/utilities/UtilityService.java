@@ -38,7 +38,7 @@ public final class UtilityService {
             case "god"->{boolean enabled=!god.contains(target.getUuid());app.data().update(target.getUuid(),d->d.god=app.settings().utilities.persistModes&&enabled);if(enabled)god.add(target.getUuid());else god.remove(target.getUuid());}
             case "heal"->{target.setHealth(target.getMaxHealth());target.clearStatusEffects();}
             case "feed"->{target.getHungerManager().setFoodLevel(20);target.getHungerManager().setSaturationLevel(20);}
-            case "speed"->{if(target.getAbilities().flying)target.getAbilities().setFlySpeed(speed/20f);else target.getAbilities().setWalkSpeed(speed/20f);target.sendAbilitiesUpdate();}
+            case "speed"->{if(target.getAbilities().flying)target.getAbilities().setFlySpeed(speed/20f);else target.getAbilities().setWalkSpeed(speed/10f);target.sendAbilitiesUpdate();}
             case "repair"->{var item=target.getMainHandStack();if(!item.isDamageable())return app.messages.error(source,"invalid","value","item sem durabilidade");item.setDamage(0);target.currentScreenHandler.sendContentUpdates();return app.messages.send(source,"repair_done","player",target.getName().getString());}
             case "hat"->{ItemStack item=target.getMainHandStack();ItemStack hat=target.getEquippedStack(EquipmentSlot.HEAD);target.equipStack(EquipmentSlot.HEAD,item.copy());target.setStackInHand(net.minecraft.util.Hand.MAIN_HAND,hat.copy());}
             case "clearinventory"->{target.getInventory().clear();target.currentScreenHandler.sendContentUpdates();}

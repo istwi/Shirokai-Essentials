@@ -1,4 +1,4 @@
-# Cosméticos simples — Essentials 0.6.8-foot-anchor.1
+# Cosméticos simples — Essentials 0.6.9-speed-scale.1
 
 Versão exclusivamente server-side para Minecraft 1.21.1, Fabric e Java 21. Não exige mod nem pacote de recursos no cliente.
 

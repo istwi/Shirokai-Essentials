@@ -123,8 +123,10 @@ public final class EnderChestChecks implements DedicatedServerModInitializer {
         user.data().clear(); user.getCachedData().invalidate();
         var source=player.getCommandSource();
         check("luz denied without permission", execute(server,source,"luz")==0 && !player.hasStatusEffect(net.minecraft.entity.effect.StatusEffects.NIGHT_VISION));
-        for (String name : List.of("workbench","anvil","grindstone","repair","luz","esquentar")) user.data().add(PermissionNode.builder("shirokai.essentials."+name).build());
+        for (String name : List.of("workbench","anvil","grindstone","repair","luz","esquentar","speed")) user.data().add(PermissionNode.builder("shirokai.essentials."+name).build());
         user.getCachedData().invalidate();
+        player.getAbilities().flying=false;check("speed one restores normal walking speed",execute(server,source,"speed 1")==1&&Math.abs(player.getAbilities().getWalkSpeed()-.1f)<.0001);
+        player.getAbilities().allowFlying=true;player.getAbilities().flying=true;check("speed one keeps normal flying speed",execute(server,source,"speed 1")==1&&Math.abs(player.getAbilities().getFlySpeed()-.05f)<.0001);player.getAbilities().flying=false;
         player.addStatusEffect(new net.minecraft.entity.effect.StatusEffectInstance(net.minecraft.entity.effect.StatusEffects.SPEED,1200));
         check("luz enables night vision",execute(server,source,"luz")==1 && player.hasStatusEffect(net.minecraft.entity.effect.StatusEffects.NIGHT_VISION));
         check("luz disables only night vision",execute(server,source,"luz")==1 && !player.hasStatusEffect(net.minecraft.entity.effect.StatusEffects.NIGHT_VISION) && player.hasStatusEffect(net.minecraft.entity.effect.StatusEffects.SPEED));

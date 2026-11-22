@@ -1,11 +1,11 @@
 {
-  "version": "0.6.8-foot-anchor.1",
+  "version": "0.6.9-speed-scale.1",
   "artifacts": {
-    "shirokai-essentials-0.6.8-foot-anchor.1.jar": "a8ded8c39c92002e35f9ecfcb2b0f1d630887099e7fc24df1b725980e7a90811",
-    "shirokai-essentials-0.6.8-foot-anchor.1-zorykai-visual.jar": "7b8d26cbfa879a82f2262d709a7da9fafd6c57ac7b665415c64ab5f52d31ccb4"
+    "shirokai-essentials-0.6.9-speed-scale.1.jar": "7b1567ecb6a337d395409ae16e3fdb0781204936895da7dffd88fd5b7bac55b3",
+    "shirokai-essentials-0.6.9-speed-scale.1-zorykai-visual.jar": "bcdd70980465930e853772bf7f9aa653b117d793f922b39f14c7e17450f0f2d2"
   },
   "unitPassed": 63,
-  "nativePassed": 208,
+  "nativePassed": 212,
   "unitSuites": [
     {
       "suite": "dev.shirokai.essentials.ConflictsTest",
@@ -55,10 +55,10 @@
   "nativeSuites": [
     {
       "suite": "without-cobblemon",
-      "artifactSha256": "7b8d26cbfa879a82f2262d709a7da9fafd6c57ac7b665415c64ab5f52d31ccb4",
-      "passed": 103,
+      "artifactSha256": "bcdd70980465930e853772bf7f9aa653b117d793f922b39f14c7e17450f0f2d2",
+      "passed": 105,
       "mods": {
-        "shirokai_essentials": "0.6.8-foot-anchor.1",
+        "shirokai_essentials": "0.6.9-speed-scale.1",
         "essentials_permission_checks": "1",
         "fabric-api": "0.116.7+1.21.1",
         "luckperms": "5.4.140"
@@ -134,6 +134,14 @@
         },
         {
           "name": "luz denied without permission",
+          "passed": true
+        },
+        {
+          "name": "speed one restores normal walking speed",
+          "passed": true
+        },
+        {
+          "name": "speed one keeps normal flying speed",
           "passed": true
         },
         {
@@ -480,10 +488,10 @@
     },
     {
       "suite": "with-cobblemon-raids-guard",
-      "artifactSha256": "7b8d26cbfa879a82f2262d709a7da9fafd6c57ac7b665415c64ab5f52d31ccb4",
-      "passed": 105,
+      "artifactSha256": "bcdd70980465930e853772bf7f9aa653b117d793f922b39f14c7e17450f0f2d2",
+      "passed": 107,
       "mods": {
-        "shirokai_essentials": "0.6.8-foot-anchor.1",
+        "shirokai_essentials": "0.6.9-speed-scale.1",
         "impactor": "5.3.5+1.21.1",
         "cobblemon": "1.8.3+1.21.1",
         "shirokai_raids": "0.1.25-returnspawn.1",
@@ -563,6 +571,14 @@
         },
         {
           "name": "luz denied without permission",
+          "passed": true
+        },
+        {
+          "name": "speed one restores normal walking speed",
+          "passed": true
+        },
+        {
+          "name": "speed one keeps normal flying speed",
           "passed": true
         },
         {
