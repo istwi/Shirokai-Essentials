@@ -19,7 +19,8 @@ class CosmeticsTest {
     }
     @Test void catalogueContainsOnlyTheSixSimpleCategories() {
         assertEquals(List.of("nick","trail","aura","join","victory","raid"),CosmeticCatalog.ORDER);
-        assertEquals(33,CosmeticCatalog.ENTRIES.size());
+        assertEquals(63,CosmeticCatalog.ENTRIES.size());
+        for(String added:List.of("trail_snow","trail_heart","trail_magic","trail_enchant","trail_cloud","trail_cherry"))assertNotNull(CosmeticCatalog.find(added));
         for(String removed:List.of("wings_stars","crown_fire","circle_water","footprint_nature","teleport_soul","trail_halloween"))
             assertNull(CosmeticCatalog.find(removed));
     }
@@ -27,7 +28,8 @@ class CosmeticsTest {
         var file=root.resolve("cosmetics.json");var cfg=CosmeticSettings.load(file);cfg.maxParticlesPerTick=0;
         assertThrows(IOException.class,cfg::validate);
         cfg.maxParticlesPerTick=400;cfg.intervalTicks=0;assertThrows(IOException.class,cfg::validate);
-        cfg.intervalTicks=5;cfg.disabled.add("wings_stars");cfg.validate();assertTrue(cfg.disabled.isEmpty());
+        cfg.intervalTicks=5;cfg.trailIntervalTicks=1;assertThrows(IOException.class,cfg::validate);
+        cfg.trailIntervalTicks=6;cfg.disabled.add("wings_stars");cfg.validate();assertTrue(cfg.disabled.isEmpty());
         Files.writeString(file,"{broken");assertThrows(IOException.class,()->CosmeticSettings.load(file));assertEquals("{broken",Files.readString(file));
     }
     @Test void cosmeticChoicesPersistAndFailedSaveDoesNotPublishNewSelection() throws Exception {

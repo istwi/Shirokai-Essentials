@@ -144,13 +144,12 @@ public final class CosmeticService {
                 playerBudget=config.maxParticlesPerPlayer;
                 if(ticks%20==0)updateNick(p);
                 if(entrances.getOrDefault(p.getUuid(),Long.MAX_VALUE)<=ticks) {entrances.remove(p.getUuid());burst(p,"join",p.getPos());}
-                if(ticks%config.intervalTicks!=0)continue;
                 Vec3d old=previous.get(p.getUuid());String oldWorld=worlds.get(p.getUuid());
                 boolean same=p.getServerWorld().getRegistryKey().getValue().toString().equals(oldWorld);
                 double distance=old==null?0:p.getPos().squaredDistanceTo(old);
-                boolean moved=same&&distance>.008&&distance<64;
-                if(moved&&p.isOnGround())shape(p,"trail",p.getPos());
-                shape(p,"aura",p.getPos());
+                boolean moved=same&&distance>.0004&&distance<64;
+                if(moved&&p.isOnGround()&&ticks%config.trailIntervalTicks==0)shape(p,"trail",p.getPos());
+                if(ticks%config.intervalTicks==0)shape(p,"aura",p.getPos());
                 remember(p);
             } catch(RuntimeException e) {if(ticks>=nextErrorLog){error(null,e);nextErrorLog=ticks+1200;}releaseTeam(p);remember(p);}
         }
@@ -173,7 +172,11 @@ public final class CosmeticService {
         var e=equipped(p,category);if(e==null)return;
         var pref=preferences(p);double phase=ticks*(.04*pref.speed)*pref.direction,radius=.25+pref.size*.2;
         switch(category) {
-            case "trail" -> {double yaw=Math.toRadians(p.getBodyYaw());for(int i=0;i<pref.density;i++){double side=i-(pref.density-1)/2d;emit(p,e.style(),origin.add(Math.cos(yaw)*.18*side*pref.size,.04,Math.sin(yaw)*.18*side*pref.size));}}
+            case "trail" -> {
+                double yaw=Math.toRadians(p.getBodyYaw()),rightX=Math.cos(yaw),rightZ=Math.sin(yaw),backX=Math.sin(yaw),backZ=-Math.cos(yaw);
+                int count=Math.min(config.maxParticlesPerPlayer,config.trailBaseDensity*pref.density*trailMultiplier(e.style()));
+                for(int i=0;i<count;i++){double side=((i%3)-1)*.13*pref.size,back=(i/3)*.055;emit(p,e.style(),origin.add(rightX*side+backX*back,.035,rightZ*side+backZ*back));}
+            }
             case "aura" -> {int count=pref.density*2;for(int i=0;i<count;i++){double progress=i/(double)Math.max(1,count-1),a=phase+progress*Math.PI*4*pref.direction;emit(p,e.style(),origin.add(Math.cos(a)*radius,2-progress*1.9,Math.sin(a)*radius));}}
         }
     }
@@ -184,8 +187,9 @@ public final class CosmeticService {
         var safe=new DataStore.CosmeticPreferences();safe.speed=Math.max(1,Math.min(config.maxSpeed,value.speed));safe.size=Math.max(1,Math.min(config.maxSize,value.size));safe.density=Math.max(1,Math.min(config.maxDensity,value.density));safe.direction=value.direction<0?-1:1;return safe;
     }
     private static SimpleParticleType particle(String style) {
-        return switch(style) {case "fire"->ParticleTypes.FLAME;case "water"->ParticleTypes.SPLASH;case "nature"->ParticleTypes.HAPPY_VILLAGER;case "electric"->ParticleTypes.ELECTRIC_SPARK;case "soul"->ParticleTypes.SOUL;case "snow"->ParticleTypes.SNOWFLAKE;case "heart"->ParticleTypes.HEART;default->ParticleTypes.END_ROD;};
+        return switch(style) {case "fire"->ParticleTypes.FLAME;case "water"->ParticleTypes.SPLASH;case "nature"->ParticleTypes.HAPPY_VILLAGER;case "electric"->ParticleTypes.ELECTRIC_SPARK;case "soul"->ParticleTypes.SOUL;case "snow"->ParticleTypes.SNOWFLAKE;case "heart"->ParticleTypes.HEART;case "magic"->ParticleTypes.WITCH;case "enchant"->ParticleTypes.ENCHANT;case "cloud"->ParticleTypes.CLOUD;case "cherry"->ParticleTypes.CHERRY_LEAVES;default->ParticleTypes.END_ROD;};
     }
+    private static int trailMultiplier(String style) {return switch(style){case "water"->3;case "electric","soul","snow","magic","enchant"->2;default->1;};}
     private void emit(ServerPlayerEntity p,String style,Vec3d pos) {
         if(globalBudget<=0||playerBudget<=0)return;
         globalBudget--;playerBudget--;

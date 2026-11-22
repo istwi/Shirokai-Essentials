@@ -1,17 +1,19 @@
-# Cosméticos simples — Essentials 0.6.4-personalization.1
+# Cosméticos simples — Essentials 0.6.5-trails.1
 
 Versão exclusivamente server-side para Minecraft 1.21.1, Fabric e Java 21. Não exige mod nem pacote de recursos no cliente.
 
 `/cosmeticos` apresenta somente seis categorias, cada uma em seu submenu:
 
 - **Cor do nick:** ciano, dourado ou arco-íris suave.
-- **Rastros no chão:** partículas junto aos pés enquanto o jogador caminha no chão.
+- **Rastros no chão:** trilha larga emitida em pontos espaçados enquanto o jogador caminha no chão.
 - **Aura:** espiral de partículas da cabeça aos pés.
 - **Entrada triunfal:** efeito breve cerca de dois segundos depois de entrar.
 - **Efeito de vitória:** celebração ao vencer PvP do Minecraft ou quando uma integração administrativa chama o evento.
 - **Celebração de raid:** acionada para os participantes na transição de vitória do Shirokai/Zorykai Raids.
 
-O processamento usa o intervalo original de `5` ticks. Não existe ajuste separado de delay para rastros, asas ou outros efeitos. O rastro é emitido em cada ciclo permitido enquanto há movimento no chão.
+Aura e demais efeitos contínuos mantêm o intervalo original de `5` ticks. O rastro usa `trailIntervalTicks: 6`, criando um pequeno espaçamento temporal para as partículas permanecerem visualmente pelo caminho em vez de parecerem presas ao jogador.
+
+A densidade básica do rastro é `4`. Partículas pequenas recebem multiplicadores proporcionais: água usa `3x`; elétrico, fantasma, neve, magia e encantado usam `2x`; partículas visualmente maiores usam `1x`. Todos continuam sujeitos aos orçamentos por jogador e por tick.
 
 Asas, coroas, círculos, pegadas separadas, teleporte temático, sazonais e coleções foram retirados. O complemento cliente 3D não faz parte desta versão.
 
@@ -37,7 +39,7 @@ shirokai.essentials.cosmetics.raid_soul
 shirokai.essentials.cosmetics.admin
 ```
 
-Os estilos disponíveis nas cinco categorias de partículas são `stars`, `fire`, `water`, `nature`, `electric` e `soul`. O menu mostra a permissão exata de cada opção.
+Os estilos disponíveis nas cinco categorias de partículas são `stars`, `fire`, `water`, `nature`, `electric`, `soul`, `snow`, `heart`, `magic`, `enchant`, `cloud` e `cherry`. O menu mostra a permissão exata de cada opção.
 
 Exemplo no LuckPerms:
 
@@ -58,8 +60,10 @@ Arquivo `config/shirokai-essentials/cosmetics.json`:
   "nickEnabled": true,
   "suppressInBattle": true,
   "intervalTicks": 5,
-  "maxParticlesPerPlayer": 36,
-  "maxParticlesPerTick": 400,
+  "trailIntervalTicks": 6,
+  "trailBaseDensity": 4,
+  "maxParticlesPerPlayer": 48,
+  "maxParticlesPerTick": 500,
   "viewDistance": 32,
   "celebrationCooldownSeconds": 10,
   "maxSpeed": 3,

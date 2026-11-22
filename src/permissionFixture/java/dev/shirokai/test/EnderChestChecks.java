@@ -302,8 +302,10 @@ public final class EnderChestChecks implements DedicatedServerModInitializer {
         var shape=svc.getClass().getDeclaredMethod("shape",ServerPlayerEntity.class,String.class,net.minecraft.util.math.Vec3d.class);shape.setAccessible(true);
         var global=svc.getClass().getDeclaredField("globalBudget");global.setAccessible(true);
         var local=svc.getClass().getDeclaredField("playerBudget");local.setAccessible(true);
-        p.setBodyYaw(0);global.setInt(svc,400);local.setInt(svc,36);shape.invoke(svc,p,"trail",p.getPos());
-        check("ground trail emits two foot-level particles without extra delay",p.particles.size()==2&&p.particles.stream().allMatch(packet->Math.abs(packet.getY()-(p.getY()+.04))<.001));
+        p.setBodyYaw(0);global.setInt(svc,500);local.setInt(svc,48);shape.invoke(svc,p,"trail",p.getPos());
+        check("ground trail uses a wider eight-particle default",p.particles.size()==8&&p.particles.stream().allMatch(packet->Math.abs(packet.getY()-(p.getY()+.035))<.001));
+        svc.equip(p,dev.shirokai.essentials.cosmetics.CosmeticCatalog.find("trail_water"));p.particles.clear();global.setInt(svc,500);local.setInt(svc,48);shape.invoke(svc,p,"trail",p.getPos());
+        check("small water particles receive proportional extra density",p.particles.size()==24);
         svc.equip(p,dev.shirokai.essentials.cosmetics.CosmeticCatalog.find("aura_stars"));
         p.particles.clear();global.setInt(svc,400);local.setInt(svc,36);shape.invoke(svc,p,"aura",p.getPos());
         check("simple aura forms four points from head to feet",p.particles.size()==4&&p.particles.stream().mapToDouble(net.minecraft.network.packet.s2c.play.ParticleS2CPacket::getY).max().orElse(0)>p.getY()+1.9&&p.particles.stream().mapToDouble(net.minecraft.network.packet.s2c.play.ParticleS2CPacket::getY).min().orElse(9)<p.getY()+.2);
