@@ -1,4 +1,4 @@
-# Cosméticos simples — Essentials 0.6.7-staggered-trails.1
+# Cosméticos simples — Essentials 0.6.8-foot-anchor.1
 
 Versão exclusivamente server-side para Minecraft 1.21.1, Fabric e Java 21. Não exige mod nem pacote de recursos no cliente.
 
@@ -12,6 +12,8 @@ Versão exclusivamente server-side para Minecraft 1.21.1, Fabric e Java 21. Não
 - **Celebração de raid:** acionada para os participantes na transição de vitória do Shirokai/Zorykai Raids.
 
 Aura e demais efeitos contínuos mantêm o intervalo original de `5` ticks. No rastro, `trailIntervalTicks: 6` funciona como uma janela de distribuição: o lote é dividido entre os seis ticks, e não emitido inteiro de uma vez. As partículas passam a ter idades diferentes e deixam de desaparecer em blocos. Cada pequena linha também é interpolada entre a última posição emitida e a atual.
+
+Cada emissão inclui obrigatoriamente uma partícula central sob os pés. Quando há orçamento para uma segunda partícula, ela recebe uma projeção limitada a `0,12` bloco na direção do movimento, compensando o avanço visual do cliente durante uma corrida sem colocar o rastro à frente do jogador.
 
 A densidade básica do rastro é `4`. Partículas pequenas recebem multiplicadores proporcionais: água usa `3x`; elétrico, fantasma, neve, magia e encantado usam `2x`; partículas visualmente maiores usam `1x`. Todos continuam sujeitos aos orçamentos por jogador e por tick.
 

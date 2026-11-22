@@ -1,8 +1,8 @@
 {
-  "version": "0.6.7-staggered-trails.1",
+  "version": "0.6.8-foot-anchor.1",
   "artifacts": {
-    "shirokai-essentials-0.6.7-staggered-trails.1.jar": "c0270e18e1aefb45aa7037d5c85c31d11b65e0ff7c3287c249a6e236532dd0c0",
-    "shirokai-essentials-0.6.7-staggered-trails.1-zorykai-visual.jar": "793ff33afb32fe366b4910ac6fb5ec7373fbb1b9b4708e3443fef566c22db1c5"
+    "shirokai-essentials-0.6.8-foot-anchor.1.jar": "a8ded8c39c92002e35f9ecfcb2b0f1d630887099e7fc24df1b725980e7a90811",
+    "shirokai-essentials-0.6.8-foot-anchor.1-zorykai-visual.jar": "7b8d26cbfa879a82f2262d709a7da9fafd6c57ac7b665415c64ab5f52d31ccb4"
   },
   "unitPassed": 63,
   "nativePassed": 208,
@@ -55,10 +55,10 @@
   "nativeSuites": [
     {
       "suite": "without-cobblemon",
-      "artifactSha256": "793ff33afb32fe366b4910ac6fb5ec7373fbb1b9b4708e3443fef566c22db1c5",
+      "artifactSha256": "7b8d26cbfa879a82f2262d709a7da9fafd6c57ac7b665415c64ab5f52d31ccb4",
       "passed": 103,
       "mods": {
-        "shirokai_essentials": "0.6.7-staggered-trails.1",
+        "shirokai_essentials": "0.6.8-foot-anchor.1",
         "essentials_permission_checks": "1",
         "fabric-api": "0.116.7+1.21.1",
         "luckperms": "5.4.140"
@@ -429,7 +429,7 @@
           "passed": true
         },
         {
-          "name": "ground trail interpolates eight particles across the travelled line",
+          "name": "ground trail reaches the feet and projects a capped running endpoint",
           "passed": true
         },
         {
@@ -480,10 +480,10 @@
     },
     {
       "suite": "with-cobblemon-raids-guard",
-      "artifactSha256": "793ff33afb32fe366b4910ac6fb5ec7373fbb1b9b4708e3443fef566c22db1c5",
+      "artifactSha256": "7b8d26cbfa879a82f2262d709a7da9fafd6c57ac7b665415c64ab5f52d31ccb4",
       "passed": 105,
       "mods": {
-        "shirokai_essentials": "0.6.7-staggered-trails.1",
+        "shirokai_essentials": "0.6.8-foot-anchor.1",
         "impactor": "5.3.5+1.21.1",
         "cobblemon": "1.8.3+1.21.1",
         "shirokai_raids": "0.1.25-returnspawn.1",
@@ -858,7 +858,7 @@
           "passed": true
         },
         {
-          "name": "ground trail interpolates eight particles across the travelled line",
+          "name": "ground trail reaches the feet and projects a capped running endpoint",
           "passed": true
         },
         {

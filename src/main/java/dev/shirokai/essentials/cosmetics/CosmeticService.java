@@ -192,9 +192,10 @@ public final class CosmeticService {
         Vec3d delta=to.subtract(from);double horizontal=Math.sqrt(delta.x*delta.x+delta.z*delta.z);if(horizontal<.001)return;
         int count=Math.min(config.maxParticlesPerPlayer,Math.max(planned,(int)Math.ceil(horizontal/.12)));
         double rightX=-delta.z/horizontal,rightZ=delta.x/horizontal;
+        double lead=Math.min(.12,horizontal*.75);Vec3d projected=to.add(delta.x/horizontal*lead,0,delta.z/horizontal*lead);
         for(int i=0;i<count;i++){
-            double progress=(i+.5)/count,side=((i%3)-1)*.11*pref.size;
-            Vec3d center=from.add(delta.multiply(progress));
+            boolean endpoint=i>=count-2;double side=endpoint?0:((i%3)-1)*.11*pref.size;
+            Vec3d center=count==1||i==count-2?to:i==count-1?projected:from.add(delta.multiply((i+1d)/(count-1d)));
             emit(p,e.style(),center.add(rightX*side,.035,rightZ*side));
         }
     }
