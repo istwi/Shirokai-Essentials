@@ -18,6 +18,7 @@ def update_labels(data):
                 'Bem-vindo ao Shirokai, {player}!': 'Bem-vindo ao Zorykai, {player}!',
                 'Servidor Shirokai — divirta-se!': 'Servidor Zorykai — divirta-se!',
                 '✦ SHIROKAI ': '✦ ZORYKAI ',
+                'SHIROKAI ': 'ZORYKAI ',
                 'Shirokai Essentials {version} / Minecraft 1.21.1': 'Zorykai Essentials {version} / Minecraft 1.21.1',
                 'Use uma cópia dentro da pasta do mundo, fora dos dados Shirokai': 'Use uma cópia dentro da pasta do mundo, fora dos dados Zorykai',
             }
@@ -43,6 +44,7 @@ with zipfile.ZipFile(base / 'shirokai-essentials-0.3.2-guard.1.jar') as original
      zipfile.ZipFile(source) as current, zipfile.ZipFile(target, 'w', zipfile.ZIP_DEFLATED) as output:
     visuals = {name for name in original.namelist() if name.endswith('.class') and original.read(name) != branded.read(name)}
     assert len(visuals) == 5
+    visuals.add("dev/shirokai/essentials/cosmetics/CosmeticService.class")
     for name in visuals:
         if name == 'dev/shirokai/essentials/Messages.class':
             assert current.read(name) == original.read(name), f'Message renderer changed; cannot reuse old styling: {name}'

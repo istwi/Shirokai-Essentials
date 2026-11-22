@@ -18,6 +18,8 @@ public final class DataStore {
         public List<Mail> mail = new ArrayList<>();
         public boolean messagesBlocked, socialSpy, fly, managedFlight, god, joined;
         public String nickname = "", pendingKit = "";
+        public Map<String,String> cosmetics = new TreeMap<>();
+        public boolean cosmeticsHidden = false;
         public Map<String, Long> kitCooldowns = new TreeMap<>();
         public Set<String> claimedKits = new HashSet<>();
     }
@@ -48,7 +50,7 @@ public final class DataStore {
         validate(world); indexNames();
     }
     private static void validate(PlayerData p) throws IOException {
-        if (p.schemaVersion != 2 || p.ignored == null || p.mail == null || p.mail.size() > 1000 || p.nickname == null || p.pendingKit == null || p.kitCooldowns == null || p.claimedKits == null || p.homes == null || p.homes.size() > 10000 || p.homes.entrySet().stream().anyMatch(e -> !dev.shirokai.essentials.config.Settings.validName(e.getKey()) || e.getValue() == null)) throw new IOException("Dados de jogador inválidos; arquivo preservado");
+        if (p.schemaVersion != 2 || p.cosmetics == null || p.cosmetics.size() > 20 || p.cosmetics.entrySet().stream().anyMatch(e -> e.getKey()==null || e.getValue()==null) || p.ignored == null || p.mail == null || p.mail.size() > 1000 || p.nickname == null || p.pendingKit == null || p.kitCooldowns == null || p.claimedKits == null || p.homes == null || p.homes.size() > 10000 || p.homes.entrySet().stream().anyMatch(e -> !dev.shirokai.essentials.config.Settings.validName(e.getKey()) || e.getValue() == null)) throw new IOException("Dados de jogador inválidos; arquivo preservado");
     }
     private static void validate(WorldData w) throws IOException {
         if (w.schemaVersion != 2 || w.profiles == null || w.jails == null || w.warps == null || w.spawns == null || w.warps.entrySet().stream().anyMatch(e -> !dev.shirokai.essentials.config.Settings.validName(e.getKey()) || e.getValue() == null || e.getValue().position == null) || w.spawns.containsValue(null)) throw new IOException("Dados globais inválidos; arquivo preservado");

@@ -1,0 +1,12 @@
+{
+  "enabled": true,
+  "nickEnabled": true,
+  "suppressInBattle": true,
+  "intervalTicks": 5,
+  "maxParticlesPerPlayer": 36,
+  "maxParticlesPerTick": 400,
+  "viewDistance": 32,
+  "celebrationCooldownSeconds": 10,
+  "timezone": "America/Sao_Paulo",
+  "disabled": []
+}

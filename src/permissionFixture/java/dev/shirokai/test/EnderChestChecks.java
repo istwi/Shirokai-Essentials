@@ -27,13 +27,19 @@ public final class EnderChestChecks implements DedicatedServerModInitializer {
             ran = true;
             try { run(server); }
             catch (Throwable error) { var row = new JsonObject(); row.addProperty("fatal", error.toString()); checks.add(row); error.printStackTrace(); }
-            finally { try { Files.writeString(Path.of("enderchest-results.json"), new GsonBuilder().setPrettyPrinting().create().toJson(checks)); } catch (Exception error) { throw new RuntimeException(error); } }
+            finally { try { Files.writeString(Path.of("enderchest-results.json"), new GsonBuilder().setPrettyPrinting().create().toJson(checks)); } catch (Exception error) { throw new RuntimeException(error); } if(Boolean.getBoolean("essentials.stopAfterChecks"))server.stop(false); }
         });
     }
     private static final class Player extends ServerPlayerEntity {
+        final List<net.minecraft.network.packet.s2c.play.ParticleS2CPacket> particles=new ArrayList<>();
         Player(MinecraftServer server, String name) {
             super(server, server.getOverworld(), new GameProfile(UUID.randomUUID(), name), SyncedClientOptions.createDefault());
-            networkHandler = new ServerPlayNetworkHandler(server, new ClientConnection(NetworkSide.SERVERBOUND), this, ConnectedClientData.createDefault(getGameProfile(), false));
+            networkHandler = new ServerPlayNetworkHandler(server, new ClientConnection(NetworkSide.SERVERBOUND), this, ConnectedClientData.createDefault(getGameProfile(), false)) {
+                @Override public void sendPacket(net.minecraft.network.packet.Packet<?> packet) {
+                    if(packet instanceof net.minecraft.network.packet.s2c.play.ParticleS2CPacket particle)particles.add(particle);
+                    else super.sendPacket(packet);
+                }
+            };
         }
         public void sendMessage(Text text) { System.out.println("TEST MESSAGE: " + text.getString()); }
         public void sendMessage(Text text, boolean actionBar) { sendMessage(text); }
@@ -109,6 +115,7 @@ public final class EnderChestChecks implements DedicatedServerModInitializer {
         check("inventories unchanged after rejected requests", alice.getEnderChestInventory().getStack(0).getCount() == 2 && bob.getEnderChestInventory().getStack(0).getCount() == 5);
         utilityChecks(server, app, alice, user);
         moreUtilities(server, app, alice, user);
+        cosmeticChecks(server,app,alice,bob,user);
         server.getPlayerManager().getPlayerList().remove(alice);
         server.getPlayerManager().getPlayerList().remove(bob);
     }
@@ -237,6 +244,93 @@ public final class EnderChestChecks implements DedicatedServerModInitializer {
         trash.getSlot(0).setStack(new ItemStack(Items.DIAMOND,2));user.data().add(PermissionNode.builder("shirokai.essentials.lixeira").value(false).build());user.getCachedData().invalidate();
         trash.onSlotClick(22,0,net.minecraft.screen.slot.SlotActionType.PICKUP,player);trash.onSlotClick(22,0,net.minecraft.screen.slot.SlotActionType.PICKUP,player);
         check("revoked trash permission cannot delete",!trash.canUse(player)&&trash.getSlot(0).getStack().getCount()==2);player.closeHandledScreen();check("revoked trash access returns items",player.getInventory().count(Items.DIAMOND)==2);
+    }
+
+    private void cosmeticChecks(MinecraftServer server, ShirokaiEssentials app, Player p, Player other, net.luckperms.api.model.user.User user) throws Exception {
+        var svc=app.cosmetics;
+        user.data().clear();user.getCachedData().invalidate();p.closeHandledScreen();p.getInventory().clear();
+        check("cosmetics command denied without grant",execute(server,p.getCommandSource(),"cosmeticos")==0);
+        user.data().add(PermissionNode.builder("shirokai.essentials.cosmetics.use").build());user.getCachedData().invalidate();
+        check("cosmetics command opens category menu",execute(server,p.getCommandSource(),"cosmeticos")==1&&p.currentScreenHandler instanceof dev.shirokai.essentials.cosmetics.CosmeticScreen);
+        var menu=p.currentScreenHandler;
+        check("cosmetics menu displays dedicated categories",menu.getSlot(10).getStack().getName().getString().equals("Cor do nick")&&menu.getSlot(11).getStack().getName().getString().equals("Rastros"));
+        menu.onSlotClick(11,0,net.minecraft.screen.slot.SlotActionType.PICKUP,p);
+        check("category opens a separate submenu",p.currentScreenHandler!=menu&&p.currentScreenHandler instanceof dev.shirokai.essentials.cosmetics.CosmeticScreen);
+        menu=p.currentScreenHandler;menu.onSlotClick(10,0,net.minecraft.screen.slot.SlotActionType.PICKUP,p);
+        check("locked option cannot be equipped",svc.state(p).cosmetics.isEmpty());
+        user.data().add(PermissionNode.builder("shirokai.essentials.cosmetics.trail_stars").build());user.getCachedData().invalidate();
+        menu.onSlotClick(10,0,net.minecraft.screen.slot.SlotActionType.PICKUP,p);
+        check("unlocked option equips through menu",svc.state(p).cosmetics.get("trail").equals("trail_stars"));
+        check("menu equip persisted",app.data().player(p.getUuid()).cosmetics.get("trail").equals("trail_stars"));
+        var chosen=svc.state(p).cosmetics.size();
+        for(var action:net.minecraft.screen.slot.SlotActionType.values())for(int button:List.of(0,1,2,40))menu.onSlotClick(0,button,action,p);
+        menu.quickMove(p,10);
+        check("preview items cannot be extracted with forged actions",p.getInventory().isEmpty()&&menu.getCursorStack().isEmpty()&&svc.state(p).cosmetics.size()==chosen);
+        menu.onSlotClick(49,0,net.minecraft.screen.slot.SlotActionType.PICKUP,other);
+        check("another player cannot operate menu",svc.state(p).cosmetics.containsKey("trail"));
+        menu.onSlotClick(49,0,net.minecraft.screen.slot.SlotActionType.PICKUP,p);
+        check("remove affects only selected category",!svc.state(p).cosmetics.containsKey("trail"));
+        svc.equip(p,dev.shirokai.essentials.cosmetics.CosmeticCatalog.find("trail_stars"));svc.disable(p);
+        check("disable preserves selections",svc.state(p).cosmeticsHidden&&svc.state(p).cosmetics.containsKey("trail"));
+        svc.resume(p);check("resume restores saved selection",!svc.state(p).cosmeticsHidden);
+        user.data().add(PermissionNode.builder("shirokai.essentials.cosmetics.wings_stars").build());user.getCachedData().invalidate();
+        svc.collection(p,"stars");check("collection requires all component grants",!svc.state(p).cosmetics.containsKey("wings"));
+        user.data().add(PermissionNode.builder("shirokai.essentials.cosmetics.*").build());user.getCachedData().invalidate();
+        svc.collection(p,"stars");check("complete collection equips all ten visual categories",svc.state(p).cosmetics.size()==10);
+        svc.equip(p,dev.shirokai.essentials.cosmetics.CosmeticCatalog.find("nick_cyan"));
+        var tick=svc.getClass().getDeclaredMethod("tick",MinecraftServer.class);tick.setAccessible(true);
+        var time=svc.getClass().getDeclaredField("ticks");time.setAccessible(true);time.setLong(svc,19);tick.invoke(svc,server);
+        var ownTeam=server.getScoreboard().getScoreHolderTeam(p.getNameForScoreboard());
+        check("nick uses dedicated team with cyan color",ownTeam!=null&&ownTeam.getColor()==net.minecraft.util.Formatting.AQUA);
+        svc.disable(p);check("disable releases owned scoreboard team",server.getScoreboard().getScoreHolderTeam(p.getNameForScoreboard())==null&&server.getScoreboard().getTeam(ownTeam.getName())==null);
+        svc.resume(p);
+        var foreign=server.getScoreboard().addTeam("cosmetic_foreign");foreign.setPrefix(Text.literal("Rank "));server.getScoreboard().addScoreHolderToTeam(p.getNameForScoreboard(),foreign);
+        time.setLong(svc,39);tick.invoke(svc,server);
+        check("external rank team is preserved",server.getScoreboard().getScoreHolderTeam(p.getNameForScoreboard())==foreign&&foreign.getPrefix().getString().equals("Rank "));
+        server.getScoreboard().removeScoreHolderFromTeam(p.getNameForScoreboard(),foreign);server.getScoreboard().removeTeam(foreign);
+        var world=p.getServerWorld();world.getPlayers().add(p);world.getPlayers().add(other);
+        var hidden=app.data().player(other.getUuid());app.data().update(other.getUuid(),d->d.cosmeticsHidden=false);svc.state(other);
+        p.setHealth(20);p.setInvisible(false);p.changeGameMode(net.minecraft.world.GameMode.SURVIVAL);
+        p.particles.clear();other.particles.clear();
+        var shape=svc.getClass().getDeclaredMethod("shape",ServerPlayerEntity.class,String.class,net.minecraft.util.math.Vec3d.class);shape.setAccessible(true);
+        var global=svc.getClass().getDeclaredField("globalBudget");global.setAccessible(true);
+        var local=svc.getClass().getDeclaredField("playerBudget");local.setAccessible(true);
+        p.setBodyYaw(0);global.setInt(svc,400);local.setInt(svc,36);shape.invoke(svc,p,"wings",p.getPos());
+        check("wings emit fourteen particle positions",p.particles.size()==14);
+        check("wings render behind player",p.particles.stream().allMatch(packet->packet.getZ()<p.getZ()));
+        p.particles.clear();p.setBodyYaw(180);global.setInt(svc,400);local.setInt(svc,36);shape.invoke(svc,p,"wings",p.getPos());
+        check("wings follow body direction",p.particles.size()==14&&p.particles.stream().allMatch(packet->packet.getZ()>p.getZ()));
+        p.particles.clear();p.setBodyYaw(0);global.setInt(svc,400);local.setInt(svc,3);shape.invoke(svc,p,"wings",p.getPos());
+        check("per player particle budget enforced",p.particles.size()==3);
+        p.particles.clear();global.setInt(svc,2);local.setInt(svc,36);shape.invoke(svc,p,"wings",p.getPos());
+        check("global particle budget enforced",p.particles.size()==2);
+        other.setPosition(p.getPos().add(100,0,0));other.particles.clear();global.setInt(svc,400);local.setInt(svc,36);shape.invoke(svc,p,"circle",p.getPos());
+        check("distant viewers receive no particles",other.particles.isEmpty());
+        p.particles.clear();p.networkHandler.requestTeleport(p.getX()+1,p.getY(),p.getZ(),0,0);
+        var pending=svc.getClass().getDeclaredField("pendingTeleports");pending.setAccessible(true);
+        check("short vanilla teleport observed",((Map<?,?>)pending.get(svc)).containsKey(p.getUuid()));
+        time.setLong(svc,44);tick.invoke(svc,server);
+        check("arrival consumes queued teleport",!((Map<?,?>)pending.get(svc)).containsKey(p.getUuid())&&!p.particles.isEmpty());
+        global.setInt(svc,400);p.particles.clear();check("raid event celebrates equipped effect",svc.celebrate(p,"raid")&&!p.particles.isEmpty());
+        check("repeated raid event respects cooldown",!svc.celebrate(p,"raid"));
+        svc.disable(p);global.setInt(svc,400);p.particles.clear();check("disabled cosmetic suppresses celebrations",!svc.celebrate(p,"victory")&&p.particles.isEmpty());svc.resume(p);
+        if(net.fabricmc.loader.api.FabricLoader.getInstance().isModLoaded("shirokai_raids")) {
+            Class<?> target=Class.forName("com.shirokai.raids.RaidVictoryTransition");
+            var hook=Arrays.stream(target.getDeclaredMethods()).filter(m->m.getName().contains("shirokai$celebrateRaid")).findFirst();
+            check("optional raid mixin applied to actual raid class",hook.isPresent());
+            if(hook.isPresent()) {
+                var field=sun.misc.Unsafe.class.getDeclaredField("theUnsafe");field.setAccessible(true);var unsafe=(sun.misc.Unsafe)field.get(null);Object instance=unsafe.allocateInstance(target);
+                time.setLong(svc,time.getLong(svc)+220);global.setInt(svc,400);p.particles.clear();hook.get().setAccessible(true);hook.get().invoke(instance,"Fixture",List.of(p),new org.spongepowered.asm.mixin.injection.callback.CallbackInfo("begin",false));
+                check("raid transformed callback emits particles for actual participant",!p.particles.isEmpty());
+            }
+        }
+        world.getPlayers().remove(p);world.getPlayers().remove(other);
+        user.data().add(PermissionNode.builder("shirokai.essentials.cosmetics.trail_stars").value(false).build());user.getCachedData().invalidate();
+        check("explicit option denial wins wildcard",!svc.unlocked(p,dev.shirokai.essentials.cosmetics.CosmeticCatalog.find("trail_stars")));
+        user.data().add(PermissionNode.builder("shirokai.essentials.cosmetics.use").value(false).build());user.getCachedData().invalidate();
+        check("revoked menu permission denies stale clicks",!menu.canUse(p));
+        check("inventory untouched by cosmetics",p.getInventory().isEmpty());
+        p.closeHandledScreen();
     }
 
 }

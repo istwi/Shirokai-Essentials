@@ -24,10 +24,11 @@ import java.nio.file.Path;
 import java.util.*;
 
 public final class ShirokaiEssentials implements DedicatedServerModInitializer {
-    public static final String VERSION = "0.5.0-guard.1";
+    public static final String VERSION = "0.6.0-guard.1";
     public static final Logger LOGGER = LoggerFactory.getLogger("shirokai_essentials");
     private static ShirokaiEssentials INSTANCE;
     public static ShirokaiEssentials instance() { return INSTANCE; }
+    public final dev.shirokai.essentials.cosmetics.CosmeticService cosmetics = new dev.shirokai.essentials.cosmetics.CosmeticService(this);
     public final dev.shirokai.essentials.chat.ChatService chat = new dev.shirokai.essentials.chat.ChatService(this);
     public final dev.shirokai.essentials.moderation.ModerationService moderation = new dev.shirokai.essentials.moderation.ModerationService(this);
     public final dev.shirokai.essentials.utilities.UtilityService utilities = new dev.shirokai.essentials.utilities.UtilityService(this);
@@ -61,7 +62,7 @@ public final class ShirokaiEssentials implements DedicatedServerModInitializer {
         teleports.setRestriction(p->moderation.restricted(p)||battles.blocked(p));
         teleports.setBattleRestriction(battles::blocked);
         configDir = FabricLoader.getInstance().getConfigDir().resolve("shirokai-essentials");
-        try { settings = Settings.load(configDir); } catch (IOException e) { throw new IllegalStateException("Configuração Shirokai inválida; arquivos preservados", e); }
+        try { settings = Settings.load(configDir); cosmetics.initialize(); } catch (IOException e) { throw new IllegalStateException("Configuração Shirokai inválida; arquivos preservados", e); }
         if (settings.permissions.requireLuckPerms && !FabricLoader.getInstance().isModLoaded("luckperms")) LOGGER.error("LuckPerms obrigatório ausente: jogadores não terão acesso aos comandos");
         CommandRegistrationCallback.EVENT.register((dispatcher, access, environment) -> new Commands(this).register(dispatcher));
         ServerLifecycleEvents.SERVER_STARTING.register(server -> {

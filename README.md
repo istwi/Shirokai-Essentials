@@ -137,3 +137,7 @@ herdam o token. Aliases precisam de cadastro pelo comando completo digitado.
 Teleporte de sistema não usa a autorização de um warmup pendente. Recusas do Guard
 ocorrem antes de gravar histórico/cooldown. Sem Guard, os fluxos comuns permanecem.
 A integração de `/raid entrar` usa a API anterior e continua independente.
+
+## Cosméticos (0.6.0-guard.1)
+
+`/cosmeticos`: categorias em menus separados, opções por permissão, coleções, sazonais e efeitos de movimento/eventos. [Configuração, permissões e limites](docs/cosmetics/README.md).
