@@ -1,8 +1,8 @@
 {
-  "version": "0.6.5-trails.1",
+  "version": "0.6.6-continuous-trails.1",
   "artifacts": {
-    "shirokai-essentials-0.6.5-trails.1.jar": "de6bbd2c8a62b35372db54666be5a8130c09cbd328f7768b38975554c2d436e4",
-    "shirokai-essentials-0.6.5-trails.1-zorykai-visual.jar": "bf32d53c49917e9fcfb3b853f1cce949eb650f4a9cf50dc855aded73c38babed"
+    "shirokai-essentials-0.6.6-continuous-trails.1.jar": "694b83db84bc421acee155eb4e9f450f825fab42515e8f49b48a47413e35c8d4",
+    "shirokai-essentials-0.6.6-continuous-trails.1-zorykai-visual.jar": "64e7e56005a1696aa15e0e55541c1758fffce8fac54ddc82ecb58c8078a5fc1e"
   },
   "unitPassed": 63,
   "nativePassed": 208,
@@ -55,10 +55,10 @@
   "nativeSuites": [
     {
       "suite": "without-cobblemon",
-      "artifactSha256": "bf32d53c49917e9fcfb3b853f1cce949eb650f4a9cf50dc855aded73c38babed",
+      "artifactSha256": "64e7e56005a1696aa15e0e55541c1758fffce8fac54ddc82ecb58c8078a5fc1e",
       "passed": 103,
       "mods": {
-        "shirokai_essentials": "0.6.5-trails.1",
+        "shirokai_essentials": "0.6.6-continuous-trails.1",
         "essentials_permission_checks": "1",
         "fabric-api": "0.116.7+1.21.1",
         "luckperms": "5.4.140"
@@ -429,7 +429,7 @@
           "passed": true
         },
         {
-          "name": "ground trail uses a wider eight-particle default",
+          "name": "ground trail interpolates eight particles across the travelled line",
           "passed": true
         },
         {
@@ -480,10 +480,10 @@
     },
     {
       "suite": "with-cobblemon-raids-guard",
-      "artifactSha256": "bf32d53c49917e9fcfb3b853f1cce949eb650f4a9cf50dc855aded73c38babed",
+      "artifactSha256": "64e7e56005a1696aa15e0e55541c1758fffce8fac54ddc82ecb58c8078a5fc1e",
       "passed": 105,
       "mods": {
-        "shirokai_essentials": "0.6.5-trails.1",
+        "shirokai_essentials": "0.6.6-continuous-trails.1",
         "impactor": "5.3.5+1.21.1",
         "cobblemon": "1.8.3+1.21.1",
         "shirokai_raids": "0.1.25-returnspawn.1",
@@ -858,7 +858,7 @@
           "passed": true
         },
         {
-          "name": "ground trail uses a wider eight-particle default",
+          "name": "ground trail interpolates eight particles across the travelled line",
           "passed": true
         },
         {

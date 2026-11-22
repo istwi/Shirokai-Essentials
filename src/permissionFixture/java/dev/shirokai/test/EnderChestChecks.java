@@ -303,7 +303,7 @@ public final class EnderChestChecks implements DedicatedServerModInitializer {
         var global=svc.getClass().getDeclaredField("globalBudget");global.setAccessible(true);
         var local=svc.getClass().getDeclaredField("playerBudget");local.setAccessible(true);
         p.setBodyYaw(0);global.setInt(svc,500);local.setInt(svc,48);shape.invoke(svc,p,"trail",p.getPos());
-        check("ground trail uses a wider eight-particle default",p.particles.size()==8&&p.particles.stream().allMatch(packet->Math.abs(packet.getY()-(p.getY()+.035))<.001));
+        check("ground trail interpolates eight particles across the travelled line",p.particles.size()==8&&p.particles.stream().allMatch(packet->Math.abs(packet.getY()-(p.getY()+.035))<.001)&&p.particles.stream().mapToDouble(net.minecraft.network.packet.s2c.play.ParticleS2CPacket::getZ).max().orElse(0)-p.particles.stream().mapToDouble(net.minecraft.network.packet.s2c.play.ParticleS2CPacket::getZ).min().orElse(0)>.4);
         svc.equip(p,dev.shirokai.essentials.cosmetics.CosmeticCatalog.find("trail_water"));p.particles.clear();global.setInt(svc,500);local.setInt(svc,48);shape.invoke(svc,p,"trail",p.getPos());
         check("small water particles receive proportional extra density",p.particles.size()==24);
         svc.equip(p,dev.shirokai.essentials.cosmetics.CosmeticCatalog.find("aura_stars"));
