@@ -1,4 +1,4 @@
-# Cosméticos simples — Essentials 0.6.9-speed-scale.1
+# Cosméticos simples — Essentials 0.6.10-dense-trails.1
 
 Versão exclusivamente server-side para Minecraft 1.21.1, Fabric e Java 21. Não exige mod nem pacote de recursos no cliente.
 
@@ -14,6 +14,8 @@ Versão exclusivamente server-side para Minecraft 1.21.1, Fabric e Java 21. Não
 Aura e demais efeitos contínuos mantêm o intervalo original de `5` ticks. No rastro, `trailIntervalTicks: 6` funciona como uma janela de distribuição: o lote é dividido entre os seis ticks, e não emitido inteiro de uma vez. As partículas passam a ter idades diferentes e deixam de desaparecer em blocos. Cada pequena linha também é interpolada entre a última posição emitida e a atual.
 
 Cada emissão inclui obrigatoriamente uma partícula central sob os pés. Quando há orçamento para uma segunda partícula, ela recebe uma projeção limitada a `0,12` bloco na direção do movimento, compensando o avanço visual do cliente durante uma corrida sem colocar o rastro à frente do jogador.
+
+`trailMinimumPerTick: 2` impede que o escalonamento reduza o rastro a um único pixel. Com densidade normal, estilos grandes emitem no mínimo 4 partículas por tick de movimento e água emite no mínimo 12. As partículas laterais alternam entre esquerda e direita, enquanto as duas finais ficam centralizadas sob os pés e na projeção limitada.
 
 A densidade básica do rastro é `4`. Partículas pequenas recebem multiplicadores proporcionais: água usa `3x`; elétrico, fantasma, neve, magia e encantado usam `2x`; partículas visualmente maiores usam `1x`. Todos continuam sujeitos aos orçamentos por jogador e por tick.
 
@@ -64,6 +66,7 @@ Arquivo `config/shirokai-essentials/cosmetics.json`:
   "intervalTicks": 5,
   "trailIntervalTicks": 6,
   "trailBaseDensity": 4,
+  "trailMinimumPerTick": 2,
   "maxParticlesPerPlayer": 48,
   "maxParticlesPerTick": 500,
   "viewDistance": 32,

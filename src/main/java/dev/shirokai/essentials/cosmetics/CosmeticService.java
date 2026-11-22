@@ -154,8 +154,9 @@ public final class CosmeticService {
                 if(!same||!p.isOnGround()||trail==null||trailDistance>=16)resetTrail(p);
                 else if(trailDistance>.0004) {
                     var pref=preferences(p);double credit=trailCredits.getOrDefault(p.getUuid(),0d)+(config.trailBaseDensity*pref.density*trailMultiplier(trail.style()))/(double)config.trailIntervalTicks;
-                    int count=(int)Math.floor(credit);trailCredits.put(p.getUuid(),credit-count);
-                    if(count>0){trail(p,anchor,p.getPos(),count);trailAnchors.put(p.getUuid(),p.getPos());}
+                    int earned=(int)Math.floor(credit);trailCredits.put(p.getUuid(),credit-earned);
+                    int minimum=config.trailMinimumPerTick*pref.density*trailMultiplier(trail.style());
+                    trail(p,anchor,p.getPos(),Math.max(earned,minimum));trailAnchors.put(p.getUuid(),p.getPos());
                 }
                 if(ticks%config.intervalTicks==0)shape(p,"aura",p.getPos());
                 remember(p);
@@ -194,7 +195,7 @@ public final class CosmeticService {
         double rightX=-delta.z/horizontal,rightZ=delta.x/horizontal;
         double lead=Math.min(.12,horizontal*.75);Vec3d projected=to.add(delta.x/horizontal*lead,0,delta.z/horizontal*lead);
         for(int i=0;i<count;i++){
-            boolean endpoint=i>=count-2;double side=endpoint?0:((i%3)-1)*.11*pref.size;
+            boolean endpoint=i>=count-2;double side=endpoint?0:(i%2==0?-1:1)*.11*pref.size;
             Vec3d center=count==1||i==count-2?to:i==count-1?projected:from.add(delta.multiply((i+1d)/(count-1d)));
             emit(p,e.style(),center.add(rightX*side,.035,rightZ*side));
         }

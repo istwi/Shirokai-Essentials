@@ -1,8 +1,8 @@
 {
-  "version": "0.6.9-speed-scale.1",
+  "version": "0.6.10-dense-trails.1",
   "artifacts": {
-    "shirokai-essentials-0.6.9-speed-scale.1.jar": "7b1567ecb6a337d395409ae16e3fdb0781204936895da7dffd88fd5b7bac55b3",
-    "shirokai-essentials-0.6.9-speed-scale.1-zorykai-visual.jar": "bcdd70980465930e853772bf7f9aa653b117d793f922b39f14c7e17450f0f2d2"
+    "shirokai-essentials-0.6.10-dense-trails.1.jar": "44dc953a91e8cf9fdd245917f90a88a8330561ad325877f7d8b421ca74a3566f",
+    "shirokai-essentials-0.6.10-dense-trails.1-zorykai-visual.jar": "2b819f1b40e66a24f4db885757617b809ce57ef32d6d17044cb84cb468f0c5c7"
   },
   "unitPassed": 63,
   "nativePassed": 212,
@@ -55,10 +55,10 @@
   "nativeSuites": [
     {
       "suite": "without-cobblemon",
-      "artifactSha256": "bcdd70980465930e853772bf7f9aa653b117d793f922b39f14c7e17450f0f2d2",
+      "artifactSha256": "2b819f1b40e66a24f4db885757617b809ce57ef32d6d17044cb84cb468f0c5c7",
       "passed": 105,
       "mods": {
-        "shirokai_essentials": "0.6.9-speed-scale.1",
+        "shirokai_essentials": "0.6.10-dense-trails.1",
         "essentials_permission_checks": "1",
         "fabric-api": "0.116.7+1.21.1",
         "luckperms": "5.4.140"
@@ -488,10 +488,10 @@
     },
     {
       "suite": "with-cobblemon-raids-guard",
-      "artifactSha256": "bcdd70980465930e853772bf7f9aa653b117d793f922b39f14c7e17450f0f2d2",
+      "artifactSha256": "2b819f1b40e66a24f4db885757617b809ce57ef32d6d17044cb84cb468f0c5c7",
       "passed": 107,
       "mods": {
-        "shirokai_essentials": "0.6.9-speed-scale.1",
+        "shirokai_essentials": "0.6.10-dense-trails.1",
         "impactor": "5.3.5+1.21.1",
         "cobblemon": "1.8.3+1.21.1",
         "shirokai_raids": "0.1.25-returnspawn.1",

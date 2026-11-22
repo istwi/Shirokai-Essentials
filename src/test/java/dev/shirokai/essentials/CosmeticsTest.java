@@ -29,7 +29,8 @@ class CosmeticsTest {
         assertThrows(IOException.class,cfg::validate);
         cfg.maxParticlesPerTick=400;cfg.intervalTicks=0;assertThrows(IOException.class,cfg::validate);
         cfg.intervalTicks=5;cfg.trailIntervalTicks=1;assertThrows(IOException.class,cfg::validate);
-        cfg.trailIntervalTicks=6;cfg.disabled.add("wings_stars");cfg.validate();assertTrue(cfg.disabled.isEmpty());
+        cfg.trailIntervalTicks=6;cfg.trailMinimumPerTick=0;assertThrows(IOException.class,cfg::validate);
+        cfg.trailMinimumPerTick=2;cfg.disabled.add("wings_stars");cfg.validate();assertTrue(cfg.disabled.isEmpty());
         Files.writeString(file,"{broken");assertThrows(IOException.class,()->CosmeticSettings.load(file));assertEquals("{broken",Files.readString(file));
     }
     @Test void cosmeticChoicesPersistAndFailedSaveDoesNotPublishNewSelection() throws Exception {

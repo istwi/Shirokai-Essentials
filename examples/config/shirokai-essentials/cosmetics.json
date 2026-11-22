@@ -5,6 +5,7 @@
   "intervalTicks": 5,
   "trailIntervalTicks": 6,
   "trailBaseDensity": 4,
+  "trailMinimumPerTick": 2,
   "maxParticlesPerPlayer": 48,
   "maxParticlesPerTick": 500,
   "viewDistance": 32,
