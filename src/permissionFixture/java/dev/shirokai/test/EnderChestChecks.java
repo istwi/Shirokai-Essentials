@@ -113,11 +113,21 @@ public final class EnderChestChecks implements DedicatedServerModInitializer {
         check("explicit denial wins wildcard", !app.permissions.has(source,"enderchest.others"));
         check("explicit denial wins operator fallback", !app.permissions.has(source.withLevel(4),"enderchest.others"));
         check("inventories unchanged after rejected requests", alice.getEnderChestInventory().getStack(0).getCount() == 2 && bob.getEnderChestInventory().getStack(0).getCount() == 5);
+        teleportSafetyChecks(server,app,alice);
         utilityChecks(server, app, alice, user);
         moreUtilities(server, app, alice, user);
         cosmeticChecks(server,app,alice,bob,user);
         server.getPlayerManager().getPlayerList().remove(alice);
         server.getPlayerManager().getPlayerList().remove(bob);
+    }
+    private void teleportSafetyChecks(MinecraftServer server,ShirokaiEssentials app,Player player) {
+        var world=server.getOverworld();var floor=player.getBlockPos().add(3,5,3);
+        for(int x=-1;x<=1;x++)for(int z=-1;z<=1;z++)for(int y=0;y<=3;y++)world.setBlockState(floor.add(x,y,z),net.minecraft.block.Blocks.AIR.getDefaultState());
+        world.setBlockState(floor,net.minecraft.block.Blocks.STONE_SLAB.getDefaultState());
+        var slab=new dev.shirokai.essentials.persistence.Position(world.getRegistryKey().getValue().toString(),floor.getX()+.5,floor.getY()+.5,floor.getZ()+.5,0,0,System.currentTimeMillis());
+        check("teleport safety accepts a collision-supported bottom slab",app.teleports.safe(server,slab));
+        world.setBlockState(floor,net.minecraft.block.Blocks.AIR.getDefaultState());
+        check("teleport safety still rejects unsupported air",!app.teleports.safe(server,slab));
     }
     private void utilityChecks(MinecraftServer server, ShirokaiEssentials app, Player player, net.luckperms.api.model.user.User user) throws Exception {
         user.data().clear(); user.getCachedData().invalidate();
@@ -127,6 +137,8 @@ public final class EnderChestChecks implements DedicatedServerModInitializer {
         user.getCachedData().invalidate();
         player.getAbilities().flying=false;check("speed one restores normal walking speed",execute(server,source,"speed 1")==1&&Math.abs(player.getAbilities().getWalkSpeed()-.1f)<.0001);
         player.getAbilities().allowFlying=true;player.getAbilities().flying=true;check("speed one keeps normal flying speed",execute(server,source,"speed 1")==1&&Math.abs(player.getAbilities().getFlySpeed()-.05f)<.0001);player.getAbilities().flying=false;
+        execute(server,source,"speed 10");player.getAbilities().setFlySpeed(.3f);
+        check("speed reset restores both vanilla ability speeds",execute(server,source,"speed reset")==1&&Math.abs(player.getAbilities().getWalkSpeed()-.1f)<.0001&&Math.abs(player.getAbilities().getFlySpeed()-.05f)<.0001);
         player.addStatusEffect(new net.minecraft.entity.effect.StatusEffectInstance(net.minecraft.entity.effect.StatusEffects.SPEED,1200));
         check("luz enables night vision",execute(server,source,"luz")==1 && player.hasStatusEffect(net.minecraft.entity.effect.StatusEffects.NIGHT_VISION));
         check("luz disables only night vision",execute(server,source,"luz")==1 && !player.hasStatusEffect(net.minecraft.entity.effect.StatusEffects.NIGHT_VISION) && player.hasStatusEffect(net.minecraft.entity.effect.StatusEffects.SPEED));

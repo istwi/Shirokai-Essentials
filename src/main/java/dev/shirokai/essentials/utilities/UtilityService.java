@@ -52,6 +52,12 @@ public final class UtilityService {
         }
         return app.messages.send(source,"utility","feature",cmd,"player",target.getName().getString());
     }
+    public int resetSpeed(ServerCommandSource source,ServerPlayerEntity target) throws IOException {
+        if(source.getEntity()!=target&&!app.permissions.has(source,"speed.others"))return app.messages.error(source,"denied");
+        app.data().audit(source.getName(),"speed-reset",target.getUuidAsString(),"");
+        target.getAbilities().setWalkSpeed(.1f);target.getAbilities().setFlySpeed(.05f);target.sendAbilitiesUpdate();
+        return app.messages.send(source,"utility","feature","speed reset","player",target.getName().getString());
+    }
     public int light(ServerPlayerEntity player) {
         var effect = net.minecraft.entity.effect.StatusEffects.NIGHT_VISION;
         boolean enabled = !player.hasStatusEffect(effect);

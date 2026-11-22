@@ -60,8 +60,10 @@ final class ExtraCommands {
             })));
             case "fly","god","heal","feed","repair","hat","clearinventory","invsee","enderchest" -> b.executes(owner.action(cmd,c->app.utilities.execute(c.getSource(),cmd,c.getSource().getPlayerOrThrow(),1)))
                 .then(argument("player",EntityArgumentType.player()).requires(s->app.permissions.has(s,cmd+".others")).executes(owner.action(cmd,c->app.utilities.execute(c.getSource(),cmd,EntityArgumentType.getPlayer(c,"player"),1))));
-            case "speed" -> b.then(argument("speed",IntegerArgumentType.integer(1,10)).executes(owner.action(cmd,c->app.utilities.execute(c.getSource(),cmd,c.getSource().getPlayerOrThrow(),IntegerArgumentType.getInteger(c,"speed"))))
-                .then(argument("player",EntityArgumentType.player()).requires(s->app.permissions.has(s,"speed.others")).executes(owner.action(cmd,c->app.utilities.execute(c.getSource(),cmd,EntityArgumentType.getPlayer(c,"player"),IntegerArgumentType.getInteger(c,"speed"))))));
+            case "speed" -> b.then(literal("reset").executes(owner.action(cmd,c->app.utilities.resetSpeed(c.getSource(),c.getSource().getPlayerOrThrow())))
+                    .then(argument("player",EntityArgumentType.player()).requires(s->app.permissions.has(s,"speed.others")).executes(owner.action(cmd,c->app.utilities.resetSpeed(c.getSource(),EntityArgumentType.getPlayer(c,"player"))))))
+                .then(argument("speed",IntegerArgumentType.integer(1,10)).executes(owner.action(cmd,c->app.utilities.execute(c.getSource(),cmd,c.getSource().getPlayerOrThrow(),IntegerArgumentType.getInteger(c,"speed"))))
+                    .then(argument("player",EntityArgumentType.player()).requires(s->app.permissions.has(s,"speed.others")).executes(owner.action(cmd,c->app.utilities.execute(c.getSource(),cmd,EntityArgumentType.getPlayer(c,"player"),IntegerArgumentType.getInteger(c,"speed"))))));
             case "lixeira" -> b.executes(owner.action(cmd,c->app.utilities.trash(c.getSource().getPlayerOrThrow())));
             case "compactar" -> b.executes(owner.action(cmd,c->app.utilities.compact(c.getSource().getPlayerOrThrow())));
             case "luz" -> b.executes(owner.action(cmd,c->app.utilities.light(c.getSource().getPlayerOrThrow())));

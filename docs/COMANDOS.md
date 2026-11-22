@@ -42,7 +42,7 @@ Correio offline resolve UUID/nomes já conhecidos pelo mod; não inventa UUID a 
 | Comando | Permissão |
 | --- | --- |
 | `/fly`, `/god`, `/heal`, `/feed`, `/repair`, `/hat`, `/clearinventory`, `/invsee`, `/enderchest [jogador]` | nome do comando; terceiros: `<comando>.others` |
-| `/speed <1..10> [jogador]` | `speed`; terceiros: `speed.others` |
+| `/speed <1..10> [jogador]`, `/speed reset [jogador]` | `speed`; terceiros: `speed.others` |
 | `/workbench`, `/anvil` | nome do comando |
 | `/ping` | `ping` — jogador por padrão |
 | `/gc` | `gc` — informa memória/jogadores, sem forçar coleta |

@@ -5,7 +5,7 @@ from pathlib import Path
 p=argparse.ArgumentParser();p.add_argument('vanilla',type=Path);p.add_argument('raids',type=Path);args=p.parse_args()
 root=Path(__file__).resolve().parents[1]
 version=json.loads((root/'build/resources/main/fabric.mod.json').read_text())['version']
-assert version=='0.6.10-dense-trails.1'
+assert version=='0.6.12-teleport-speed.1'
 release=root/f'releases/v{version}';release.mkdir(exist_ok=True)
 def sha(path):return hashlib.sha256(path.read_bytes()).hexdigest()
 visual=root/f'build/libs/shirokai-essentials-{version}-zorykai-visual.jar'

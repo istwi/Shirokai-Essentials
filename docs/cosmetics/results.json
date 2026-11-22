@@ -1,11 +1,11 @@
 {
-  "version": "0.6.10-dense-trails.1",
+  "version": "0.6.12-teleport-speed.1",
   "artifacts": {
-    "shirokai-essentials-0.6.10-dense-trails.1.jar": "44dc953a91e8cf9fdd245917f90a88a8330561ad325877f7d8b421ca74a3566f",
-    "shirokai-essentials-0.6.10-dense-trails.1-zorykai-visual.jar": "2b819f1b40e66a24f4db885757617b809ce57ef32d6d17044cb84cb468f0c5c7"
+    "shirokai-essentials-0.6.12-teleport-speed.1.jar": "59f517706be624e03b33e784d1f2cf61f27b7f5d29fd5a4e3df4a1384eda37af",
+    "shirokai-essentials-0.6.12-teleport-speed.1-zorykai-visual.jar": "098539c6514169669c759ca9efb540d4536a8c3e5acf4cfd33703681ff9f599a"
   },
   "unitPassed": 63,
-  "nativePassed": 212,
+  "nativePassed": 218,
   "unitSuites": [
     {
       "suite": "dev.shirokai.essentials.ConflictsTest",
@@ -55,10 +55,10 @@
   "nativeSuites": [
     {
       "suite": "without-cobblemon",
-      "artifactSha256": "2b819f1b40e66a24f4db885757617b809ce57ef32d6d17044cb84cb468f0c5c7",
-      "passed": 105,
+      "artifactSha256": "098539c6514169669c759ca9efb540d4536a8c3e5acf4cfd33703681ff9f599a",
+      "passed": 108,
       "mods": {
-        "shirokai_essentials": "0.6.10-dense-trails.1",
+        "shirokai_essentials": "0.6.12-teleport-speed.1",
         "essentials_permission_checks": "1",
         "fabric-api": "0.116.7+1.21.1",
         "luckperms": "5.4.140"
@@ -133,6 +133,14 @@
           "passed": true
         },
         {
+          "name": "teleport safety accepts a collision-supported bottom slab",
+          "passed": true
+        },
+        {
+          "name": "teleport safety still rejects unsupported air",
+          "passed": true
+        },
+        {
           "name": "luz denied without permission",
           "passed": true
         },
@@ -142,6 +150,10 @@
         },
         {
           "name": "speed one keeps normal flying speed",
+          "passed": true
+        },
+        {
+          "name": "speed reset restores both vanilla ability speeds",
           "passed": true
         },
         {
@@ -488,10 +500,10 @@
     },
     {
       "suite": "with-cobblemon-raids-guard",
-      "artifactSha256": "2b819f1b40e66a24f4db885757617b809ce57ef32d6d17044cb84cb468f0c5c7",
-      "passed": 107,
+      "artifactSha256": "098539c6514169669c759ca9efb540d4536a8c3e5acf4cfd33703681ff9f599a",
+      "passed": 110,
       "mods": {
-        "shirokai_essentials": "0.6.10-dense-trails.1",
+        "shirokai_essentials": "0.6.12-teleport-speed.1",
         "impactor": "5.3.5+1.21.1",
         "cobblemon": "1.8.3+1.21.1",
         "shirokai_raids": "0.1.25-returnspawn.1",
@@ -570,6 +582,14 @@
           "passed": true
         },
         {
+          "name": "teleport safety accepts a collision-supported bottom slab",
+          "passed": true
+        },
+        {
+          "name": "teleport safety still rejects unsupported air",
+          "passed": true
+        },
+        {
           "name": "luz denied without permission",
           "passed": true
         },
@@ -579,6 +599,10 @@
         },
         {
           "name": "speed one keeps normal flying speed",
+          "passed": true
+        },
+        {
+          "name": "speed reset restores both vanilla ability speeds",
           "passed": true
         },
         {

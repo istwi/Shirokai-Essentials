@@ -13,6 +13,7 @@ import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Box;
+import net.minecraft.util.math.Direction;
 import java.io.IOException;
 import java.util.*;
 import java.util.function.Supplier;
@@ -55,8 +56,13 @@ public final class TeleportService {
             var state = w.getBlockState(pos.add(dx, dy, dz));
             if (!state.getFluidState().isEmpty() || state.isOf(Blocks.FIRE) || state.isOf(Blocks.SOUL_FIRE) || state.isOf(Blocks.CACTUS) || state.isOf(Blocks.MAGMA_BLOCK) || state.isOf(Blocks.CAMPFIRE) || state.isOf(Blocks.SOUL_CAMPFIRE) || state.isOf(Blocks.SWEET_BERRY_BUSH) || state.isOf(Blocks.POWDER_SNOW) || state.isOf(Blocks.WITHER_ROSE) || state.isOf(Blocks.NETHER_PORTAL) || state.isOf(Blocks.END_PORTAL)) return false;
         }
-        var floor = w.getBlockState(pos.down());
-        return floor.isFullCube(w, pos.down());
+        // The saved Y is the player's feet, not necessarily one full block above the support.
+        // Read the collision shape immediately below the feet so slabs, stairs and carpets remain valid.
+        var supportPos=BlockPos.ofFloored(p.x(),p.y()-.05,p.z());
+        var support=w.getBlockState(supportPos).getCollisionShape(w,supportPos);
+        if(support.isEmpty())return false;
+        double supportTop=supportPos.getY()+support.getMax(Direction.Axis.Y);
+        return Math.abs(supportTop-p.y())<=.125;
     }
     public int teleport(ServerPlayerEntity player, Position destination, String permission) throws IOException {
         return teleport(player, player, destination, permission);

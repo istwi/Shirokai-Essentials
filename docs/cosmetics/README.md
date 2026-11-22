@@ -1,4 +1,4 @@
-# Cosméticos simples — Essentials 0.6.10-dense-trails.1
+# Cosméticos simples — Essentials 0.6.12-teleport-speed.1
 
 Versão exclusivamente server-side para Minecraft 1.21.1, Fabric e Java 21. Não exige mod nem pacote de recursos no cliente.
 
