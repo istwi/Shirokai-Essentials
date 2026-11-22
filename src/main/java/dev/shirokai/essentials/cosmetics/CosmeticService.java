@@ -32,10 +32,12 @@ public final class CosmeticService {
     private int globalBudget, playerBudget;
     private int rotation;
     public CosmeticService(ShirokaiEssentials app) { this.app=app; }
+    public void yieldToCore(){if(app.server()!=null)for(var p:app.server().getPlayerManager().getPlayerList())releaseTeam(p);}
     public CosmeticSettings config() { return config; }
     public void initialize() throws IOException {
         config=CosmeticSettings.load(app.configDir.resolve("cosmetics.json"));
         CommandRegistrationCallback.EVENT.register((dispatcher,access,environment)->{
+            if(dev.shirokai.essentials.api.EssentialsBridge.coreCosmeticsAvailable())return;
             dispatcher.register(CommandManager.literal("cosmeticos")
                 .requires(s->s.isExecutedByPlayer()&&app.permissions.has(s,"cosmetics.use"))
                 .executes(ctx->{open(ctx.getSource().getPlayerOrThrow(),"main");return 1;})
@@ -91,7 +93,7 @@ public final class CosmeticService {
         ShirokaiEssentials.LOGGER.error("Falha em cosméticos; seleção anterior preservada",error);
         if(p!=null)p.sendMessage(message("Não foi possível salvar. A seleção anterior foi preservada."),false);
     }
-    public boolean canUse(ServerPlayerEntity p) {return config.enabled&&app.permissions.has(p.getCommandSource(),"cosmetics.use");}
+    public boolean canUse(ServerPlayerEntity p) {return !dev.shirokai.essentials.api.EssentialsBridge.ownsCosmetics()&&config.enabled&&app.permissions.has(p.getCommandSource(),"cosmetics.use");}
     public boolean canCustomize(ServerPlayerEntity p) {return canUse(p)&&app.permissions.has(p.getCommandSource(),"cosmetics.customize");}
     public boolean unlocked(ServerPlayerEntity p,CosmeticCatalog.Entry e) {
         return canUse(p)&&!config.disabled.contains(e.id())&&app.permissions.has(p.getCommandSource(),"cosmetics."+e.id())&&(!e.category().equals("nick")||config.nickEnabled);

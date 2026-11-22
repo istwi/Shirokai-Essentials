@@ -1,3 +1,13 @@
+# Essentials 0.6.13-core-cosmetics.1
+
+Entrega exclusiva dos cosméticos ao Core 0.19.0-dev por ponte opcional. Sem Core novo, conserva os cosméticos legados. Não altera permissões de utilidades, dados de jogadores, homes ou a correção de caminhada e `/speed reset`.
+
+Com ambos os mods, substitua os dois JARs e reinicie. Use o JAR `-zorykai-visual.jar` para preservar os nomes visuais atuais. Preserve configurações e mundo. As escolhas são importadas pelo Core; conceda os novos nodes `shirokai.core.cosmetics.use`, `.customize` e os IDs individuais. Não conceda wildcard cosmético a jogadores: inclui `.admin`.
+
+[Pacote conjunto e guia](https://github.com/istwi/Shirokai-tab/tree/feature/core-cosmetics/releases/cosmetics-0.19.0-dev). Candidato de desenvolvimento; 63 testes unitários Essentials aprovados, além de validação Fabric conjunta e reinício documentados no Core. Sem certificação de cliente gráfico.
+
+---
+
 # Zorykai Essentials 0.6.12-teleport-speed.2
 
 [Baixar JAR com correção de caminhada/reset](releases/v0.6.12-teleport-speed.2/shirokai-essentials-0.6.12-teleport-speed.2-zorykai-visual.jar). `/speed reset` restaura caminhada/voo imediatamente; `/speed walk 1` e `/speed fly 1` escolhem o modo explicitamente. Se outro mod estiver atendendo `/speed`, use `/shirokaiessentials:speed reset`. [Instalação, permissões e validação](releases/v0.6.12-teleport-speed.2/README.md).
