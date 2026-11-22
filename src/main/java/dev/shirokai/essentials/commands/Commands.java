@@ -51,6 +51,11 @@ public final class Commands {
                 app.conflicts.registered(root, node);
             }
         });
+        String fallback = "shirokaiessentials:speed";
+        if (dispatcher.getRoot().getChild(fallback) == null) {
+            var node = dispatcher.register(build("speed", fallback).requires(s -> allowed(s, "speed")));
+            app.conflicts.registered(fallback, node);
+        }
     }
     private String name(CommandContext<ServerCommandSource> c) { return StringArgumentType.getString(c, "name").toLowerCase(Locale.ROOT); }
     private boolean valid(ServerCommandSource source, String name) { if (Settings.validName(name)) return true; m.error(source, "invalid_name"); return false; }

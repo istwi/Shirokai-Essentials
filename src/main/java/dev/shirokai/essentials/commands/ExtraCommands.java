@@ -20,6 +20,12 @@ import static net.minecraft.server.command.CommandManager.*;
 final class ExtraCommands {
     private final ShirokaiEssentials app; private final Commands owner;
     ExtraCommands(ShirokaiEssentials app,Commands owner){this.app=app;this.owner=owner;}
+    private LiteralArgumentBuilder<ServerCommandSource> speedMode(String mode, boolean flying) {
+        return literal(mode).then(argument("speed",IntegerArgumentType.integer(1,10))
+            .executes(owner.action("speed",c->app.utilities.setSpeed(c.getSource(),c.getSource().getPlayerOrThrow(),IntegerArgumentType.getInteger(c,"speed"),flying)))
+            .then(argument("player",EntityArgumentType.player()).requires(s->app.permissions.has(s,"speed.others"))
+                .executes(owner.action("speed",c->app.utilities.setSpeed(c.getSource(),EntityArgumentType.getPlayer(c,"player"),IntegerArgumentType.getInteger(c,"speed"),flying)))));
+    }
     private String str(CommandContext<ServerCommandSource> c,String key){return StringArgumentType.getString(c,key);}
     private String name(CommandContext<ServerCommandSource> c){return str(c,"name").toLowerCase(Locale.ROOT);}
     private DataStore.Profile profile(CommandContext<ServerCommandSource> c){return app.chat.resolve(c.getSource().getServer(),str(c,"player"));}
@@ -60,7 +66,10 @@ final class ExtraCommands {
             })));
             case "fly","god","heal","feed","repair","hat","clearinventory","invsee","enderchest" -> b.executes(owner.action(cmd,c->app.utilities.execute(c.getSource(),cmd,c.getSource().getPlayerOrThrow(),1)))
                 .then(argument("player",EntityArgumentType.player()).requires(s->app.permissions.has(s,cmd+".others")).executes(owner.action(cmd,c->app.utilities.execute(c.getSource(),cmd,EntityArgumentType.getPlayer(c,"player"),1))));
-            case "speed" -> b.then(literal("reset").executes(owner.action(cmd,c->app.utilities.resetSpeed(c.getSource(),c.getSource().getPlayerOrThrow())))
+            case "speed" -> b.then(speedMode("walk", false)).then(speedMode("fly", true))
+                .then(literal("0").executes(owner.action(cmd,c->app.utilities.resetSpeed(c.getSource(),c.getSource().getPlayerOrThrow())))
+                    .then(argument("player",EntityArgumentType.player()).requires(s->app.permissions.has(s,"speed.others")).executes(owner.action(cmd,c->app.utilities.resetSpeed(c.getSource(),EntityArgumentType.getPlayer(c,"player"))))))
+                .then(literal("reset").executes(owner.action(cmd,c->app.utilities.resetSpeed(c.getSource(),c.getSource().getPlayerOrThrow())))
                     .then(argument("player",EntityArgumentType.player()).requires(s->app.permissions.has(s,"speed.others")).executes(owner.action(cmd,c->app.utilities.resetSpeed(c.getSource(),EntityArgumentType.getPlayer(c,"player"))))))
                 .then(argument("speed",IntegerArgumentType.integer(1,10)).executes(owner.action(cmd,c->app.utilities.execute(c.getSource(),cmd,c.getSource().getPlayerOrThrow(),IntegerArgumentType.getInteger(c,"speed"))))
                     .then(argument("player",EntityArgumentType.player()).requires(s->app.permissions.has(s,"speed.others")).executes(owner.action(cmd,c->app.utilities.execute(c.getSource(),cmd,EntityArgumentType.getPlayer(c,"player"),IntegerArgumentType.getInteger(c,"speed"))))));

@@ -1,0 +1,1 @@
+{"schemaVersion":1,"id":"essentials_speed_checks","version":"1","environment":"server","entrypoints":{"server":["dev.shirokai.test.SpeedChecks"]},"depends":{"shirokai_essentials":"*"}}

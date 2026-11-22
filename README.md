@@ -1,4 +1,6 @@
-# Shirokai Essentials 0.5.0-guard.1
+# Zorykai Essentials 0.6.12-teleport-speed.2
+
+[Baixar JAR com correção de caminhada/reset](releases/v0.6.12-teleport-speed.2/shirokai-essentials-0.6.12-teleport-speed.2-zorykai-visual.jar). `/speed reset` restaura caminhada/voo imediatamente; `/speed walk 1` e `/speed fly 1` escolhem o modo explicitamente. Se outro mod estiver atendendo `/speed`, use `/shirokaiessentials:speed reset`. [Instalação, permissões e validação](releases/v0.6.12-teleport-speed.2/README.md).
 
 Mod **Minecraft Java 1.21.1 / Fabric / Java 21, somente servidor**. A linha 0.2 acrescenta chat, correio offline, AFK, informações, utilidades, administração, moderação, kits e migração ao núcleo de homes/warps/spawn/teleporte da 0.1.0.
 

@@ -1,5 +1,5 @@
 plugins { id 'fabric-loom' version '1.9.2' }
-version = '0.6.12-teleport-speed.1'
+version = '0.6.12-teleport-speed.2'
 group = 'dev.shirokai'
 base { archivesName = 'shirokai-essentials' }
 repositories { mavenCentral() }
@@ -68,3 +68,8 @@ tasks.register('remapPermissionFixtureJar', net.fabricmc.loom.task.RemapJarTask)
     classpath.from(sourceSets.main.compileClasspath, sourceSets.main.output)
 }
 configurations.permissionFixtureCompileOnly.extendsFrom(configurations.compileOnly)
+
+// Dedicated speed regression fixture, excluded from the production artifact.
+sourceSets { speedFixture { compileClasspath += sourceSets.main.compileClasspath + sourceSets.main.output; runtimeClasspath += sourceSets.main.runtimeClasspath } }
+tasks.register('speedFixtureJar', Jar) { dependsOn speedFixtureClasses; from sourceSets.speedFixture.output; archiveBaseName='essentials-speed-checks'; archiveClassifier='dev' }
+tasks.register('remapSpeedFixtureJar', net.fabricmc.loom.task.RemapJarTask) { dependsOn speedFixtureJar; inputFile=tasks.speedFixtureJar.archiveFile; archiveBaseName='essentials-speed-checks'; archiveClassifier=''; classpath.from(sourceSets.main.compileClasspath,sourceSets.main.output) }

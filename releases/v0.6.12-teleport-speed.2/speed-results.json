@@ -1,0 +1,24 @@
+{
+  "checks": [
+    "normal speed command executes for operator",
+    "speed 1 repairs both stale movement base and abilities to vanilla normal",
+    "walking update sends actual attribute and ability packets to player",
+    "ground mode changes the attribute used by walking without reconnect",
+    "automatic flight mode changes only flying speed",
+    "explicit walk mode works while flying without disabling flight",
+    "explicit flight speed works from ground without granting flight",
+    "speed reset is registered and executes",
+    "reset restores walking base and both ability speeds immediately",
+    "reset preserves external potion or equipment style modifiers",
+    "speed zero alias restores normal movement",
+    "operator can reset a named online target",
+    "explicit target walking mode respects existing command tree",
+    "namespaced fallback does not bypass permission checks",
+    "fixture can reproduce another mod replacing common reset executor",
+    "namespaced reset remains functional when common speed command is overridden",
+    "speed helper enforces level limits"
+  ],
+  "realClients": 0,
+  "error": "",
+  "passed": true
+}

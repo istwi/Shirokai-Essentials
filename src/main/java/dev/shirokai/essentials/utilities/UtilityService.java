@@ -38,7 +38,7 @@ public final class UtilityService {
             case "god"->{boolean enabled=!god.contains(target.getUuid());app.data().update(target.getUuid(),d->d.god=app.settings().utilities.persistModes&&enabled);if(enabled)god.add(target.getUuid());else god.remove(target.getUuid());}
             case "heal"->{target.setHealth(target.getMaxHealth());target.clearStatusEffects();}
             case "feed"->{target.getHungerManager().setFoodLevel(20);target.getHungerManager().setSaturationLevel(20);}
-            case "speed"->{if(target.getAbilities().flying)target.getAbilities().setFlySpeed(speed/20f);else target.getAbilities().setWalkSpeed(speed/10f);target.sendAbilitiesUpdate();}
+            case "speed"->{if(target.getAbilities().flying)SpeedControl.fly(target,speed);else SpeedControl.walk(target,speed);}
             case "repair"->{var item=target.getMainHandStack();if(!item.isDamageable())return app.messages.error(source,"invalid","value","item sem durabilidade");item.setDamage(0);target.currentScreenHandler.sendContentUpdates();return app.messages.send(source,"repair_done","player",target.getName().getString());}
             case "hat"->{ItemStack item=target.getMainHandStack();ItemStack hat=target.getEquippedStack(EquipmentSlot.HEAD);target.equipStack(EquipmentSlot.HEAD,item.copy());target.setStackInHand(net.minecraft.util.Hand.MAIN_HAND,hat.copy());}
             case "clearinventory"->{target.getInventory().clear();target.currentScreenHandler.sendContentUpdates();}
@@ -52,10 +52,16 @@ public final class UtilityService {
         }
         return app.messages.send(source,"utility","feature",cmd,"player",target.getName().getString());
     }
+    public int setSpeed(ServerCommandSource source, ServerPlayerEntity target, int level, boolean flying) throws IOException {
+        if(source.getEntity()!=target&&!app.permissions.has(source,"speed.others"))return app.messages.error(source,"denied");
+        app.data().audit(source.getName(),"speed-"+(flying?"fly":"walk"),target.getUuidAsString(),Integer.toString(level));
+        if(flying)SpeedControl.fly(target,level);else SpeedControl.walk(target,level);
+        return app.messages.send(source,"utility","feature","speed "+(flying?"fly":"walk")+" "+level,"player",target.getName().getString());
+    }
     public int resetSpeed(ServerCommandSource source,ServerPlayerEntity target) throws IOException {
         if(source.getEntity()!=target&&!app.permissions.has(source,"speed.others"))return app.messages.error(source,"denied");
         app.data().audit(source.getName(),"speed-reset",target.getUuidAsString(),"");
-        target.getAbilities().setWalkSpeed(.1f);target.getAbilities().setFlySpeed(.05f);target.sendAbilitiesUpdate();
+        SpeedControl.reset(target);
         return app.messages.send(source,"utility","feature","speed reset","player",target.getName().getString());
     }
     public int light(ServerPlayerEntity player) {
