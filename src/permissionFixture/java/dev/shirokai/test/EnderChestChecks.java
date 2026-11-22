@@ -247,6 +247,12 @@ public final class EnderChestChecks implements DedicatedServerModInitializer {
     }
 
     private void cosmeticChecks(MinecraftServer server, ShirokaiEssentials app, Player p, Player other, net.luckperms.api.model.user.User user) throws Exception {
+        var wingPacket=new dev.zorykai.cosmetics.protocol.WingsPayload(p.getUuid(),"stars");
+        var buffer=new net.minecraft.network.RegistryByteBuf(io.netty.buffer.Unpooled.buffer(),server.getRegistryManager());
+        dev.zorykai.cosmetics.protocol.WingsPayload.CODEC.encode(buffer,wingPacket);
+        check("3d payload roundtrip",wingPacket.equals(dev.zorykai.cosmetics.protocol.WingsPayload.CODEC.decode(buffer)));buffer.release();
+        check("3d protocol rejects unknown model identifiers",!dev.zorykai.cosmetics.protocol.WingsPayload.validStyle("../../texture"));
+        check("3d remove payload supported",new dev.zorykai.cosmetics.protocol.WingsPayload(p.getUuid(),"").style().isEmpty());
         var svc=app.cosmetics;
         user.data().clear();user.getCachedData().invalidate();p.closeHandledScreen();p.getInventory().clear();
         check("cosmetics command denied without grant",execute(server,p.getCommandSource(),"cosmeticos")==0);

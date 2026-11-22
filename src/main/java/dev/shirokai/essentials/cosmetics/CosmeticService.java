@@ -22,6 +22,7 @@ import java.util.*;
 /** Server-thread-only visuals: no inventory edits, potion effects, damage or flight. */
 public final class CosmeticService {
     private final ShirokaiEssentials app;
+    private final CosmeticModels models=new CosmeticModels();
     private CosmeticSettings config=new CosmeticSettings();
     private final Map<UUID,DataStore.PlayerData> selected=new HashMap<>();
     private final Map<UUID,Vec3d> previous=new HashMap<>();
@@ -38,6 +39,7 @@ public final class CosmeticService {
     public LocalDate today() { return LocalDate.now(ZoneId.of(config.timezone)); }
     public void initialize() throws IOException {
         config=CosmeticSettings.load(app.configDir.resolve("cosmetics.json"));
+        models.initialize();
         CommandRegistrationCallback.EVENT.register((dispatcher,access,environment)->{
             dispatcher.register(CommandManager.literal("cosmeticos")
                 .requires(s->s.isExecutedByPlayer()&&app.permissions.has(s,"cosmetics.use"))
@@ -80,11 +82,11 @@ public final class CosmeticService {
             entrances.put(p.getUuid(),ticks+40);
         });
         ServerPlayConnectionEvents.DISCONNECT.register((handler,server)->{
-            var p=handler.player;releaseTeam(p);selected.remove(p.getUuid());previous.remove(p.getUuid());worlds.remove(p.getUuid());entrances.remove(p.getUuid());lastCelebration.remove(p.getUuid());lastTrail.remove(p.getUuid());pendingTeleports.remove(p.getUuid());
+            var p=handler.player;models.disconnect(p.getUuid());releaseTeam(p);selected.remove(p.getUuid());previous.remove(p.getUuid());worlds.remove(p.getUuid());entrances.remove(p.getUuid());lastCelebration.remove(p.getUuid());lastTrail.remove(p.getUuid());pendingTeleports.remove(p.getUuid());
         });
         ServerTickEvents.END_SERVER_TICK.register(this::tick);
         ServerLifecycleEvents.SERVER_STOPPING.register(server->{for(var p:server.getPlayerManager().getPlayerList())releaseTeam(p);});
-        ServerLifecycleEvents.SERVER_STOPPED.register(server->{selected.clear();previous.clear();worlds.clear();entrances.clear();ownedTeams.clear();lastCelebration.clear();lastTrail.clear();pendingTeleports.clear();});
+        ServerLifecycleEvents.SERVER_STOPPED.register(server->{models.clear();selected.clear();previous.clear();worlds.clear();entrances.clear();ownedTeams.clear();lastCelebration.clear();lastTrail.clear();pendingTeleports.clear();});
     }
     private final Map<UUID,Vec3d> pendingTeleports=new HashMap<>();
     public void teleported(ServerPlayerEntity p) {if(selected.containsKey(p.getUuid()))pendingTeleports.put(p.getUuid(),p.getPos());}
@@ -131,7 +133,12 @@ public final class CosmeticService {
     }
     private void remember(ServerPlayerEntity p) {previous.put(p.getUuid(),p.getPos());worlds.put(p.getUuid(),p.getServerWorld().getRegistryKey().getValue().toString());}
     private void tick(MinecraftServer server) {
-        ticks++;globalBudget=config.maxParticlesPerTick;
+        ticks++;
+        if(ticks%5==0)models.sync(server,p->{
+            if(!visible(p)||p.hasVehicle()||p.isSwimming()||p.isFallFlying())return "";
+            var wing=equipped(p,"wings");return wing==null?"":wing.style();
+        },p->{var selected=this.selected.get(p.getUuid());return selected!=null&&selected.cosmeticsHidden;});
+        globalBudget=config.maxParticlesPerTick;
         var players=server.getPlayerManager().getPlayerList();
         if(players.isEmpty())return;
         // Rotate priority so a busy server cannot permanently starve the last players.
@@ -206,7 +213,7 @@ public final class CosmeticService {
                 double[][] outline={{.14,.66},{.32,.78},{.52,.9},{.76,.98},{1.0,1.04},{1.26,1.08},{1.16,.9},{1.04,.73},{.94,.6},{.86,.7},{.72,.49},{.64,.59},{.49,.4},{.4,.52},{.25,.44},{.14,.57}};
                 for(int side:new int[]{-1,1})for(var point:outline) {
                     double x=side*point[0],back=.3+Math.sin(phase)*.04*point[0];
-                    attached(p,e.style(),origin.add(Math.cos(yaw)*x+Math.sin(yaw)*back,point[1]*p.getHeight(),Math.sin(yaw)*x-Math.cos(yaw)*back));
+                    attached(p,e.style(),origin.add(Math.cos(yaw)*x+Math.sin(yaw)*back,point[1]*p.getHeight(),Math.sin(yaw)*x-Math.cos(yaw)*back),true);
                 }
             }
         }
@@ -214,7 +221,8 @@ public final class CosmeticService {
     /** Vanilla dust scale 0.095 has a 1–3 tick maxAge in MC 1.21.1's AbstractDustParticle.
      * Refresh wings no faster than four ticks. No invented lifetime field in particle packets.
      */
-    private void attached(ServerPlayerEntity p,String style,Vec3d pos) {
+    private void attached(ServerPlayerEntity p,String style,Vec3d pos) {attached(p,style,pos,false);}
+    private void attached(ServerPlayerEntity p,String style,Vec3d pos,boolean wing) {
         Vector3f color=switch(style) {
             case "fire" -> new Vector3f(1,.35f,.08f);
             case "water" -> new Vector3f(.15f,.65f,1);
@@ -224,16 +232,18 @@ public final class CosmeticService {
             case "heart" -> new Vector3f(1,.35f,.6f);
             default -> new Vector3f(.75f,1,1);
         };
-        emit(p,new DustParticleEffect(color,.095f),pos);
+        emit(p,new DustParticleEffect(color,.095f),pos,wing);
     }
     private static SimpleParticleType particle(String style) {
         return switch(style) {case "fire"->ParticleTypes.FLAME;case "water"->ParticleTypes.SPLASH;case "nature"->ParticleTypes.HAPPY_VILLAGER;case "electric"->ParticleTypes.ELECTRIC_SPARK;case "soul"->ParticleTypes.SOUL;case "snow"->ParticleTypes.SNOWFLAKE;case "heart"->ParticleTypes.HEART;default->ParticleTypes.END_ROD;};
     }
     private void emit(ServerPlayerEntity p,String style,Vec3d pos) {emit(p,particle(style),pos);}
-    private void emit(ServerPlayerEntity p,ParticleEffect effect,Vec3d pos) {
+    private void emit(ServerPlayerEntity p,ParticleEffect effect,Vec3d pos) {emit(p,effect,pos,false);}
+    private void emit(ServerPlayerEntity p,ParticleEffect effect,Vec3d pos,boolean wing) {
         if(globalBudget<=0||playerBudget<=0)return;
         globalBudget--;playerBudget--;
         for(var viewer:p.getServerWorld().getPlayers()) {
+            if(wing&&models.supports(viewer))continue;
             var state=selected.get(viewer.getUuid());
             if(state!=null&&state.cosmeticsHidden)continue; // personal opt-out also hides other players' effects
             if(viewer.getPos().squaredDistanceTo(pos)<=config.viewDistance*config.viewDistance)

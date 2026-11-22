@@ -1,0 +1,35 @@
+plugins { id 'fabric-loom' version '1.9.2' }
+version = '0.1.0-test.1'
+group = 'dev.zorykai'
+base { archivesName='zorykai-cosmetics-client' }
+repositories { mavenCentral() }
+dependencies {
+    minecraft 'com.mojang:minecraft:1.21.1'
+    mappings 'net.fabricmc:yarn:1.21.1+build.3:v2'
+    modImplementation 'net.fabricmc:fabric-loader:0.16.14'
+    modImplementation 'net.fabricmc.fabric-api:fabric-api:0.116.7+1.21.1'
+}
+sourceSets.main.java { srcDir '../src/main/java'; include 'dev/zorykai/cosmetics/**' }
+java { toolchain.languageVersion=JavaLanguageVersion.of(21); withSourcesJar() }
+tasks.withType(JavaCompile).configureEach { options.release=21; options.encoding='UTF-8' }
+processResources { inputs.property 'version',project.version; filesMatching('fabric.mod.json') {expand version:project.version} }
+
+// Disposable visual test automation, never bundled with the client mod.
+sourceSets {
+    visualFixture {
+        compileClasspath += sourceSets.main.compileClasspath + sourceSets.main.output
+        runtimeClasspath += sourceSets.main.runtimeClasspath
+    }
+}
+tasks.register('visualFixtureJar', Jar) {
+    dependsOn visualFixtureClasses
+    archiveBaseName='zorykai-cosmetics-visual-checks'
+    archiveClassifier='dev'
+    from sourceSets.visualFixture.output
+}
+tasks.register('remapVisualFixtureJar', net.fabricmc.loom.task.RemapJarTask) {
+    dependsOn visualFixtureJar
+    inputFile=tasks.visualFixtureJar.archiveFile
+    archiveBaseName='zorykai-cosmetics-visual-checks'
+    archiveClassifier=''
+}

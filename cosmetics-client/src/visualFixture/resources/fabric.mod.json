@@ -1,0 +1,1 @@
+{"schemaVersion":1,"id":"zorykai_cosmetics_visual_checks","version":"1","environment":"client","entrypoints":{"client":["dev.zorykai.cosmetics.test.VisualChecks"]},"depends":{"zorykai_cosmetics_client":"*"}}

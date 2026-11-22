@@ -1,0 +1,58 @@
+{
+  "clientVersion": "0.1.0-test.1",
+  "clientSha256": "4e2eaee6236a5093b07e21ab8bd4fe188634af0255faaee83c9800c7304e7fac",
+  "serverVersion": "0.6.2-guard.1",
+  "serverSha256": "907bb9e8847c79b8b9a39dcb7112256ce94a4a4f23fe311fd7a671ff58caec55",
+  "checks": [
+    {
+      "passed": true,
+      "name": "menu available at step 30"
+    },
+    {
+      "passed": true,
+      "name": "menu available at step 40"
+    },
+    {
+      "passed": true,
+      "name": "initial server selection received"
+    },
+    {
+      "passed": true,
+      "name": "selection retained while moving"
+    },
+    {
+      "passed": true,
+      "name": "model selection retained while crouching"
+    },
+    {
+      "passed": true,
+      "name": "menu available at step 230"
+    },
+    {
+      "passed": true,
+      "name": "menu available at step 240"
+    },
+    {
+      "passed": true,
+      "name": "fire selected through separate wings submenu"
+    },
+    {
+      "passed": true,
+      "name": "disable removes client model"
+    },
+    {
+      "passed": true,
+      "name": "menu available at step 350"
+    },
+    {
+      "passed": true,
+      "name": "resume restores saved fire model"
+    }
+  ],
+  "rendering": "Minecraft 1.21.1 real graphical client, Fabric 0.17.2, software OpenGL on local Xorg dummy display",
+  "limits": [
+    "One connected graphical client; no simultaneous second graphical viewer.",
+    "Client visual run did not include Cobblemon or shaders.",
+    "One original angel geometry with six palettes. Additional wing types not implemented."
+  ]
+}

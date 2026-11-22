@@ -1,0 +1,6 @@
+{
+  "schemaVersion":1,"id":"zorykai_cosmetics_client","version":"${version}",
+  "name":"Zorykai Cosmetics — 3D Test","description":"Asas 3D opcionais para o menu de cosméticos do Essentials.",
+  "environment":"client","entrypoints":{"client":["dev.zorykai.cosmetics.client.CosmeticsClient"]},
+  "license":"MIT","depends":{"fabricloader":">=0.16.14","minecraft":"1.21.1","java":">=21","fabric-api":"*"}
+}

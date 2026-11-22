@@ -1,11 +1,11 @@
 {
-  "version": "0.6.1-guard.1",
+  "version": "0.6.2-guard.1",
   "artifacts": {
-    "shirokai-essentials-0.6.1-guard.1.jar": "d01fb841043d88660a7f43b20a6d0f79d089c630f24d7911862dea2eada27205",
-    "shirokai-essentials-0.6.1-guard.1-zorykai-visual.jar": "0bfe8449be85f3700e5457172c709923ddd42a59b26486f02ff023273b48da06"
+    "shirokai-essentials-0.6.2-guard.1.jar": "c4be362d75bb4f0b1d24b0f6adbe5fc509c1da4d2c9588fc073dbf830062d0d6",
+    "shirokai-essentials-0.6.2-guard.1-zorykai-visual.jar": "907bb9e8847c79b8b9a39dcb7112256ce94a4a4f23fe311fd7a671ff58caec55"
   },
   "unitPassed": 62,
-  "nativePassed": 224,
+  "nativePassed": 230,
   "unitSuites": [
     {
       "suite": "dev.shirokai.essentials.ConflictsTest",
@@ -55,10 +55,10 @@
   "nativeSuites": [
     {
       "suite": "without-cobblemon",
-      "artifactSha256": "0bfe8449be85f3700e5457172c709923ddd42a59b26486f02ff023273b48da06",
-      "passed": 111,
+      "artifactSha256": "907bb9e8847c79b8b9a39dcb7112256ce94a4a4f23fe311fd7a671ff58caec55",
+      "passed": 114,
       "mods": {
-        "shirokai_essentials": "0.6.1-guard.1",
+        "shirokai_essentials": "0.6.2-guard.1",
         "essentials_permission_checks": "1",
         "fabric-api": "0.116.7+1.21.1",
         "luckperms": "5.4.140"
@@ -349,6 +349,18 @@
           "passed": true
         },
         {
+          "name": "3d payload roundtrip",
+          "passed": true
+        },
+        {
+          "name": "3d protocol rejects unknown model identifiers",
+          "passed": true
+        },
+        {
+          "name": "3d remove payload supported",
+          "passed": true
+        },
+        {
           "name": "cosmetics command denied without grant",
           "passed": true
         },
@@ -512,10 +524,10 @@
     },
     {
       "suite": "with-cobblemon-raids-guard",
-      "artifactSha256": "0bfe8449be85f3700e5457172c709923ddd42a59b26486f02ff023273b48da06",
-      "passed": 113,
+      "artifactSha256": "907bb9e8847c79b8b9a39dcb7112256ce94a4a4f23fe311fd7a671ff58caec55",
+      "passed": 116,
       "mods": {
-        "shirokai_essentials": "0.6.1-guard.1",
+        "shirokai_essentials": "0.6.2-guard.1",
         "impactor": "5.3.5+1.21.1",
         "cobblemon": "1.8.3+1.21.1",
         "shirokai_raids": "0.1.25-returnspawn.1",
@@ -807,6 +819,18 @@
         },
         {
           "name": "revoked trash access returns items",
+          "passed": true
+        },
+        {
+          "name": "3d payload roundtrip",
+          "passed": true
+        },
+        {
+          "name": "3d protocol rejects unknown model identifiers",
+          "passed": true
+        },
+        {
+          "name": "3d remove payload supported",
           "passed": true
         },
         {

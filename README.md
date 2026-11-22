@@ -141,3 +141,7 @@ A integração de `/raid entrar` usa a API anterior e continua independente.
 ## Cosméticos (0.6.1-guard.1)
 
 `/cosmeticos`: categorias em menus separados, opções por permissão, coleções, sazonais e efeitos de movimento/eventos. [Configuração, permissões e limites](docs/cosmetics/README.md).
+
+## Teste de asas 3D
+
+Cliente opcional com asa de anjo e integração ao menu: [instalação, modelo Blockbench e capturas](cosmetics-client/README.md). Servidor 0.6.2-guard.1 e cliente 0.1.0-test.1.
