@@ -2,13 +2,16 @@
 
 Mod **Minecraft Java 1.21.1 / Fabric / Java 21, somente servidor**. A linha 0.2 acrescenta chat, correio offline, AFK, informações, utilidades, administração, moderação, kits e migração ao núcleo de homes/warps/spawn/teleporte da 0.1.0.
 
-## Entrada paga de área (0.6.13)
+## Área XP paga e temporizada (0.6.14)
 
-O módulo opcional registra `/xp entrar` para cobrar uma única entrada pelo Impactor e teleportar ao warp configurado. Ele não volta a cobrar homes, spawn, kits ou outros warps. Configure `config/shirokai-essentials/paid-access.json`, crie os warps `xp` e `xp_saida`, e proteja a região no Guard:
+O módulo opcional registra `/areaxp entrar`. Uma compra concede duas horas por padrão; o relógio só corre dentro da região. O jogador pode sair e voltar sem pagar enquanto possuir saldo e deve comprar outra sessão quando ele acabar. Configure `config/shirokai-essentials/paid-access.json`, crie os warps `xp` (dentro da região) e `xp_saida` (fora), e use uma única região do Guard:
 
 ```mcfunction
 /sg flag farm_xp entry-mode command-only
-/sg entry-command farm_xp add xp entrar
+/sg entry-command farm_xp add areaxp entrar
+/sg flag farm_xp entity-interact allow
+/sg flag farm_xp pokemon-interact allow
+/sg flag farm_xp pokemon-battle allow
 ```
 
 Exemplo de configuração:
@@ -19,14 +22,22 @@ Exemplo de configuração:
   "enabled": true,
   "entranceWarp": "xp",
   "exitWarp": "xp_saida",
+  "region": "farm_xp",
+  "dimension": "minecraft:overworld",
   "currency": "impactor:dollars",
-  "price": "1000"
+  "price": "1000",
+  "sessionSeconds": 7200,
+  "checkpointSeconds": 15,
+  "pauseOnExit": true,
+  "exitOnExpire": true
 }
 ```
 
-O débito é salvo no Impactor antes do teleporte. Se o destino for recusado após o débito, o mod tenta devolver o valor. Resposta econômica ou reembolso incerto preserva uma pendência e bloqueia nova cobrança; confira o saldo e use `/xp admin clear <jogador>` somente depois da conciliação manual. Permissões: `shirokai.essentials.xp` e `shirokai.essentials.xp.admin`.
+No Shirokai Trainers 0.3.5, use a mesma região em `config/shirokai_trainers/xp-regions.json` com `"multiplier": 2.0`. O jogador e o NPC precisam estar dentro de `farm_xp` quando a batalha começa. Esse multiplicador é de XP de Pokémon em batalhas do Trainers; não altera XP vanilla nem batalhas selvagens.
 
-O projeto segue [a especificação fornecida](docs/ESPECIFICACAO.txt), com as limitações descritas abaixo. Não usa Bukkit, Paper, Spigot ou Vault. Homes, spawn, warps comuns, teleportes e kits continuam gratuitos. A única cobrança opcional é a entrada isolada de `/xp entrar`, quando habilitada explicitamente, usando a economia do Impactor.
+O débito é salvo no Impactor antes do teleporte. Se o destino for recusado após o débito, o mod tenta devolver o valor. Resposta econômica ou reembolso incerto preserva uma pendência e bloqueia nova cobrança; confira o saldo e use `/areaxp admin clear <jogador>` somente depois da conciliação manual. `/areaxp tempo` mostra o saldo. Permissões: `shirokai.essentials.areaxp` e `shirokai.essentials.areaxp.admin`.
+
+O projeto segue [a especificação fornecida](docs/ESPECIFICACAO.txt), com as limitações descritas abaixo. Não usa Bukkit, Paper, Spigot ou Vault. Homes, spawn, warps comuns, teleportes e kits continuam gratuitos. A única cobrança opcional é a entrada isolada de `/areaxp entrar`, quando habilitada explicitamente, usando a economia do Impactor.
 
 ## Novas utilidades 0.5.0-guard.1
 
@@ -87,7 +98,7 @@ Integração opcional com **Shirokai-tab/Core 0.18.0-dev**: apelidos, AFK, prote
 | Kits | Captura do inventário, JSON de itens com data components 1.21.1, prévia somente leitura, entrega integral, cooldown, recibos e recuperação sem reenvio automático |
 | Migração | Importador NBT do **Essential Commands 0.35.2**, com dry-run, conflitos, hashes, backups e aplicação sem sobrescrita |
 
-O Essentials não registra `/balance`, `/bal`, `/money`, `/pay`, `/baltop` ou `/eco` e não cobra por homes, spawn, warps comuns, teleportes ou kits. O módulo opcional `/xp entrar` consulta e debita somente a moeda configurada no Impactor. Use os comandos do Impactor para administrar saldos.
+O Essentials não registra `/balance`, `/bal`, `/money`, `/pay`, `/baltop` ou `/eco` e não cobra por homes, spawn, warps comuns, teleportes ou kits. O módulo opcional `/areaxp entrar` consulta e debita somente a moeda configurada no Impactor. Use os comandos do Impactor para administrar saldos.
 
 ## Configurar
 

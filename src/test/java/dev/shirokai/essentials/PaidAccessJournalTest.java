@@ -25,4 +25,11 @@ class PaidAccessJournalTest {
         store.update(id,p->{p.pendingPaidAccess="";p.pendingPaidAccessAmount="";p.pendingPaidAccessCurrency="";});
         store.evict(id);assertTrue(store.player(id).pendingPaidAccess.isBlank());
     }
+
+    @Test void remainingAreaTimeSurvivesEvictionAndReload() throws Exception {
+        var id=UUID.randomUUID();var store=new DataStore(dir);
+        store.update(id,p->p.paidAccessRemainingMillis=7_125_000L);
+        store.evict(id);
+        assertEquals(7_125_000L,store.player(id).paidAccessRemainingMillis);
+    }
 }

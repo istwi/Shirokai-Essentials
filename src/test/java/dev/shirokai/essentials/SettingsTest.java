@@ -14,9 +14,9 @@ class SettingsTest {
         var s = Settings.load(dir);
         assertTrue(s.command("home")); assertFalse(s.module("economy"));
         assertFalse(s.feature("motd_auto")); assertFalse(s.feature("afk_auto"));
-        assertFalse(s.paidAccess.enabled);assertFalse(s.command("xp"));
-        assertTrue(JsonFiles.GSON.fromJson(Files.readString(dir.resolve("commands.json")),Settings.Commands.class).commands.containsKey("xp"));
-        assertTrue(JsonFiles.GSON.fromJson(Files.readString(dir.resolve("permissions.json")),Settings.Permissions.class).defaults.containsKey("xp"));
+        assertFalse(s.paidAccess.enabled);assertFalse(s.command("areaxp"));
+        assertTrue(JsonFiles.GSON.fromJson(Files.readString(dir.resolve("commands.json")),Settings.Commands.class).commands.containsKey("areaxp"));
+        assertTrue(JsonFiles.GSON.fromJson(Files.readString(dir.resolve("permissions.json")),Settings.Permissions.class).defaults.containsKey("areaxp"));
         try (var files = Files.list(dir)) { assertEquals(16, files.count()); }
     }
     @Test void disabledModuleDisablesAllItsCommands() throws Exception {
@@ -29,7 +29,8 @@ class SettingsTest {
     @Test void paidAccessIsOptInAndValidatesPriceAndDestinationNames() throws Exception {
         var s=Settings.load(dir);s.paidAccess.enabled=true;s.paidAccess.price="2500.50";
         JsonFiles.write(dir.resolve("paid-access.json"),s.paidAccess);s=Settings.load(dir);
-        assertTrue(s.command("xp"));assertEquals("impactor:dollars",s.paidAccess.currency);
+        assertTrue(s.command("areaxp"));assertEquals("impactor:dollars",s.paidAccess.currency);
+        assertEquals("farm_xp",s.paidAccess.region);assertEquals(7200,s.paidAccess.sessionSeconds);
         s.paidAccess.price="-1";JsonFiles.write(dir.resolve("paid-access.json"),s.paidAccess);
         assertThrows(IOException.class,()->Settings.load(dir));
     }

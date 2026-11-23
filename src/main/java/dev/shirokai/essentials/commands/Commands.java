@@ -57,10 +57,11 @@ public final class Commands {
     private LiteralArgumentBuilder<ServerCommandSource> build(String cmd, String root) {
         var b = literal(root);
         return switch (cmd) {
-            case "xp" -> b.executes(action(cmd,c->app.paidAccess.status(c.getSource().getPlayerOrThrow())))
+            case "areaxp" -> b.executes(action(cmd,c->app.paidAccess.status(c.getSource().getPlayerOrThrow())))
                 .then(literal("entrar").executes(action(cmd,c->app.paidAccess.enter(c.getSource().getPlayerOrThrow()))))
                 .then(literal("sair").executes(action(cmd,c->app.paidAccess.exit(c.getSource().getPlayerOrThrow()))))
-                .then(literal("admin").requires(s->app.permissions.has(s,"xp.admin"))
+                .then(literal("tempo").executes(action(cmd,c->app.paidAccess.status(c.getSource().getPlayerOrThrow()))))
+                .then(literal("admin").requires(s->app.permissions.has(s,"areaxp.admin"))
                     .then(literal("clear").then(argument("player",EntityArgumentType.player()).executes(action(cmd,c->
                         app.paidAccess.clearPending(c.getSource().getPlayerOrThrow(),EntityArgumentType.getPlayer(c,"player")))))));
             case "home" -> b.executes(action(cmd, c -> home(c, app.settings().homes.defaultHome)))

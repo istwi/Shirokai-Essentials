@@ -20,7 +20,7 @@ public final class Settings {
         for (String name : List.of("sudo", "time", "weather")) map.put(name, "administration");
         for (String name : List.of("kick", "ban", "tempban", "unban", "mute", "tempmute", "unmute", "warn", "warnings", "clearwarnings", "setjail", "deljail", "jail", "unjail", "freeze")) map.put(name, "moderation");
         for (String name : List.of("kit", "kits", "createkit", "delkit", "showkit", "resetkit", "kitrecover")) map.put(name, "kits");
-        map.put("xp", "core");
+        map.put("areaxp", "core");
         map.put("ecimport", "core");
         map.put("shirokaiessentials", "core");
         COMMAND_MODULE = Collections.unmodifiableMap(map);
@@ -68,7 +68,7 @@ public final class Settings {
         public Map<String, Integer> homeLimits = new LinkedHashMap<>(Map.of("vip", 10, "admin", 100));
         public Map<String, Boolean> defaults = new LinkedHashMap<>();
         public Permissions() {
-            for (String s : List.of("home", "homes", "sethome", "delhome", "renamehome", "warp", "warps", "spawn", "tpa", "tpahere", "tpaccept", "tpdeny", "tpacancel", "tpatoggle", "back", "msg", "tell", "whisper", "r", "reply", "ignore", "unignore", "mail", "msgtoggle", "afk", "help", "rules", "motd", "info", "list", "realname", "seen", "ping", "kit", "kits", "showkit", "xp")) defaults.put(s, true);
+            for (String s : List.of("home", "homes", "sethome", "delhome", "renamehome", "warp", "warps", "spawn", "tpa", "tpahere", "tpaccept", "tpdeny", "tpacancel", "tpatoggle", "back", "msg", "tell", "whisper", "r", "reply", "ignore", "unignore", "mail", "msgtoggle", "afk", "help", "rules", "motd", "info", "list", "realname", "seen", "ping", "kit", "kits", "showkit", "areaxp")) defaults.put(s, true);
         }
     }
     public static class Teleport {
@@ -88,7 +88,10 @@ public final class Settings {
         public int schemaVersion = 1;
         public boolean enabled = false;
         public String entranceWarp = "xp", exitWarp = "xp_saida";
+        public String region = "farm_xp", dimension = "minecraft:overworld";
         public String currency = "impactor:dollars", price = "1000";
+        public int sessionSeconds = 7200, checkpointSeconds = 15;
+        public boolean pauseOnExit = true, exitOnExpire = true;
     }
     public static class Disabled { public int schemaVersion = 1; public boolean enabled = false; public String status = "Não implementado nesta versão; não ativar."; }
     public static class Messages {
@@ -126,10 +129,14 @@ public final class Settings {
             messages.put("paid_access_pending", "Pagamento pendente de conferência. Informe o ID {id} à administração.");
             messages.put("paid_access_processing", "Processando pagamento de {price} em {currency}. Aguarde.");
             messages.put("paid_access_denied", "Pagamento recusado: {reason}. Nenhum acesso foi liberado.");
-            messages.put("paid_access_success", "Pagamento confirmado. Entrada liberada.");
+            messages.put("paid_access_success", "Pagamento confirmado. Você recebeu {time} de acesso à área XP.");
             messages.put("paid_access_refunded", "O teleporte falhou e o valor foi devolvido.");
             messages.put("paid_access_uncertain", "Operação incerta. Não tente novamente; informe o ID {id} à administração.");
-            messages.put("paid_access_status", "Entrada custa {price} em {currency}. Destino: {warp}.");
+            messages.put("paid_access_status", "Área XP: {time} restantes. Nova sessão custa {price} em {currency}. Destino: {warp}.");
+            messages.put("paid_access_time", "Entrada liberada com seu saldo atual: {time} restantes.");
+            messages.put("paid_access_expired", "Seu tempo na área XP acabou. Para entrar novamente, compre uma nova sessão.");
+            messages.put("paid_access_guard", "O Shirokai Guard não está disponível; a entrada foi bloqueada com segurança.");
+            messages.put("paid_access_region", "O warp de entrada não está dentro da região XP configurada.");
             messages.put("paid_access_cleared", "Pendência {id} removida após conferência administrativa.");
         }
     }
@@ -166,8 +173,9 @@ public final class Settings {
             s.permissions.defaults.keySet().removeIf(key -> key.equals(command) || key.startsWith(command + "."));
         }
         // Additive schema-1 upgrade: retain every explicit flag and add descriptions for new settings.
-        boolean addedPaidCommand=s.commands.commands.putIfAbsent("xp", new Commands().commands.get("xp"))==null;
-        boolean addedPaidPermission=s.permissions.defaults.putIfAbsent("xp", true)==null;
+        s.commands.commands.remove("xp");s.permissions.defaults.remove("xp");s.conflicts.commands.remove("xp");
+        boolean addedPaidCommand=s.commands.commands.putIfAbsent("areaxp", new Commands().commands.get("areaxp"))==null;
+        boolean addedPaidPermission=s.permissions.defaults.putIfAbsent("areaxp", true)==null;
         if(addedPaidCommand)JsonFiles.write(commandPath,s.commands);
         if(addedPaidPermission)JsonFiles.write(permissionsPath,s.permissions);
         Set<String> newModules=Set.of("chat","utilities","administration","moderation","kits");
@@ -216,7 +224,7 @@ public final class Settings {
         Command c = commands.commands.get(name);
         if (c == null || !c.enabled || !module(COMMAND_MODULE.getOrDefault(name, "missing"))) return false;
         return switch (name) {
-            case "xp" -> paidAccess.enabled;
+            case "areaxp" -> paidAccess.enabled;
             case "msg", "tell", "whisper", "r", "reply", "msgtoggle" -> feature("private_messages");
             case "mute", "tempmute", "unmute" -> feature("moderation_chat");
             case "freeze" -> feature("moderation_freeze");
@@ -234,7 +242,7 @@ public final class Settings {
     public static boolean validName(String name) { return name != null && name.matches("[a-zA-Z0-9_-]{1,32}"); }
     private void validate() {
         if (chat.schemaVersion != 1 || utilities.schemaVersion != 1 || moderation.schemaVersion != 1 || kits.schemaVersion != 1 || integrations.schemaVersion != 1 || paidAccess.schemaVersion != 1) throw new IllegalArgumentException("Schema de módulo não suportado");
-        if (!validName(paidAccess.entranceWarp) || !validName(paidAccess.exitWarp) || paidAccess.currency == null || !paidAccess.currency.matches("[a-z0-9_.-]+:[a-z0-9_./-]+")) throw new IllegalArgumentException("Acesso pago inválido");
+        if (!validName(paidAccess.entranceWarp) || !validName(paidAccess.exitWarp) || !paidAccess.region.matches("[a-z0-9_-]{1,64}") || paidAccess.region.equals("__global__") || !paidAccess.dimension.matches("[a-z0-9_.-]+:[a-z0-9_./-]+") || paidAccess.currency == null || !paidAccess.currency.matches("[a-z0-9_.-]+:[a-z0-9_./-]+") || paidAccess.sessionSeconds<1 || paidAccess.sessionSeconds>31536000 || paidAccess.checkpointSeconds<1 || paidAccess.checkpointSeconds>300) throw new IllegalArgumentException("Acesso pago inválido");
         try { if (new java.math.BigDecimal(paidAccess.price).signum() < 0) throw new IllegalArgumentException("Preço negativo"); }
         catch (NumberFormatException e) { throw new IllegalArgumentException("Preço do acesso pago inválido"); }
         if (chat.maxMessageLength < 1 || chat.maxMessageLength > 4096 || chat.mailboxLimit < 1 || chat.mailboxLimit > 1000 || chat.mailCooldownSeconds < 1 || chat.afkSeconds < 10 || moderation.warningLimit < 1 || moderation.warningLimit > 1000 || moderation.maxReasonLength < 1 || moderation.maxReasonLength > 4096 || !Double.isFinite(moderation.jailRadius) || moderation.jailRadius < 1 || moderation.jailRadius > 100) throw new IllegalArgumentException("Limites de módulos inválidos");

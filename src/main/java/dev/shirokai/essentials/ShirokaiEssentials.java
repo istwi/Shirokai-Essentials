@@ -24,7 +24,7 @@ import java.nio.file.Path;
 import java.util.*;
 
 public final class ShirokaiEssentials implements DedicatedServerModInitializer {
-    public static final String VERSION = "0.6.13-paid-access.1";
+    public static final String VERSION = "0.6.14-paid-xp-time.1";
     public static final Logger LOGGER = LoggerFactory.getLogger("shirokai_essentials");
     private static ShirokaiEssentials INSTANCE;
     public static ShirokaiEssentials instance() { return INSTANCE; }
@@ -77,13 +77,14 @@ public final class ShirokaiEssentials implements DedicatedServerModInitializer {
             try { conflicts.report(configDir.resolve("conflicts-report.json")); } catch (IOException e) { LOGGER.error("Falha no relatório de conflitos", e); }
             LOGGER.info("Shirokai Essentials iniciado. Módulos: {}. Integrações: {}", activeModules(), integrations());
         });
+        ServerLifecycleEvents.SERVER_STOPPING.register(server -> paidAccess.stop());
         ServerLifecycleEvents.SERVER_STOPPED.register(server -> { dev.shirokai.essentials.api.EssentialsBridge.clear(); teleports.clear(); chat.clear(); utilities.clear(); data = null; currentServer=null; INSTANCE=null; });
         ServerPlayConnectionEvents.JOIN.register((handler,sender,server)->{
             var p=handler.player;
             try {
                 boolean first=!data().player(p.getUuid()).joined&&!java.nio.file.Files.exists(server.getSavePath(WorldSavePath.PLAYERDATA).resolve(p.getUuidAsString()+".dat"));
                 if(settings.module("chat")||settings.module("moderation")||settings.module("kits"))data().seen(p.getUuid(),p.getName().getString(),System.currentTimeMillis());
-                utilities.join(p); moderation.join(p); chat.join(p,first); kits.join(p,first);
+                utilities.join(p); moderation.join(p); chat.join(p,first); kits.join(p,first); paidAccess.join(p);
                 if(!data().player(p.getUuid()).joined)data().update(p.getUuid(),d->d.joined=true);
             } catch(IOException e) { LOGGER.error("Falha ao carregar jogador; login interrompido",e);p.networkHandler.disconnect(messages.text("storage_error")); }
         });
@@ -92,6 +93,7 @@ public final class ShirokaiEssentials implements DedicatedServerModInitializer {
             if(data!=null){try{if(data.profile(p.getUuidAsString()).isPresent())data.seen(p.getUuid(),p.getName().getString(),System.currentTimeMillis());}catch(IOException e){LOGGER.error("Falha ao atualizar último acesso",e);}data.evict(p.getUuid());}
         });
         if(settings.module("chat")||settings.module("moderation"))ServerTickEvents.END_SERVER_TICK.register(server->{chat.tick(server);moderation.tick(server);});
+        ServerTickEvents.END_SERVER_TICK.register(paidAccess::tick);
         if(settings.module("utilities")&&settings.feature("god_mode"))ServerLivingEntityEvents.ALLOW_DAMAGE.register((entity,source,amount)->!(entity instanceof ServerPlayerEntity p)||!utilities.god(p));
         if(settings.module("moderation")&&settings.feature("moderation_chat"))net.fabricmc.fabric.api.message.v1.ServerMessageEvents.ALLOW_CHAT_MESSAGE.register((message,p,params)->dev.shirokai.essentials.api.EssentialsBridge.ownsChat()||moderation.canSpeak(p));
         if(settings.module("chat"))net.fabricmc.fabric.api.message.v1.ServerMessageEvents.ALLOW_CHAT_MESSAGE.register((message,p,params)->{

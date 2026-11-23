@@ -24,6 +24,7 @@ public final class DataStore {
         public Map<String, Long> kitCooldowns = new TreeMap<>();
         public Set<String> claimedKits = new HashSet<>();
         public String pendingPaidAccess = "", pendingPaidAccessAmount = "", pendingPaidAccessCurrency = "";
+        public long paidAccessRemainingMillis;
     }
     public static class CosmeticPreferences {
         public int speed = 2, size = 2, density = 2, direction = 1;
@@ -55,7 +56,7 @@ public final class DataStore {
         validate(world); indexNames();
     }
     private static void validate(PlayerData p) throws IOException {
-        if (p.schemaVersion != 2 || p.cosmetics == null || p.cosmetics.size() > 20 || p.cosmetics.entrySet().stream().anyMatch(e -> e.getKey()==null || e.getValue()==null) || p.cosmeticPreferences == null || p.cosmeticPreferences.speed<1 || p.cosmeticPreferences.speed>3 || p.cosmeticPreferences.size<1 || p.cosmeticPreferences.size>3 || p.cosmeticPreferences.density<1 || p.cosmeticPreferences.density>3 || Math.abs(p.cosmeticPreferences.direction)!=1 || p.ignored == null || p.mail == null || p.mail.size() > 1000 || p.nickname == null || p.pendingKit == null || p.pendingPaidAccess == null || p.pendingPaidAccessAmount == null || p.pendingPaidAccessCurrency == null || p.pendingPaidAccess.length()>64 || p.kitCooldowns == null || p.claimedKits == null || p.homes == null || p.homes.size() > 10000 || p.homes.entrySet().stream().anyMatch(e -> !dev.shirokai.essentials.config.Settings.validName(e.getKey()) || e.getValue() == null)) throw new IOException("Dados de jogador inválidos; arquivo preservado");
+        if (p.schemaVersion != 2 || p.cosmetics == null || p.cosmetics.size() > 20 || p.cosmetics.entrySet().stream().anyMatch(e -> e.getKey()==null || e.getValue()==null) || p.cosmeticPreferences == null || p.cosmeticPreferences.speed<1 || p.cosmeticPreferences.speed>3 || p.cosmeticPreferences.size<1 || p.cosmeticPreferences.size>3 || p.cosmeticPreferences.density<1 || p.cosmeticPreferences.density>3 || Math.abs(p.cosmeticPreferences.direction)!=1 || p.ignored == null || p.mail == null || p.mail.size() > 1000 || p.nickname == null || p.pendingKit == null || p.pendingPaidAccess == null || p.pendingPaidAccessAmount == null || p.pendingPaidAccessCurrency == null || p.pendingPaidAccess.length()>64 || p.paidAccessRemainingMillis<0 || p.paidAccessRemainingMillis>31536000000L || p.kitCooldowns == null || p.claimedKits == null || p.homes == null || p.homes.size() > 10000 || p.homes.entrySet().stream().anyMatch(e -> !dev.shirokai.essentials.config.Settings.validName(e.getKey()) || e.getValue() == null)) throw new IOException("Dados de jogador inválidos; arquivo preservado");
     }
     private static void validate(WorldData w) throws IOException {
         if (w.schemaVersion != 2 || w.profiles == null || w.jails == null || w.warps == null || w.spawns == null || w.warps.entrySet().stream().anyMatch(e -> !dev.shirokai.essentials.config.Settings.validName(e.getKey()) || e.getValue() == null || e.getValue().position == null) || w.spawns.containsValue(null)) throw new IOException("Dados globais inválidos; arquivo preservado");
