@@ -57,6 +57,12 @@ public final class Commands {
     private LiteralArgumentBuilder<ServerCommandSource> build(String cmd, String root) {
         var b = literal(root);
         return switch (cmd) {
+            case "xp" -> b.executes(action(cmd,c->app.paidAccess.status(c.getSource().getPlayerOrThrow())))
+                .then(literal("entrar").executes(action(cmd,c->app.paidAccess.enter(c.getSource().getPlayerOrThrow()))))
+                .then(literal("sair").executes(action(cmd,c->app.paidAccess.exit(c.getSource().getPlayerOrThrow()))))
+                .then(literal("admin").requires(s->app.permissions.has(s,"xp.admin"))
+                    .then(literal("clear").then(argument("player",EntityArgumentType.player()).executes(action(cmd,c->
+                        app.paidAccess.clearPending(c.getSource().getPlayerOrThrow(),EntityArgumentType.getPlayer(c,"player")))))));
             case "home" -> b.executes(action(cmd, c -> home(c, app.settings().homes.defaultHome)))
                 .then(argument("name", StringArgumentType.word()).suggests((c,s) -> { try { app.data().player(c.getSource().getPlayerOrThrow().getUuid()).homes.keySet().forEach(s::suggest); } catch (IOException e) { ShirokaiEssentials.LOGGER.error("Falha ao sugerir homes", e); } return s.buildFuture(); }).executes(action(cmd, c -> home(c, name(c)))));
             case "homes" -> b.executes(action(cmd, c -> m.send(c.getSource(), "list", "names", String.join(", ", app.data().player(c.getSource().getPlayerOrThrow().getUuid()).homes.keySet()))));

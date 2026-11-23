@@ -18,7 +18,9 @@
     "fabric-api": "*"
   },
   "suggests": {
-    "luckperms": "*"
+    "luckperms": "*",
+    "impactor": "*",
+    "shirokai_guard": "*"
   },
   "mixins": [
     "shirokai-essentials.mixins.json"

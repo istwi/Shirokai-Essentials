@@ -14,7 +14,10 @@ class SettingsTest {
         var s = Settings.load(dir);
         assertTrue(s.command("home")); assertFalse(s.module("economy"));
         assertFalse(s.feature("motd_auto")); assertFalse(s.feature("afk_auto"));
-        try (var files = Files.list(dir)) { assertEquals(15, files.count()); }
+        assertFalse(s.paidAccess.enabled);assertFalse(s.command("xp"));
+        assertTrue(JsonFiles.GSON.fromJson(Files.readString(dir.resolve("commands.json")),Settings.Commands.class).commands.containsKey("xp"));
+        assertTrue(JsonFiles.GSON.fromJson(Files.readString(dir.resolve("permissions.json")),Settings.Permissions.class).defaults.containsKey("xp"));
+        try (var files = Files.list(dir)) { assertEquals(16, files.count()); }
     }
     @Test void disabledModuleDisablesAllItsCommands() throws Exception {
         var s = Settings.load(dir); s.modules.modules.put("homes", false);
@@ -22,6 +25,13 @@ class SettingsTest {
         s = Settings.load(dir);
         for (String c : new String[]{"home","homes","sethome","delhome","renamehome"}) assertFalse(s.command(c));
         assertTrue(s.command("spawn"));
+    }
+    @Test void paidAccessIsOptInAndValidatesPriceAndDestinationNames() throws Exception {
+        var s=Settings.load(dir);s.paidAccess.enabled=true;s.paidAccess.price="2500.50";
+        JsonFiles.write(dir.resolve("paid-access.json"),s.paidAccess);s=Settings.load(dir);
+        assertTrue(s.command("xp"));assertEquals("impactor:dollars",s.paidAccess.currency);
+        s.paidAccess.price="-1";JsonFiles.write(dir.resolve("paid-access.json"),s.paidAccess);
+        assertThrows(IOException.class,()->Settings.load(dir));
     }
     @Test void rejectsUnsupportedSchemaAndDoesNotOverwrite() throws Exception {
         Settings.load(dir); Path file = dir.resolve("teleport.json");

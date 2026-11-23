@@ -24,7 +24,7 @@ import java.nio.file.Path;
 import java.util.*;
 
 public final class ShirokaiEssentials implements DedicatedServerModInitializer {
-    public static final String VERSION = "0.6.12-teleport-speed.1";
+    public static final String VERSION = "0.6.13-paid-access.1";
     public static final Logger LOGGER = LoggerFactory.getLogger("shirokai_essentials");
     private static ShirokaiEssentials INSTANCE;
     public static ShirokaiEssentials instance() { return INSTANCE; }
@@ -33,6 +33,7 @@ public final class ShirokaiEssentials implements DedicatedServerModInitializer {
     public final dev.shirokai.essentials.moderation.ModerationService moderation = new dev.shirokai.essentials.moderation.ModerationService(this);
     public final dev.shirokai.essentials.utilities.UtilityService utilities = new dev.shirokai.essentials.utilities.UtilityService(this);
     public final dev.shirokai.essentials.kits.KitService kits = new dev.shirokai.essentials.kits.KitService(this);
+    public final dev.shirokai.essentials.paidaccess.PaidAccessService paidAccess = new dev.shirokai.essentials.paidaccess.PaidAccessService(this);
     public final dev.shirokai.essentials.integrations.BattleGuard battles = new dev.shirokai.essentials.integrations.BattleGuard(this);
     public final dev.shirokai.essentials.migrations.EssentialImporter migrations = new dev.shirokai.essentials.migrations.EssentialImporter(this);
     public Path configDir;
@@ -87,7 +88,7 @@ public final class ShirokaiEssentials implements DedicatedServerModInitializer {
             } catch(IOException e) { LOGGER.error("Falha ao carregar jogador; login interrompido",e);p.networkHandler.disconnect(messages.text("storage_error")); }
         });
         ServerPlayConnectionEvents.DISCONNECT.register((handler,server)->{
-            var p=handler.player;teleports.disconnect(p.getUuid());chat.disconnect(p.getUuid());utilities.disconnect(p.getUuid());kits.disconnect(p.getUuid());
+            var p=handler.player;teleports.disconnect(p.getUuid());paidAccess.disconnect(p.getUuid());chat.disconnect(p.getUuid());utilities.disconnect(p.getUuid());kits.disconnect(p.getUuid());
             if(data!=null){try{if(data.profile(p.getUuidAsString()).isPresent())data.seen(p.getUuid(),p.getName().getString(),System.currentTimeMillis());}catch(IOException e){LOGGER.error("Falha ao atualizar último acesso",e);}data.evict(p.getUuid());}
         });
         if(settings.module("chat")||settings.module("moderation"))ServerTickEvents.END_SERVER_TICK.register(server->{chat.tick(server);moderation.tick(server);});

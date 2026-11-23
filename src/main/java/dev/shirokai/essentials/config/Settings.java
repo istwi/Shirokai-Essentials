@@ -20,6 +20,7 @@ public final class Settings {
         for (String name : List.of("sudo", "time", "weather")) map.put(name, "administration");
         for (String name : List.of("kick", "ban", "tempban", "unban", "mute", "tempmute", "unmute", "warn", "warnings", "clearwarnings", "setjail", "deljail", "jail", "unjail", "freeze")) map.put(name, "moderation");
         for (String name : List.of("kit", "kits", "createkit", "delkit", "showkit", "resetkit", "kitrecover")) map.put(name, "kits");
+        map.put("xp", "core");
         map.put("ecimport", "core");
         map.put("shirokaiessentials", "core");
         COMMAND_MODULE = Collections.unmodifiableMap(map);
@@ -67,7 +68,7 @@ public final class Settings {
         public Map<String, Integer> homeLimits = new LinkedHashMap<>(Map.of("vip", 10, "admin", 100));
         public Map<String, Boolean> defaults = new LinkedHashMap<>();
         public Permissions() {
-            for (String s : List.of("home", "homes", "sethome", "delhome", "renamehome", "warp", "warps", "spawn", "tpa", "tpahere", "tpaccept", "tpdeny", "tpacancel", "tpatoggle", "back", "msg", "tell", "whisper", "r", "reply", "ignore", "unignore", "mail", "msgtoggle", "afk", "help", "rules", "motd", "info", "list", "realname", "seen", "ping", "kit", "kits", "showkit")) defaults.put(s, true);
+            for (String s : List.of("home", "homes", "sethome", "delhome", "renamehome", "warp", "warps", "spawn", "tpa", "tpahere", "tpaccept", "tpdeny", "tpacancel", "tpatoggle", "back", "msg", "tell", "whisper", "r", "reply", "ignore", "unignore", "mail", "msgtoggle", "afk", "help", "rules", "motd", "info", "list", "realname", "seen", "ping", "kit", "kits", "showkit", "xp")) defaults.put(s, true);
         }
     }
     public static class Teleport {
@@ -83,6 +84,12 @@ public final class Settings {
     public static class Homes { public int schemaVersion = 1; public String defaultHome = "home"; public List<String> blockedWorlds = new ArrayList<>(); }
     public static class Warps { public int schemaVersion = 1; public boolean individualPermissions = false; }
     public static class Spawn { public int schemaVersion = 1; public boolean perWorld = false; }
+    public static class PaidAccess {
+        public int schemaVersion = 1;
+        public boolean enabled = false;
+        public String entranceWarp = "xp", exitWarp = "xp_saida";
+        public String currency = "impactor:dollars", price = "1000";
+    }
     public static class Disabled { public int schemaVersion = 1; public boolean enabled = false; public String status = "Não implementado nesta versão; não ativar."; }
     public static class Messages {
         public int schemaVersion = 1;
@@ -115,10 +122,19 @@ public final class Settings {
             messages.put("reload", "Configurações dinâmicas recarregadas. Alterações em módulos, funcionalidades, comandos, aliases e políticas de conflito exigem reinício.");
             messages.put("reload_error", "Configuração inválida. A configuração anterior foi mantida; consulte o log.");
             messages.put("report", "Relatório salvo em {path}.");
+            messages.put("paid_access_disabled", "A entrada paga está desativada.");
+            messages.put("paid_access_pending", "Pagamento pendente de conferência. Informe o ID {id} à administração.");
+            messages.put("paid_access_processing", "Processando pagamento de {price} em {currency}. Aguarde.");
+            messages.put("paid_access_denied", "Pagamento recusado: {reason}. Nenhum acesso foi liberado.");
+            messages.put("paid_access_success", "Pagamento confirmado. Entrada liberada.");
+            messages.put("paid_access_refunded", "O teleporte falhou e o valor foi devolvido.");
+            messages.put("paid_access_uncertain", "Operação incerta. Não tente novamente; informe o ID {id} à administração.");
+            messages.put("paid_access_status", "Entrada custa {price} em {currency}. Destino: {warp}.");
+            messages.put("paid_access_cleared", "Pendência {id} removida após conferência administrativa.");
         }
     }
     public General general; public Modules modules; public Commands commands; public Conflicts conflicts;
-    public Permissions permissions; public Teleport teleport; public Homes homes; public Warps warps; public Spawn spawn; public Messages messages;
+    public Permissions permissions; public Teleport teleport; public Homes homes; public Warps warps; public Spawn spawn; public PaidAccess paidAccess; public Messages messages;
     public MoreSettings.Chat chat; public MoreSettings.Utilities utilities; public MoreSettings.Moderation moderation; public MoreSettings.Kits kits; public MoreSettings.Integrations integrations;
     public static Settings load(Path dir) throws IOException {
         Settings s = new Settings();
@@ -128,11 +144,13 @@ public final class Settings {
         s.commands = JsonFiles.read(commandPath, Commands.class, new Commands());
         boolean migrateUtilityAliases = !com.google.gson.JsonParser.parseString(java.nio.file.Files.readString(commandPath)).getAsJsonObject().has("utilityAliasesVersion");
         s.conflicts = JsonFiles.read(dir.resolve("conflicts.json"), Conflicts.class, new Conflicts());
-        s.permissions = JsonFiles.read(dir.resolve("permissions.json"), Permissions.class, new Permissions());
+        var permissionsPath = dir.resolve("permissions.json");
+        s.permissions = JsonFiles.read(permissionsPath, Permissions.class, new Permissions());
         s.teleport = JsonFiles.read(dir.resolve("teleport.json"), Teleport.class, new Teleport());
         s.homes = JsonFiles.read(dir.resolve("homes.json"), Homes.class, new Homes());
         s.warps = JsonFiles.read(dir.resolve("warps.json"), Warps.class, new Warps());
         s.spawn = JsonFiles.read(dir.resolve("spawn.json"), Spawn.class, new Spawn());
+        s.paidAccess = JsonFiles.read(dir.resolve("paid-access.json"), PaidAccess.class, new PaidAccess());
         s.messages = JsonFiles.read(dir.resolve("messages.json"), Messages.class, new Messages());
         s.chat = JsonFiles.read(dir.resolve("chat.json"), MoreSettings.Chat.class, new MoreSettings.Chat());
         s.utilities = JsonFiles.read(dir.resolve("utilities.json"), MoreSettings.Utilities.class, new MoreSettings.Utilities());
@@ -148,6 +166,10 @@ public final class Settings {
             s.permissions.defaults.keySet().removeIf(key -> key.equals(command) || key.startsWith(command + "."));
         }
         // Additive schema-1 upgrade: retain every explicit flag and add descriptions for new settings.
+        boolean addedPaidCommand=s.commands.commands.putIfAbsent("xp", new Commands().commands.get("xp"))==null;
+        boolean addedPaidPermission=s.permissions.defaults.putIfAbsent("xp", true)==null;
+        if(addedPaidCommand)JsonFiles.write(commandPath,s.commands);
+        if(addedPaidPermission)JsonFiles.write(permissionsPath,s.permissions);
         Set<String> newModules=Set.of("chat","utilities","administration","moderation","kits");
         new Commands().commands.forEach((k,v)->{if(newModules.contains(COMMAND_MODULE.get(k))||k.equals("ecimport"))s.commands.commands.putIfAbsent(k,v);});
         Set<String> newFeatures=Set.of("private_messages","mail","socialspy","nicknames","afk_manual","fly","god_mode","kit_cooldowns","moderation_chat","moderation_freeze","moderation_jail","moderation_warnings","first_join_messages");
@@ -194,6 +216,7 @@ public final class Settings {
         Command c = commands.commands.get(name);
         if (c == null || !c.enabled || !module(COMMAND_MODULE.getOrDefault(name, "missing"))) return false;
         return switch (name) {
+            case "xp" -> paidAccess.enabled;
             case "msg", "tell", "whisper", "r", "reply", "msgtoggle" -> feature("private_messages");
             case "mute", "tempmute", "unmute" -> feature("moderation_chat");
             case "freeze" -> feature("moderation_freeze");
@@ -210,7 +233,10 @@ public final class Settings {
     public boolean subcommand(String name) { return commands.adminSubcommands.getOrDefault(name, false); }
     public static boolean validName(String name) { return name != null && name.matches("[a-zA-Z0-9_-]{1,32}"); }
     private void validate() {
-        if (chat.schemaVersion != 1 || utilities.schemaVersion != 1 || moderation.schemaVersion != 1 || kits.schemaVersion != 1 || integrations.schemaVersion != 1) throw new IllegalArgumentException("Schema de módulo não suportado");
+        if (chat.schemaVersion != 1 || utilities.schemaVersion != 1 || moderation.schemaVersion != 1 || kits.schemaVersion != 1 || integrations.schemaVersion != 1 || paidAccess.schemaVersion != 1) throw new IllegalArgumentException("Schema de módulo não suportado");
+        if (!validName(paidAccess.entranceWarp) || !validName(paidAccess.exitWarp) || paidAccess.currency == null || !paidAccess.currency.matches("[a-z0-9_.-]+:[a-z0-9_./-]+")) throw new IllegalArgumentException("Acesso pago inválido");
+        try { if (new java.math.BigDecimal(paidAccess.price).signum() < 0) throw new IllegalArgumentException("Preço negativo"); }
+        catch (NumberFormatException e) { throw new IllegalArgumentException("Preço do acesso pago inválido"); }
         if (chat.maxMessageLength < 1 || chat.maxMessageLength > 4096 || chat.mailboxLimit < 1 || chat.mailboxLimit > 1000 || chat.mailCooldownSeconds < 1 || chat.afkSeconds < 10 || moderation.warningLimit < 1 || moderation.warningLimit > 1000 || moderation.maxReasonLength < 1 || moderation.maxReasonLength > 4096 || !Double.isFinite(moderation.jailRadius) || moderation.jailRadius < 1 || moderation.jailRadius > 100) throw new IllegalArgumentException("Limites de módulos inválidos");
         java.time.ZoneId.of(chat.timeZone);
         Objects.requireNonNull(chat.motd); Objects.requireNonNull(chat.rules); Objects.requireNonNull(chat.help); Objects.requireNonNull(chat.info);

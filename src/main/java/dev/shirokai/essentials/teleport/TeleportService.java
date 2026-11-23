@@ -37,6 +37,15 @@ public final class TeleportService {
     public void setBattleRestriction(java.util.function.Predicate<ServerPlayerEntity> predicate){battleRestriction=predicate;}
     public void setRestriction(java.util.function.Predicate<ServerPlayerEntity> predicate) { restriction=predicate; }
     public int systemTeleport(ServerPlayerEntity player, Position destination) throws IOException { return perform(player, destination, true); }
+    public UUID capturePaidEntry(ServerPlayerEntity player, Position destination) { return GuardTeleportAccess.capture(player,destination); }
+    public void revokePaidEntry(UUID token) { GuardTeleportAccess.revoke(token); }
+    public int paidEntryTeleport(ServerPlayerEntity player, Position destination, UUID guardToken) throws IOException {
+        if (pending.containsKey(player.getUuid()) || loading.containsKey(player.getUuid())) {
+            GuardTeleportAccess.revoke(guardToken);
+            return messages.error(player.getCommandSource(),"pending");
+        }
+        return perform(player,destination,false,guardToken);
+    }
     public boolean requestsEnabled() { return settings.get().module("teleport") && settings.get().feature("tpa_requests"); }
     public ServerWorld world(MinecraftServer server, Position p) { return server.getWorld(RegistryKey.of(RegistryKeys.WORLD, Identifier.of(p.dimension()))); }
     public boolean safe(MinecraftServer server, Position p) {
