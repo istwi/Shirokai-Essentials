@@ -24,7 +24,7 @@ import java.nio.file.Path;
 import java.util.*;
 
 public final class ShirokaiEssentials implements DedicatedServerModInitializer {
-    public static final String VERSION = "0.6.14-paid-xp-time.1";
+    public static final String VERSION = "0.6.15-core-cosmetics-compat.1";
     public static final Logger LOGGER = LoggerFactory.getLogger("shirokai_essentials");
     private static ShirokaiEssentials INSTANCE;
     public static ShirokaiEssentials instance() { return INSTANCE; }

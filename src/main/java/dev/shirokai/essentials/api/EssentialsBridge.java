@@ -9,6 +9,13 @@ public final class EssentialsBridge {
     private static Object owner;
     private static BiFunction<UUID,Map<String,String>,String> chat;
     private EssentialsBridge() {}
+    private static Object cosmeticsOwner;
+    public static int cosmeticsProtocol(){return 1;}
+    public static boolean coreCosmeticsAvailable(){return net.fabricmc.loader.api.FabricLoader.getInstance().isModLoaded("shirokai-core") && EssentialsBridge.class.getClassLoader().getResource("com/shirokai/core/cosmetics/CosmeticService.class")!=null;}
+    public static boolean ownsCosmetics(){return cosmeticsOwner!=null;}
+    public static void attachCosmetics(Object token){var a=app();if(cosmeticsOwner!=null&&cosmeticsOwner!=token)throw new IllegalStateException("Cosméticos já gerenciados");a.cosmetics.yieldToCore();cosmeticsOwner=Objects.requireNonNull(token);}
+    public static void detachCosmetics(Object token){app();if(cosmeticsOwner==token)cosmeticsOwner=null;}
+    public static boolean cosmeticsAllowed(UUID id,boolean suppressBattle){var a=app();var p=a.server().getPlayerManager().getPlayer(id);return p!=null&&!a.moderation.restricted(p)&&(!suppressBattle||!a.battles.blocked(p));}
     public static int protocol(){return 1;}
     private static ShirokaiEssentials app(){
         var app=ShirokaiEssentials.instance();
@@ -21,7 +28,7 @@ public final class EssentialsBridge {
         owner=Objects.requireNonNull(token);chat=Objects.requireNonNull(router);
     }
     public static void detach(Object token){if(owner==token){owner=null;chat=null;}}
-    public static void clear(){owner=null;chat=null;}
+    public static void clear(){owner=null;chat=null;cosmeticsOwner=null;}
     public static boolean ownsChat(){return chat!=null;}
     public static String route(UUID player,Map<String,String> request){app();if(chat==null)throw new IllegalStateException("Core chat unavailable");return chat.apply(player,Map.copyOf(request));}
     /** Only already-loaded online profiles: this API never reads JSON while rendering. */
